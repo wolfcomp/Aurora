@@ -287,7 +287,7 @@ namespace Aurora
             }
         }
 
-        private static void SetupVolumeAsBrightness(object sender, PropertyChangedExEventArgs eventArgs)
+        private static void SetupVolumeAsBrightness(object sender, PropertyChangedEventArgs eventArgs)
         {
             if (eventArgs.PropertyName == nameof(Global.Configuration.UseVolumeAsBrightness))
             {
