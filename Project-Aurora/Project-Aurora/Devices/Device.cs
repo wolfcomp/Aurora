@@ -2093,6 +2093,42 @@ namespace Aurora.Devices
         /// </summary>
         [Description("Monitor Light 103")]
         MONITORLIGHT103 = 338,
+
+        /// <summary>
+        /// Mouse Light 1
+        /// </summary>
+        [Description("Mouse Light 1")]
+        MOUSELIGHT1 = 339,
+
+        /// <summary>
+        /// Mouse Light 1
+        /// </summary>
+        [Description("Mouse Light 2")]
+        MOUSELIGHT2 = 340,
+
+        /// <summary>
+        /// Mouse Light 1
+        /// </summary>
+        [Description("Mouse Light 3")]
+        MOUSELIGHT3 = 341,
+
+        /// <summary>
+        /// Mouse Light 1
+        /// </summary>
+        [Description("Mouse Light 4")]
+        MOUSELIGHT4 = 342,
+
+        /// <summary>
+        /// Mouse Light 1
+        /// </summary>
+        [Description("Mouse Light 5")]
+        MOUSELIGHT5 = 343,
+
+        /// <summary>
+        /// Mouse Light 1
+        /// </summary>
+        [Description("Mouse Light 6")]
+        MOUSELIGHT6 = 344,
     };
 
     /// <summary>

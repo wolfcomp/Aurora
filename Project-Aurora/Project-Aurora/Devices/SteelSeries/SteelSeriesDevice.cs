@@ -1,755 +1,139 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using Aurora.Settings;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
-using SteelSeries.GameSenseSDK;
-using System.ComponentModel;
+using Aurora.Utils;
 
 namespace Aurora.Devices.SteelSeries
 {
-    public enum SteelSeriesKeyCodes
+    public partial class SteelSeriesDevice : Device
     {
-        LOGO = 0x00,
-        SS_KEY = 0xEF,
-        G0 = 0xE8,
-        G1 = 0xE9,
-        G2 = 0xEA,
-        G3 = 0xEB,
-        G4 = 0xEC,
-        G5 = 0xED,
-    };
-
-    class SteelSeriesDevice : Device
-    {
-        private String devicename = "SteelSeries";
-        private bool isInitialized = false;
-
-        private GameSenseSDK gameSenseSDK = new GameSenseSDK();
-
-        private bool keyboard_updated = false;
-        private bool peripheral_updated = false;
-
-        private readonly object action_lock = new object();
-
-        private Stopwatch watch = new Stopwatch();
-        private Stopwatch keepaliveTimer = new Stopwatch();
-        private long lastUpdateTime = 0;
-
-        //Previous data
-        private Color previous_peripheral_Color = Color.Black;
-
-        public bool Initialize()
-        {
-            lock (action_lock)
-            {
-                if (!isInitialized)
-                {
-                    try
-                    {
-                        gameSenseSDK.init("PROJECTAURORA", "Project Aurora", 7);
-
-                        if (Global.Configuration.steelseries_first_time)
-                        {
-                            App.Current.Dispatcher.Invoke(() =>
-                            {
-                                SteelSeriesInstallInstructions instructions = new SteelSeriesInstallInstructions();
-                                instructions.ShowDialog();
-                            });
-                            Global.Configuration.steelseries_first_time = false;
-                            Settings.ConfigManager.Save(Global.Configuration);
-                        }
-                        isInitialized = true;
-                        return true;
-                    }
-                    catch (Exception ex)
-                    {
-                        Global.logger.Error("SteelSeries GameSense SDK could not be initialized: " + ex);
-
-                        isInitialized = false;
-                        return false;
-                    }
-                }
-
-                return isInitialized;
-            }
-        }
-
-        public void Shutdown()
-        {
-            lock (action_lock)
-            {
-                try
-                {
-                    if (isInitialized)
-                    {
-                        this.Reset();
-                        //GameSenseSDK.sendStop(); doesn't work atm so just wait for timeout=15sec
-                        isInitialized = false;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Global.logger.Error("There was an error shutting down SteelSeries GameSense SDK: " + ex);
-                    isInitialized = false;
-                }
-
-                if (keepaliveTimer.IsRunning)
-                    keepaliveTimer.Stop();
-            }
-        }
-
-        public string GetDeviceDetails()
-        {
-            if (isInitialized)
-            {
-                return devicename + ": Connected";
-            }
-            else
-            {
-                return devicename + ": Not initialized";
-            }
-        }
-
-        public string GetDeviceName()
-        {
-            return devicename;
-        }
-
-        public void Reset()
-        {
-            if (this.IsInitialized() && (keyboard_updated || peripheral_updated))
-            {
-                keyboard_updated = false;
-                peripheral_updated = false;
-            }
-        }
-
-        public bool Reconnect()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool IsConnected()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool IsInitialized()
-        {
-            return this.isInitialized;
-        }
-
-        public bool UpdateDevice(Dictionary<DeviceKeys, Color> keyColors, DoWorkEventArgs e, bool forced = false)
-        {
-            if (e.Cancel) return false;
-
-            try
-            {
-                // workaround for heartbeat/keepalive events every 10sec
-                SendKeepalive();
-
-                if (e.Cancel) return false;
-
-                List<byte> hids = new List<byte>();
-                List<Tuple<byte, byte, byte>> colors = new List<Tuple<byte, byte, byte>>();
-                List<Tuple<byte, byte, byte>> colorsMousepad = new List<Tuple<byte, byte, byte>>();
-                List<Tuple<byte, byte, byte>> colorsMsi = new List<Tuple<byte, byte, byte>>();
-                Tuple<byte, byte, byte>[] eightZone = new Tuple<byte, byte, byte>[8];
-                //Tuple<byte, byte, byte>[] colors_mousepad = new Tuple<byte, byte, byte>[12];
-
-                // Create a new color event, we'll pass this on to whatever should add to it
-
-                GameSensePayloadPeripheryColorEventJSON payload = new GameSensePayloadPeripheryColorEventJSON();
-                gameSenseSDK.setupEvent(payload);
-
-                foreach (KeyValuePair<DeviceKeys, Color> key in keyColors)
-                {
-
-
-                    if (e.Cancel) return false;
-                    //CorsairLedId localKey = ToCorsair(key.Key);
-
-                    Color color = (Color)key.Value;
-                    //Apply and strip Alpha
-                    color = Color.FromArgb(255,
-                        Utils.ColorUtils.MultiplyColorByScalar(color, color.A / 255.0D));
-
-                    if (e.Cancel) return false;
-
-                    switch (key.Key)
-                    {
-                        case DeviceKeys.Peripheral:
-                            SendColorToPeripheral(color, payload, forced);
-                            break;
-                        case DeviceKeys.Peripheral_Logo:
-                        case DeviceKeys.Peripheral_FrontLight:
-                        case DeviceKeys.Peripheral_ScrollWheel:
-                            SendColorToPeripheralZone(key.Key, color, payload);
-                            eightZone[key.Key == DeviceKeys.Peripheral_ScrollWheel ? 0 : 1] = Tuple.Create<byte, byte, byte>(color.R, color.G, color.B);
-                            break;
-                        case DeviceKeys.MOUSEPADLIGHT1:
-                        case DeviceKeys.MOUSEPADLIGHT2:
-                        case DeviceKeys.MOUSEPADLIGHT3:
-                        case DeviceKeys.MOUSEPADLIGHT4:
-                        case DeviceKeys.MOUSEPADLIGHT5:
-                        case DeviceKeys.MOUSEPADLIGHT6:
-                        case DeviceKeys.MOUSEPADLIGHT7:
-                        case DeviceKeys.MOUSEPADLIGHT8:
-                        case DeviceKeys.MOUSEPADLIGHT9:
-                        case DeviceKeys.MOUSEPADLIGHT10:
-                        case DeviceKeys.MOUSEPADLIGHT11:
-                        case DeviceKeys.MOUSEPADLIGHT12:
-                            colorsMousepad.Add(Tuple.Create(color.R, color.G, color.B));
-                            break;
-                        case DeviceKeys.ADDITIONALLIGHT27:
-                        case DeviceKeys.ADDITIONALLIGHT28:
-                        case DeviceKeys.ADDITIONALLIGHT29:
-                        case DeviceKeys.ADDITIONALLIGHT30:
-                        case DeviceKeys.ADDITIONALLIGHT31:
-                        case DeviceKeys.ADDITIONALLIGHT32:
-                            eightZone[(int)key.Key - 186] = Tuple.Create<byte, byte, byte>(color.R, color.G, color.B);
-                            break;
-                        case DeviceKeys.MONITORLIGHT1:
-                        case DeviceKeys.MONITORLIGHT2:
-                        case DeviceKeys.MONITORLIGHT3:
-                        case DeviceKeys.MONITORLIGHT4:
-                        case DeviceKeys.MONITORLIGHT5:
-                        case DeviceKeys.MONITORLIGHT6:
-                        case DeviceKeys.MONITORLIGHT7:
-                        case DeviceKeys.MONITORLIGHT8:
-                        case DeviceKeys.MONITORLIGHT9:
-                        case DeviceKeys.MONITORLIGHT10:
-                        case DeviceKeys.MONITORLIGHT11:
-                        case DeviceKeys.MONITORLIGHT12:
-                        case DeviceKeys.MONITORLIGHT13:
-                        case DeviceKeys.MONITORLIGHT14:
-                        case DeviceKeys.MONITORLIGHT15:
-                        case DeviceKeys.MONITORLIGHT16:
-                        case DeviceKeys.MONITORLIGHT17:
-                        case DeviceKeys.MONITORLIGHT18:
-                        case DeviceKeys.MONITORLIGHT19:
-                        case DeviceKeys.MONITORLIGHT20:
-                        case DeviceKeys.MONITORLIGHT21:
-                        case DeviceKeys.MONITORLIGHT22:
-                        case DeviceKeys.MONITORLIGHT23:
-                        case DeviceKeys.MONITORLIGHT24:
-                        case DeviceKeys.MONITORLIGHT25:
-                        case DeviceKeys.MONITORLIGHT26:
-                        case DeviceKeys.MONITORLIGHT27:
-                        case DeviceKeys.MONITORLIGHT28:
-                        case DeviceKeys.MONITORLIGHT29:
-                        case DeviceKeys.MONITORLIGHT30:
-                        case DeviceKeys.MONITORLIGHT31:
-                        case DeviceKeys.MONITORLIGHT32:
-                        case DeviceKeys.MONITORLIGHT33:
-                        case DeviceKeys.MONITORLIGHT34:
-                        case DeviceKeys.MONITORLIGHT35:
-                        case DeviceKeys.MONITORLIGHT36:
-                        case DeviceKeys.MONITORLIGHT37:
-                        case DeviceKeys.MONITORLIGHT38:
-                        case DeviceKeys.MONITORLIGHT39:
-                        case DeviceKeys.MONITORLIGHT40:
-                        case DeviceKeys.MONITORLIGHT41:
-                        case DeviceKeys.MONITORLIGHT42:
-                        case DeviceKeys.MONITORLIGHT43:
-                        case DeviceKeys.MONITORLIGHT44:
-                        case DeviceKeys.MONITORLIGHT45:
-                        case DeviceKeys.MONITORLIGHT46:
-                        case DeviceKeys.MONITORLIGHT47:
-                        case DeviceKeys.MONITORLIGHT48:
-                        case DeviceKeys.MONITORLIGHT49:
-                        case DeviceKeys.MONITORLIGHT50:
-                        case DeviceKeys.MONITORLIGHT51:
-                        case DeviceKeys.MONITORLIGHT52:
-                        case DeviceKeys.MONITORLIGHT53:
-                        case DeviceKeys.MONITORLIGHT54:
-                        case DeviceKeys.MONITORLIGHT55:
-                        case DeviceKeys.MONITORLIGHT56:
-                        case DeviceKeys.MONITORLIGHT57:
-                        case DeviceKeys.MONITORLIGHT58:
-                        case DeviceKeys.MONITORLIGHT59:
-                        case DeviceKeys.MONITORLIGHT60:
-                        case DeviceKeys.MONITORLIGHT61:
-                        case DeviceKeys.MONITORLIGHT62:
-                        case DeviceKeys.MONITORLIGHT63:
-                        case DeviceKeys.MONITORLIGHT64:
-                        case DeviceKeys.MONITORLIGHT65:
-                        case DeviceKeys.MONITORLIGHT66:
-                        case DeviceKeys.MONITORLIGHT67:
-                        case DeviceKeys.MONITORLIGHT68:
-                        case DeviceKeys.MONITORLIGHT69:
-                        case DeviceKeys.MONITORLIGHT70:
-                        case DeviceKeys.MONITORLIGHT71:
-                        case DeviceKeys.MONITORLIGHT72:
-                        case DeviceKeys.MONITORLIGHT73:
-                        case DeviceKeys.MONITORLIGHT74:
-                        case DeviceKeys.MONITORLIGHT75:
-                        case DeviceKeys.MONITORLIGHT76:
-                        case DeviceKeys.MONITORLIGHT77:
-                        case DeviceKeys.MONITORLIGHT78:
-                        case DeviceKeys.MONITORLIGHT79:
-                        case DeviceKeys.MONITORLIGHT80:
-                        case DeviceKeys.MONITORLIGHT81:
-                        case DeviceKeys.MONITORLIGHT82:
-                        case DeviceKeys.MONITORLIGHT83:
-                        case DeviceKeys.MONITORLIGHT84:
-                        case DeviceKeys.MONITORLIGHT85:
-                        case DeviceKeys.MONITORLIGHT86:
-                        case DeviceKeys.MONITORLIGHT87:
-                        case DeviceKeys.MONITORLIGHT88:
-                        case DeviceKeys.MONITORLIGHT89:
-                        case DeviceKeys.MONITORLIGHT90:
-                        case DeviceKeys.MONITORLIGHT91:
-                        case DeviceKeys.MONITORLIGHT92:
-                        case DeviceKeys.MONITORLIGHT93:
-                        case DeviceKeys.MONITORLIGHT94:
-                        case DeviceKeys.MONITORLIGHT95:
-                        case DeviceKeys.MONITORLIGHT96:
-                        case DeviceKeys.MONITORLIGHT97:
-                        case DeviceKeys.MONITORLIGHT98:
-                        case DeviceKeys.MONITORLIGHT99:
-                        case DeviceKeys.MONITORLIGHT100:
-                        case DeviceKeys.MONITORLIGHT101:
-                        case DeviceKeys.MONITORLIGHT102:
-                        case DeviceKeys.MONITORLIGHT103:
-                            colorsMsi.Add(Tuple.Create(color.R, color.G, color.B));
-                            break;
-                        default:
-                            byte hid = GetHIDCode(key.Key);
-
-                            if (hid != (byte)USBHIDCodes.ERROR)
-                            {
-                                hids.Add(hid);
-                                colors.Add(Tuple.Create(color.R, color.G, color.B));
-                            }
-                            break;
-                    }
-                }
-
-                if (e.Cancel) return false;
-
-                SendColorsToKeyboard(hids, colors, payload);
-                SendColorsToMousepad(colorsMousepad, payload);
-                SendColorsToScreen(colorsMsi, payload);
-
-                if(eightZone.All(t => t != null))
-                    gameSenseSDK.setMouseEightZone(eightZone, payload);
-                gameSenseSDK.sendFullColorRequest(payload);
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Global.logger.Error("SteelSeries GameSense SDK, error when updating device: " + ex);
-                return false;
-            }
-        }
-
-        public bool UpdateDevice(DeviceColorComposition colorComposition, DoWorkEventArgs e, bool forced = false)
-        {
-            watch.Restart();
-
-            bool update_result = UpdateDevice(colorComposition.keyColors, e, forced);
-
-            watch.Stop();
-            lastUpdateTime = watch.ElapsedMilliseconds;
-
-            return update_result;
-        }
-
-        public bool IsKeyboardConnected()
-        {
-            return isInitialized;
-        }
-
-        public bool IsPeripheralConnected()
-        {
-            return isInitialized;
-        }
-
-        public string GetDeviceUpdatePerformance()
-        {
-            return (isInitialized ? lastUpdateTime + " ms" : "");
-        }
+        Stopwatch watch = new Stopwatch();
+        object lock_obj = new object();
 
         public VariableRegistry GetRegisteredVariables()
         {
             return new VariableRegistry();
         }
 
-        private void SendColorToPeripheral(Color color, GameSensePayloadPeripheryColorEventJSON payload, bool forced = false)
+        public string GetDeviceName() => "SteelSeries";
+
+        public string GetDeviceDetails() => IsInitialized() ? GetDeviceName() + ": Connected" : GetDeviceName() + ": Not initialized";
+
+        public string GetDeviceUpdatePerformance()
         {
-            if ((!previous_peripheral_Color.Equals(color) || forced))
+            return (IsInitialized() ? watch.ElapsedMilliseconds + " ms" : "");
+        }
+
+        public bool Initialize()
+        {
+            lock (lock_obj)
             {
-                if (Global.Configuration.allow_peripheral_devices)
+                try
                 {
-                    if (!Global.Configuration.devices_disable_mouse && !Global.Configuration.devices_disable_headset)
+                    if (Global.Configuration.steelseries_first_time)
                     {
-                        gameSenseSDK.setPeripheryColor(color.R, color.G, color.B, payload);
+                        System.Windows.Application.Current.Dispatcher?.Invoke(() =>
+                        {
+                            SteelSeriesInstallInstructions instructions = new SteelSeriesInstallInstructions();
+                            instructions.ShowDialog();
+                        });
+                        Global.Configuration.steelseries_first_time = false;
+                        ConfigManager.Save(Global.Configuration);
                     }
+                    if (!baseObject.ContainsKey("game"))
+                    {
+                        baseObject.Add("game", "PROJECTAURORA");
+                        baseColorObject.Add("game", baseObject["game"]);
+                    }
+                    loadCoreProps();
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    Global.logger.Error("SteelSeries SDK could not be initialized: " + e);
+                    return false;
+                }
+            }
+        }
+
+        public void Shutdown()
+        {
+            lock (lock_obj)
+            {
+                pingTaskTokenSource.Cancel();
+                loadedLisp = false;
+            }
+        }
+
+        public void Reset()
+        {
+        }
+
+        public bool Reconnect() => true;
+
+        public bool IsInitialized() => loadedLisp;
+
+        public bool IsConnected() => loadedLisp;
+
+        public bool IsKeyboardConnected() => IsConnected();
+
+        public bool IsPeripheralConnected() => IsConnected();
+
+        public bool UpdateDevice(Dictionary<DeviceKeys, Color> keyColors, DoWorkEventArgs e, bool forced = false)
+        {
+            foreach (var (key, color) in keyColors)
+            {
+                if (TryGetHid(key, out var hid))
+                {
+                    setKeyboardLed(hid, color);
+                }
+            }
+            return true;
+        }
+
+        public bool UpdateDevice(DeviceColorComposition colorComposition, DoWorkEventArgs e, bool forced = false)
+        {
+            watch.Restart();
+            var keyColors = colorComposition.keyColors.ToDictionary(t => t.Key, t => ColorUtils.MultiplyColorByScalar(t.Value, t.Value.A / 255D));
+            if (!Global.Configuration.devices_disable_mouse || !Global.Configuration.devices_disable_headset)
+            {
+                if (!keyColors.ContainsKey(DeviceKeys.Peripheral))
+                {
+                    var mousePad = keyColors.Where(t => t.Key >= DeviceKeys.MOUSEPADLIGHT1 && t.Key <= DeviceKeys.MOUSEPADLIGHT12).Select(t => t.Value).ToArray();
+                    var tmpmouse = new List<Color> { keyColors[DeviceKeys.Peripheral_Logo], keyColors[DeviceKeys.Peripheral_ScrollWheel]};
+                    var mouse = tmpmouse.ToArray();
+                    tmpmouse.Clear();
+                    var monitor = keyColors.Where(t => t.Key >= DeviceKeys.MONITORLIGHT1 && t.Key <= DeviceKeys.MONITORLIGHT103).Select(t => t.Value).ToArray();
+                    if (mouse.Length <= 1)
+                        setMouse(keyColors[DeviceKeys.Peripheral_Logo]);
                     else
                     {
-                        if (!Global.Configuration.devices_disable_mouse)
-                        {
-                            gameSenseSDK.setMouseColor(color.R, color.G, color.B, payload);
-                        }
-
-                        if (!Global.Configuration.devices_disable_headset)
-                        {
-                            gameSenseSDK.setHeadsetColor(color.R, color.G, color.B, payload);
-                        }
+                        setLogo(keyColors[DeviceKeys.Peripheral_Logo]);
+                        setWheel(keyColors[DeviceKeys.Peripheral_ScrollWheel]);
+                        if (mouse.Length == 8)
+                            setEightZone(mouse);
                     }
-
-                    previous_peripheral_Color = color;
-                    peripheral_updated = true;
+                    if (mousePad.Length == 2)
+                        setTwoZone(mousePad);
+                    else
+                        setTwelveZone(mousePad);
+                    if (monitor.Length == 103)
+                        setHundredThreeZone(monitor);
                 }
                 else
-                {
-                    peripheral_updated = false;
-                }
+                    setGeneric(keyColors[DeviceKeys.Peripheral]);
             }
-        }
-
-        private void SendColorToPeripheralZone(DeviceKeys zone, Color color, GameSensePayloadPeripheryColorEventJSON payload)
-        {
-            if (Global.Configuration.allow_peripheral_devices && !Global.Configuration.devices_disable_mouse)
-            {
-                if (zone == DeviceKeys.Peripheral_Logo)
-                {
-                    gameSenseSDK.setMouseLogoColor(color.R, color.G, color.B, payload);
-                }
-                else if (zone == DeviceKeys.Peripheral_ScrollWheel)
-                {
-                    gameSenseSDK.setMouseScrollWheelColor(color.R, color.G, color.B, payload);
-                }
-                //else if (zone == DeviceKeys.Peripheral_FrontLight)
-                //{
-                //NYI
-                //Global.logger.Error("SteelSeries GameSense SDK: Unknown device zone Peripheral_FrontLight: " + zone);
-                //}
-                /*else if (zone == DeviceKeys.Peripheral_Earcups || zone == DeviceKeys.Peripheral_Headset)
-                {
-                    GameSenseSDK.setHeadsetColor(color.R, color.G, color.B);
-                }*/
-
-                peripheral_updated = true;
-            }
-            else
-            {
-                peripheral_updated = false;
-            }
-        }
-
-        private void SendColorsToScreen(List<Tuple<byte, byte, byte>> colorsScreen, GameSensePayloadPeripheryColorEventJSON payload)
-        {
-            if (colorsScreen.Count != 0)
-            {
-                gameSenseSDK.setHundredThreeZone(colorsScreen, payload);
-            }
-        }
-
-        private void SendColorsToKeyboard(List<byte> hids, List<Tuple<byte, byte, byte>> colors, GameSensePayloadPeripheryColorEventJSON payload)
-        {
             if (!Global.Configuration.devices_disable_keyboard)
             {
-                if (hids.Count != 0)
-                {
-                    gameSenseSDK.setKeyboardColors(hids, colors, payload);
-                }
-                keyboard_updated = true;
+                UpdateDevice(keyColors, e, forced);
             }
-            else
-            {
-                keyboard_updated = false;
-            }
+            sendLighting();
+            watch.Stop();
+            return true;
         }
-
-        private void SendColorsToMousepad(List<Tuple<byte, byte, byte>> colors_mousepad, GameSensePayloadPeripheryColorEventJSON payload)
-        {
-            // no globals exist for mousepads being enabled but if they aren't enabled colors_mousepad won't be intialized
-            if (colors_mousepad.Count != 0)
-            {
-                gameSenseSDK.setMousepadColor(colors_mousepad, payload);
-            }
-        }
-
-        private void SendKeepalive(bool forced = false)
-        {
-            // workaround for heartbeat/keepalive events every 10sec
-            if (!keepaliveTimer.IsRunning)
-                keepaliveTimer.Start();
-
-            if (keepaliveTimer.ElapsedMilliseconds > 10000 || forced)
-            {
-                gameSenseSDK.sendHeartbeat();
-                keepaliveTimer.Restart();
-            }
-        }
-
-        public static byte GetHIDCode(DeviceKeys key)
-        {
-
-            switch (key)
-            {
-                case (DeviceKeys.LOGO):
-                    return (byte)SteelSeriesKeyCodes.LOGO;
-                case (DeviceKeys.FN_Key):
-                    return (byte)SteelSeriesKeyCodes.SS_KEY;
-                case (DeviceKeys.G0):
-                    return (byte)SteelSeriesKeyCodes.G0;
-                case (DeviceKeys.G1):
-                    return (byte)SteelSeriesKeyCodes.G1;
-                case (DeviceKeys.G2):
-                    return (byte)SteelSeriesKeyCodes.G2;
-                case (DeviceKeys.G3):
-                    return (byte)SteelSeriesKeyCodes.G3;
-                case (DeviceKeys.G4):
-                    return (byte)SteelSeriesKeyCodes.G4;
-                case (DeviceKeys.G5):
-                    return (byte)SteelSeriesKeyCodes.G5;
-                case (DeviceKeys.ESC):
-                    return (byte)USBHIDCodes.ESC;
-                case (DeviceKeys.F1):
-                    return (byte)USBHIDCodes.F1;
-                case (DeviceKeys.F2):
-                    return (byte)USBHIDCodes.F2;
-                case (DeviceKeys.F3):
-                    return (byte)USBHIDCodes.F3;
-                case (DeviceKeys.F4):
-                    return (byte)USBHIDCodes.F4;
-                case (DeviceKeys.F5):
-                    return (byte)USBHIDCodes.F5;
-                case (DeviceKeys.F6):
-                    return (byte)USBHIDCodes.F6;
-                case (DeviceKeys.F7):
-                    return (byte)USBHIDCodes.F7;
-                case (DeviceKeys.F8):
-                    return (byte)USBHIDCodes.F8;
-                case (DeviceKeys.F9):
-                    return (byte)USBHIDCodes.F9;
-                case (DeviceKeys.F10):
-                    return (byte)USBHIDCodes.F10;
-                case (DeviceKeys.F11):
-                    return (byte)USBHIDCodes.F11;
-                case (DeviceKeys.F12):
-                    return (byte)USBHIDCodes.F12;
-                case (DeviceKeys.PRINT_SCREEN):
-                    return (byte)USBHIDCodes.PRINT_SCREEN;
-                case (DeviceKeys.SCROLL_LOCK):
-                    return (byte)USBHIDCodes.SCROLL_LOCK;
-                case (DeviceKeys.PAUSE_BREAK):
-                    return (byte)USBHIDCodes.PAUSE_BREAK;
-                case (DeviceKeys.JPN_HALFFULLWIDTH):
-                    return (byte)USBHIDCodes.TILDE;
-                case (DeviceKeys.OEM5):
-                    if (Global.kbLayout.Loaded_Localization == Settings.PreferredKeyboardLocalization.jpn)
-                        return (byte)USBHIDCodes.ERROR;
-                    else
-                        return (byte)USBHIDCodes.TILDE;
-                case (DeviceKeys.TILDE):
-                    return (byte)USBHIDCodes.TILDE;
-                case (DeviceKeys.ONE):
-                    return (byte)USBHIDCodes.ONE;
-                case (DeviceKeys.TWO):
-                    return (byte)USBHIDCodes.TWO;
-                case (DeviceKeys.THREE):
-                    return (byte)USBHIDCodes.THREE;
-                case (DeviceKeys.FOUR):
-                    return (byte)USBHIDCodes.FOUR;
-                case (DeviceKeys.FIVE):
-                    return (byte)USBHIDCodes.FIVE;
-                case (DeviceKeys.SIX):
-                    return (byte)USBHIDCodes.SIX;
-                case (DeviceKeys.SEVEN):
-                    return (byte)USBHIDCodes.SEVEN;
-                case (DeviceKeys.EIGHT):
-                    return (byte)USBHIDCodes.EIGHT;
-                case (DeviceKeys.NINE):
-                    return (byte)USBHIDCodes.NINE;
-                case (DeviceKeys.ZERO):
-                    return (byte)USBHIDCodes.ZERO;
-                case (DeviceKeys.MINUS):
-                    return (byte)USBHIDCodes.MINUS;
-                case (DeviceKeys.EQUALS):
-                    return (byte)USBHIDCodes.EQUALS;
-                case (DeviceKeys.BACKSPACE):
-                    return (byte)USBHIDCodes.BACKSPACE;
-                case (DeviceKeys.INSERT):
-                    return (byte)USBHIDCodes.INSERT;
-                case (DeviceKeys.HOME):
-                    return (byte)USBHIDCodes.HOME;
-                case (DeviceKeys.PAGE_UP):
-                    return (byte)USBHIDCodes.PAGE_UP;
-                case (DeviceKeys.NUM_LOCK):
-                    return (byte)USBHIDCodes.NUM_LOCK;
-                case (DeviceKeys.NUM_SLASH):
-                    return (byte)USBHIDCodes.NUM_SLASH;
-                case (DeviceKeys.NUM_ASTERISK):
-                    return (byte)USBHIDCodes.NUM_ASTERISK;
-                case (DeviceKeys.NUM_MINUS):
-                    return (byte)USBHIDCodes.NUM_MINUS;
-                case (DeviceKeys.TAB):
-                    return (byte)USBHIDCodes.TAB;
-                case (DeviceKeys.Q):
-                    return (byte)USBHIDCodes.Q;
-                case (DeviceKeys.W):
-                    return (byte)USBHIDCodes.W;
-                case (DeviceKeys.E):
-                    return (byte)USBHIDCodes.E;
-                case (DeviceKeys.R):
-                    return (byte)USBHIDCodes.R;
-                case (DeviceKeys.T):
-                    return (byte)USBHIDCodes.T;
-                case (DeviceKeys.Y):
-                    return (byte)USBHIDCodes.Y;
-                case (DeviceKeys.U):
-                    return (byte)USBHIDCodes.U;
-                case (DeviceKeys.I):
-                    return (byte)USBHIDCodes.I;
-                case (DeviceKeys.O):
-                    return (byte)USBHIDCodes.O;
-                case (DeviceKeys.P):
-                    return (byte)USBHIDCodes.P;
-                case (DeviceKeys.OPEN_BRACKET):
-                    return (byte)USBHIDCodes.OPEN_BRACKET;
-                case (DeviceKeys.CLOSE_BRACKET):
-                    return (byte)USBHIDCodes.CLOSE_BRACKET;
-                case (DeviceKeys.BACKSLASH):
-                    return (byte)USBHIDCodes.BACKSLASH;
-                case (DeviceKeys.DELETE):
-                    return (byte)USBHIDCodes.KEYBOARD_DELETE;
-                case (DeviceKeys.END):
-                    return (byte)USBHIDCodes.END;
-                case (DeviceKeys.PAGE_DOWN):
-                    return (byte)USBHIDCodes.PAGE_DOWN;
-                case (DeviceKeys.NUM_SEVEN):
-                    return (byte)USBHIDCodes.NUM_SEVEN;
-                case (DeviceKeys.NUM_EIGHT):
-                    return (byte)USBHIDCodes.NUM_EIGHT;
-                case (DeviceKeys.NUM_NINE):
-                    return (byte)USBHIDCodes.NUM_NINE;
-                case (DeviceKeys.NUM_PLUS):
-                    return (byte)USBHIDCodes.NUM_PLUS;
-                case (DeviceKeys.CAPS_LOCK):
-                    return (byte)USBHIDCodes.CAPS_LOCK;
-                case (DeviceKeys.A):
-                    return (byte)USBHIDCodes.A;
-                case (DeviceKeys.S):
-                    return (byte)USBHIDCodes.S;
-                case (DeviceKeys.D):
-                    return (byte)USBHIDCodes.D;
-                case (DeviceKeys.F):
-                    return (byte)USBHIDCodes.F;
-                case (DeviceKeys.G):
-                    return (byte)USBHIDCodes.G;
-                case (DeviceKeys.H):
-                    return (byte)USBHIDCodes.H;
-                case (DeviceKeys.J):
-                    return (byte)USBHIDCodes.J;
-                case (DeviceKeys.K):
-                    return (byte)USBHIDCodes.K;
-                case (DeviceKeys.L):
-                    return (byte)USBHIDCodes.L;
-                case (DeviceKeys.SEMICOLON):
-                    return (byte)USBHIDCodes.SEMICOLON;
-                case (DeviceKeys.APOSTROPHE):
-                    return (byte)USBHIDCodes.APOSTROPHE;
-                case (DeviceKeys.HASHTAG):
-                    return (byte)USBHIDCodes.HASHTAG;
-                case (DeviceKeys.ENTER):
-                    return (byte)USBHIDCodes.ENTER;
-                case (DeviceKeys.NUM_FOUR):
-                    return (byte)USBHIDCodes.NUM_FOUR;
-                case (DeviceKeys.NUM_FIVE):
-                    return (byte)USBHIDCodes.NUM_FIVE;
-                case (DeviceKeys.NUM_SIX):
-                    return (byte)USBHIDCodes.NUM_SIX;
-                case (DeviceKeys.LEFT_SHIFT):
-                    return (byte)USBHIDCodes.LEFT_SHIFT;
-                case (DeviceKeys.BACKSLASH_UK):
-                    if (Global.kbLayout.Loaded_Localization == Settings.PreferredKeyboardLocalization.jpn)
-                        return (byte)USBHIDCodes.ERROR;
-                    else
-                        return (byte)USBHIDCodes.BACKSLASH_UK;
-                case (DeviceKeys.Z):
-                    return (byte)USBHIDCodes.Z;
-                case (DeviceKeys.X):
-                    return (byte)USBHIDCodes.X;
-                case (DeviceKeys.C):
-                    return (byte)USBHIDCodes.C;
-                case (DeviceKeys.V):
-                    return (byte)USBHIDCodes.V;
-                case (DeviceKeys.B):
-                    return (byte)USBHIDCodes.B;
-                case (DeviceKeys.N):
-                    return (byte)USBHIDCodes.N;
-                case (DeviceKeys.M):
-                    return (byte)USBHIDCodes.M;
-                case (DeviceKeys.COMMA):
-                    return (byte)USBHIDCodes.COMMA;
-                case (DeviceKeys.PERIOD):
-                    return (byte)USBHIDCodes.PERIOD;
-                case (DeviceKeys.FORWARD_SLASH):
-                    return (byte)USBHIDCodes.FORWARD_SLASH;
-                case (DeviceKeys.OEM8):
-                    return (byte)USBHIDCodes.FORWARD_SLASH;
-                case (DeviceKeys.OEM102):
-                    return (byte)USBHIDCodes.ERROR;
-                case (DeviceKeys.RIGHT_SHIFT):
-                    return (byte)USBHIDCodes.RIGHT_SHIFT;
-                case (DeviceKeys.ARROW_UP):
-                    return (byte)USBHIDCodes.ARROW_UP;
-                case (DeviceKeys.NUM_ONE):
-                    return (byte)USBHIDCodes.NUM_ONE;
-                case (DeviceKeys.NUM_TWO):
-                    return (byte)USBHIDCodes.NUM_TWO;
-                case (DeviceKeys.NUM_THREE):
-                    return (byte)USBHIDCodes.NUM_THREE;
-                case (DeviceKeys.NUM_ENTER):
-                    return (byte)USBHIDCodes.NUM_ENTER;
-                case (DeviceKeys.LEFT_CONTROL):
-                    return (byte)USBHIDCodes.LEFT_CONTROL;
-                case (DeviceKeys.LEFT_WINDOWS):
-                    return (byte)USBHIDCodes.LEFT_WINDOWS;
-                case (DeviceKeys.LEFT_ALT):
-                    return (byte)USBHIDCodes.LEFT_ALT;
-                case (DeviceKeys.JPN_MUHENKAN):
-                    return (byte)USBHIDCodes.JPN_MUHENKAN;
-                case (DeviceKeys.SPACE):
-                    return (byte)USBHIDCodes.SPACE;
-                case (DeviceKeys.JPN_HENKAN):
-                    return (byte)USBHIDCodes.JPN_HENKAN;
-                case (DeviceKeys.JPN_HIRAGANA_KATAKANA):
-                    return (byte)USBHIDCodes.JPN_HIRAGANA_KATAKANA;
-                case (DeviceKeys.RIGHT_ALT):
-                    return (byte)USBHIDCodes.RIGHT_ALT;
-                case (DeviceKeys.RIGHT_WINDOWS):
-                    return (byte)USBHIDCodes.RIGHT_WINDOWS;
-                //case (DeviceKeys.FN_Key):
-                //return (byte) USBHIDCodes.RIGHT_WINDOWS;
-                case (DeviceKeys.APPLICATION_SELECT):
-                    return (byte)USBHIDCodes.APPLICATION_SELECT;
-                case (DeviceKeys.RIGHT_CONTROL):
-                    return (byte)USBHIDCodes.RIGHT_CONTROL;
-                case (DeviceKeys.ARROW_LEFT):
-                    return (byte)USBHIDCodes.ARROW_LEFT;
-                case (DeviceKeys.ARROW_DOWN):
-                    return (byte)USBHIDCodes.ARROW_DOWN;
-                case (DeviceKeys.ARROW_RIGHT):
-                    return (byte)USBHIDCodes.ARROW_RIGHT;
-                case (DeviceKeys.NUM_ZERO):
-                    return (byte)USBHIDCodes.NUM_ZERO;
-                case (DeviceKeys.NUM_PERIOD):
-                    return (byte)USBHIDCodes.NUM_PERIOD;
-
-                default:
-                    return (byte)USBHIDCodes.ERROR;
-            }
-        }
-
     }
 }
