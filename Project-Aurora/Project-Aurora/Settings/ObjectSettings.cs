@@ -37,7 +37,7 @@ namespace Aurora.Settings
 
         protected virtual void LoadSettings(Type settingsType)
         {
-            if (File.Exists(SettingsSavePath))
+            if (!SettingsSavePath.Contains("ProfilesSettings.json") && File.Exists(SettingsSavePath))
             {
                 try
                 {

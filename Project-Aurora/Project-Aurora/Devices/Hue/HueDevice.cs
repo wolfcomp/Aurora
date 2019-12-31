@@ -5,53 +5,51 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
-
-using Aurora.Settings;
-using Aurora.Settings.Bindables;
-using Aurora.Utils;
-
-using Newtonsoft.Json;
 
 using Q42.HueApi;
 using Q42.HueApi.ColorConverters;
 using Q42.HueApi.ColorConverters.HSB;
 using Q42.HueApi.Interfaces;
+
+using Aurora.Settings;
+using Aurora.Utils;
+
 using Q42.HueApi.Models.Bridge;
-using Q42.HueApi.Streaming;
-using Q42.HueApi.Streaming.Extensions;
-using Q42.HueApi.Streaming.Models;
 
 using Color = System.Drawing.Color;
-using IBindable = Aurora.Settings.Bindables.IBindable;
 
 namespace Aurora.Devices.Hue
 {
-    class HueDevice : Device
+    public class HueDevice : Device
     {
-        private HueConfig config = new HueConfig();
+        private VariableRegistry registry;
         private string name = "Philips Hue";
         private bool initialized => client?.IsInitialized ?? false;
-        private bool streaming = false;
         private LocatedBridge bridge;
         private LocalHueClient client;
-        private StreamingHueClient streamClient;
         private BridgeConfig conf;
         private List<Light> lights;
         private int curKey = 0;
         private int curItr = 0;
-        private EntertainmentLayer layer;
 
         public VariableRegistry GetRegisteredVariables()
         {
-            VariableRegistry registry = new VariableRegistry();
-            foreach (var pair in config.Store)
+            if (registry == null)
             {
-                registry.Register($"{name.ToLower().Replace(" ", "_")}_{pair.Key}", pair.Value, HueVisualNames.GetTitle(pair.Key), HueVisualNames.GetRemark(pair.Key));
+                registry = new VariableRegistry();
+                foreach (var identifier in HueVisualNames.Identifiers)
+                {
+                    registry.Register($"{name.ToLower().Replace(" ", "_")}_{identifier.Key}", identifier.Value.GetItem());
+                }
             }
             return registry;
+        }
+
+        public T GetVariable<T>(string name)
+        {
+            return registry.GetVariable<T>($"{this.name.ToLower().Replace(" ", "_")}_{name}");
         }
 
         public string GetDeviceName()
@@ -61,20 +59,20 @@ namespace Aurora.Devices.Hue
 
         public string GetDeviceDetails()
         {
-            return $"{GetDeviceName()} {(initialized ? "Connected to:" + conf.Name : "Connecting to:" + (bridge != null ? bridge.BridgeId : "") + " press the sync button to finalize setup.")} {(initialized ? ", controlling: " + lights.Count + " lights" : "")}";
+            return $"{GetDeviceName()} {(initialized ? "Connected to:" + conf.Name : "Connecting to:" + (bridge != null ? bridge.BridgeId : "") + " press the sync button to finalize setup.")} {(initialized ? ", controlling: " + (lights?.Count ?? 0) + " lights" : "")}";
         }
 
         public string GetDeviceUpdatePerformance()
         {
-            return $"~{config.Get<int>("send_interval")}ms";
+            return $"~{GetVariable<int>("send_interval")}ms";
         }
 
         public bool Initialize()
         {
             try
             {
-                curKey = config.Get<int>("first_key");
-                var _ip = config.Get<string>("ip");
+                curKey = GetVariable<int>("first_key");
+                var _ip = GetVariable<string>("ip");
                 if (_ip == "0.0.0.0" || !new Regex(@"\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])\b").IsMatch(_ip))
                 {
                     IBridgeLocator bridgeLocator = new HttpBridgeLocator();
@@ -90,23 +88,7 @@ namespace Aurora.Devices.Hue
                 }
                 if (File.Exists(Path.Combine(Global.AppDataDirectory, conf.BridgeId)))
                 {
-                    var text = File.ReadAllLines(Path.Combine(Global.AppDataDirectory, conf.BridgeId));
-                    if(text.Length == 1)
-                        client.Initialize(text[0]);
-                    else
-                    {
-                        streamClient = new StreamingHueClient(text[2], text[0], text[1]);
-                        var group = streamClient.LocalHueClient.GetEntertainmentGroups().Result.FirstOrDefault();
-                        if (group != null)
-                        {
-                            var stream = new StreamingGroup(group.Locations);
-                            stream.IsForSimulator = true;
-                            streamClient.Connect(group.Id, true).GetAwaiter().GetResult();
-                            streamClient.AutoUpdate(stream, CancellationToken.None, 10);
-                            streaming = true;
-                            layer = stream.GetNewLayer(true);
-                        }
-                    }
+                    client.Initialize(File.ReadAllText(Path.Combine(Global.AppDataDirectory, conf.BridgeId)));
                 }
                 else
                 {
@@ -116,33 +98,9 @@ namespace Aurora.Devices.Hue
                         {
                             try
                             {
-                                var key = client.RegisterAsync("Aurora", Environment.MachineName, true).Result;
-                                streamClient = new StreamingHueClient(key.Ip, key.Username, key.StreamingClientKey);
-                                var group = streamClient.LocalHueClient.GetEntertainmentGroups().Result.FirstOrDefault();
-                                if (group != null)
-                                {
-                                    var stream = new StreamingGroup(group.Locations);
-                                    stream.IsForSimulator = true;
-                                    streamClient.Connect(group.Id, true).GetAwaiter().GetResult();
-                                    streamClient.AutoUpdate(stream, CancellationToken.None, 10);
-                                    layer = stream.GetNewLayer(true);
-                                }
-                                if (!streamClient.LocalHueClient.GetBridgeAsync().Result.IsStreamingActive)
-                                {
-                                    client.Initialize(key.Username);
-                                    var writer = File.CreateText(Path.Combine(Global.AppDataDirectory, conf.BridgeId));
-                                    writer.Write(key.Username);
-                                    writer.Dispose();
-                                }
-                                else
-                                {
-                                    var writer = File.CreateText(Path.Combine(Global.AppDataDirectory, conf.BridgeId));
-                                    writer.WriteLine(key.Username);
-                                    writer.WriteLine(key.StreamingClientKey);
-                                    writer.Write(key.Ip);
-                                    writer.Dispose();
-                                    streaming = true;
-                                }
+                                var key = client.RegisterAsync("Aurora", Environment.MachineName).Result;
+                                client.Initialize(key);
+                                File.WriteAllText(Path.Combine(Global.AppDataDirectory, conf.BridgeId), key);
                             }
                             catch
                             {
@@ -163,12 +121,10 @@ namespace Aurora.Devices.Hue
 
         public void Shutdown()
         {
-            config.Save();
         }
 
         public void Reset()
         {
-            config.Load();
         }
 
         public bool Reconnect()
@@ -198,8 +154,9 @@ namespace Aurora.Devices.Hue
 
         public bool UpdateDevice(Dictionary<DeviceKeys, Color> keyColors, DoWorkEventArgs e, bool forced = false)
         {
-            var firstKey = config.Get<int>("first_key");
-            var lastKey = config.Get<int>("last_key");
+            var firstKey = GetVariable<int>("first_key");
+            var lastKey = GetVariable<int>("last_key");
+            lights = client.GetLightsAsync().GetAwaiter().GetResult().ToList();
             if (!(firstKey <= lastKey && keyColors.Any(t => t.Key <= (DeviceKeys)lastKey && t.Key >= (DeviceKeys)firstKey)))
                 return false;
 
@@ -213,40 +170,28 @@ namespace Aurora.Devices.Hue
                     curKey = 0;
                 }
             }
-            if (!initialized || DateTime.Now - lastCall <= TimeSpan.FromMilliseconds(config.Get<int>("send_interval")))
+            var delay = TimeSpan.FromMilliseconds(GetVariable<int>("send_interval"));
+            if (!GetVariable<bool>("experimental") && delay.TotalMilliseconds < 100)
+            {
+                delay = TimeSpan.FromMilliseconds(100);
+            }
+            if (!initialized || DateTime.Now - lastCall <= delay)
                 return false;
 
-            var defaultColor = config.GetColor("default_color").GetHueDeviceColor();
-            lights = client.GetLightsAsync().GetAwaiter().GetResult().ToList();
+            var defaultColor = GetVariable<RealColor>("default_color").GetHueDeviceColor();
             foreach (var light in lights)
             {
-                var lightConfigName = $"send_{light.Name.ToLower().Replace(" ", "_")}";
-                if (!config.Store.ContainsKey(lightConfigName))
+                var lightConfigName = $"{name.ToLower().Replace(" ", "_")}_send_{light.Name.ToLower().Replace(" ", "_")}";
+                if (!registry.HasVariable(lightConfigName))
                 {
-                    config.Set(lightConfigName, false);
-                }
-                else
-                {
-                    try
-                    {
-                        config.Get<bool>(lightConfigName);
-                    }
-                    catch
-                    {
-                        config.Set(lightConfigName, Convert.ToBoolean(config.Get<string>(lightConfigName)));
-                    }
+                    registry.Register(lightConfigName, false, $"Control if {light.Name} should be synced");
                 }
             }
-            var brightness = config.Get<int>("brightness");
-            var command = new LightCommand
-            {
-                TransitionTime = TimeSpan.FromMilliseconds(config.Get<int>("send_interval"))
-            };
-            var defaultCommand = new LightCommand{
-                TransitionTime = TimeSpan.FromMilliseconds(config.Get<int>("send_interval"))
-            }.SetColor(defaultColor).TurnOn();
+            var brightness = GetVariable<int>("brightness");
+            var command = new LightCommand();
+            var defaultCommand = new LightCommand().SetColor(defaultColor).TurnOn();
             defaultCommand.Brightness = (byte)(defaultCommand.Brightness / (double)byte.MaxValue * (brightness / (double)byte.MaxValue) * byte.MaxValue);
-            command.SetColor(config.Get<bool>("blend_keys") ? keyColors.Where(t => t.Key <= (DeviceKeys)lastKey && t.Key >= (DeviceKeys)firstKey).Select(t => t.Value).GetHueDeviceColorMergedColor() : keyColors.Single(t => t.Key == (DeviceKeys)curKey).Value.GetHueDeviceColor());
+            command.SetColor(GetVariable<bool>("blend_keys") ? keyColors.Where(t => t.Key <= (DeviceKeys)lastKey && t.Key >= (DeviceKeys)firstKey).Select(t => t.Value).GetHueDeviceColorMergedColor() : keyColors.Single(t => t.Key == (DeviceKeys)curKey).Value.GetHueDeviceColor());
             if (brightness == 0)
             {
                 command.TurnOff();
@@ -254,7 +199,7 @@ namespace Aurora.Devices.Hue
             }
             else
             {
-                if (command.IsColorBlack() && DateTime.Now - lastCall >= TimeSpan.FromSeconds(config.Get<int>("default_delay")) || config.Get<bool>("force_default"))
+                if (command.IsColorBlack() && DateTime.Now - lastCall >= TimeSpan.FromSeconds(GetVariable<int>("default_delay")) || GetVariable<bool>("force_default"))
                 {
                     command.SetColor(defaultColor);
                     lastFrameDefault = true;
@@ -276,14 +221,14 @@ namespace Aurora.Devices.Hue
             }
             foreach (var light in lights)
             {
-                var commandToSend = config.Get<bool>($"send_{light.Name.ToLower().Replace(" ", "_")}") ? command : defaultCommand;
+                var commandToSend = GetVariable<bool>($"send_{light.Name.ToLower().Replace(" ", "_")}") ? command : defaultCommand;
                 if (commandToSend.Brightness != light.State.Brightness || commandToSend.Saturation != light.State.Saturation || commandToSend.Hue != light.State.Hue || commandToSend.On != light.State.On)
-                    client.SendCommandAsync(commandToSend, new[] {light.Id}).GetAwaiter().GetResult();
+                    client.SendCommandAsync(commandToSend, new[] { light.Id }).GetAwaiter().GetResult();
             }
             lastCall = DateTime.Now;
             lastFrame = command;
             curItr++;
-            if (curItr > config.Get<int>("key_iteration_count") - 1)
+            if (curItr > GetVariable<int>("key_iteration_count") - 1)
             {
                 curKey++;
                 curItr = 0;
@@ -301,100 +246,50 @@ namespace Aurora.Devices.Hue
 
         public bool UpdateDevice(DeviceColorComposition colorComposition, DoWorkEventArgs e, bool forced = false)
         {
-            if(!streaming)
-                return UpdateDevice(colorComposition.keyColors, e, forced);
-            else
-            {
-                if (!initialized || DateTime.Now - lastCall <= TimeSpan.FromMilliseconds(config.Get<int>("send_interval")))
-                    return false;
-                
-                var keyColors = colorComposition.keyColors;
-                var firstKey = config.Get<int>("first_key");
-                var lastKey = config.Get<int>("last_key");
-                while (!keyColors.ContainsKey((DeviceKeys)curKey))
-                {
-                    curKey++;
-                    if (curKey > lastKey)
-                        curKey = firstKey;
-                    if (curKey > 338)
-                    {
-                        curKey = 0;
-                    }
-                }
-                layer.SetState(CancellationToken.None, config.Get<bool>("blend_keys") ? keyColors.Where(t => t.Key <= (DeviceKeys)lastKey && t.Key >= (DeviceKeys)firstKey).Select(t => t.Value).GetHueDeviceColorMergedColor() : keyColors.Single(t => t.Key == (DeviceKeys)curKey).Value.GetHueDeviceColor(), TimeSpan.FromMilliseconds(config.Get<int>("send_interval")));
-                lastCall = DateTime.Now;
-                curItr++;
-                if (curItr > config.Get<int>("key_iteration_count") - 1)
-                {
-                    curKey++;
-                    curItr = 0;
-                }
-                if (curKey > lastKey)
-                    curKey = firstKey;
-                return true;
-            }
+            return UpdateDevice(colorComposition.keyColors, e, forced);
         }
     }
 
     static class HueVisualNames
     {
-        private static Dictionary<string, HueIdentifiers> _identifiers = new Dictionary<string, HueIdentifiers>
+        public static Dictionary<string, HueIdentifiers> Identifiers = new Dictionary<string, HueIdentifiers>
         {
-            {"default_delay", new HueIdentifiers("Delay", "The delay before sending default color in seconds")},
-            {"default_color", new HueIdentifiers("Default Color", "The default color to use to send to hue if not active")},
-            {"blend_keys", new HueIdentifiers("Blend key selection", "")},
-            {"force_default", new HueIdentifiers("Force default color", "")},
-            {"brightness", new HueIdentifiers("Brightness", "Brightness on bulbs (0-255)")},
-            {"use_default", new HueIdentifiers("Use default delay", "")},
-            {"key_iteration_count", new HueIdentifiers("Iteration count", "How many times to iterate on one key before jumping to the next one")},
-            {"first_key", new HueIdentifiers("First key selection", "The first key to iterate on (must be lower or equal than last key)")},
-            {"last_key", new HueIdentifiers("Last key selection", "The last key to iterate on (must be higher or equal than first key)")},
-            {"send_interval", new HueIdentifiers("Delay", "The delay to use to send to hue (min 100ms)")},
-            {"ip", new HueIdentifiers("IP", "The IP to try to connect to (default 0.0.0.0 witch will scan network for bridges)") }
+            {"ip", new HueIdentifiers("0.0.0.0","Bridge IP", "The IP to try to connect to (default 0.0.0.0 witch will scan network for bridges)") },
+            {"send_interval", new HueIdentifiers(103,"Delay", "The delay to use to send to hue (min 35ms in experimental mode 100ms in normal mode)",35, int.MaxValue)},
+            {"use_default", new HueIdentifiers(true,"Use default color delay")},
+            {"default_delay", new HueIdentifiers(5,"Default color delay", "The delay before sending default color in seconds", 0, int.MaxValue)},
+            {"force_default", new HueIdentifiers(false, "Force default color")},
+            {"default_color", new HueIdentifiers(new RealColor(Color.White), "Default Color", "The default color to use to send to hue if not active")},
+            {"brightness", new HueIdentifiers(192,"Brightness", "Brightness on bulbs (0-255)",0,255)},
+            {"blend_keys", new HueIdentifiers(false, "Blend key selection", "Blends all keys from the iteration of first key to last key")},
+            {"key_iteration_count", new HueIdentifiers(10,"Iteration count", "How many times to iterate on one key before jumping to the next one",1, int.MaxValue)},
+            {"first_key", new HueIdentifiers((int)DeviceKeys.Peripheral_Logo, "First key selection", "The first key to iterate on (must be lower or equal than last key)", 0, int.MaxValue)},
+            {"last_key", new HueIdentifiers((int)DeviceKeys.Peripheral_Logo, "Last key selection", "The last key to iterate on (must be higher or equal than first key)", 0, int.MaxValue)},
+            {"experimental", new HueIdentifiers(false, "Experimental Features")}
         };
 
-        public static string GetTitle(string v)
+        public struct HueIdentifiers
         {
-            return !_identifiers.ContainsKey(v) ? "" : _identifiers[v].Title;
-        }
-        public static string GetRemark(string v)
-        {
-            return !_identifiers.ContainsKey(v) ? "" : _identifiers[v].Remark;
-        }
-
-        struct HueIdentifiers
-        {
+            public object Value;
             public string Title;
             public string Remark;
+            public object Max;
+            public object Min;
 
-            public HueIdentifiers(string title, string remark)
+            public HueIdentifiers(object value, string title, string remark = "", object min = null, object max = null)
             {
                 Title = title;
                 Remark = remark;
+                Value = value;
+                Min = min;
+                Max = max;
+            }
+
+            public VariableRegistryItem GetItem()
+            {
+                return new VariableRegistryItem(Value, Max, Min, Title, Remark);
             }
         }
-    }
-
-    class HueConfig : JsonConfigManager
-    {
-        public HueConfig() : base(Path.Combine(Global.AppDataDirectory, "hue.json"), null) { }
-
-        protected override void InitialiseDefaults()
-        {
-            Set("ip", "0.0.0.0");
-            Set("default_delay", 1, 1, int.MaxValue);
-            Set("default_color", new RealColor(Color.White));
-            Set("blend_keys", false);
-            Set("force_default", false);
-            Set("brightness", 255, 0, 255);
-            Set("use_default", true);
-            Set("key_iteration_count", 5, 1, int.MaxValue);
-            Set("first_key", (int)DeviceKeys.Peripheral_Logo, (int)DeviceKeys.Peripheral, (int)DeviceKeys.MONITORLIGHT103);
-            Set("last_key", (int)DeviceKeys.Peripheral_Logo, (int)DeviceKeys.Peripheral, (int)DeviceKeys.MONITORLIGHT103);
-            Set("send_interval", 33, 1, int.MaxValue);
-        }
-
-        public IDictionary<string, IBindable> Store => ConfigStore;
     }
 
     public static class Extension

@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -15,13 +16,13 @@ namespace Aurora.Devices.SteelSeries
 {
     public partial class SteelSeriesDevice
     {
-        private HttpClient client = new HttpClient {Timeout = TimeSpan.FromSeconds(30)};
+        private HttpClient client;
         private JObject baseObject = new JObject();
         private JObject baseColorObject = new JObject {{"Event", "AURORA"}, {"data", new JObject()}};
         private Task pingTask;
         private CancellationTokenSource pingTaskTokenSource = new CancellationTokenSource();
         private bool loadedLisp;
-        private JToken dataColorObject => baseColorObject["data"];
+        private JObject dataColorObject => (JObject)baseColorObject["data"];
 
         private void sendLispCode()
         {
@@ -63,80 +64,80 @@ namespace Aurora.Devices.SteelSeries
 
         private void setKeyboardLed(byte led, Color color)
         {
-            if(!((JObject)dataColorObject).ContainsKey("keyboard"))
-                ((JObject) dataColorObject).Add("keyboard", new JObject {{"hids", new JArray()}, {"colors", new JArray()}});
+            if(!(dataColorObject).ContainsKey("keyboard"))
+                dataColorObject.Add("keyboard", new JObject {{"hids", new JArray()}, {"colors", new JArray()}});
             ((JArray) dataColorObject["keyboard"]["hids"]).Add(led);
             ((JArray) dataColorObject["keyboard"]["colors"]).Add(new JArray{color.R, color.G, color.B});
         }
 
         private void setOneZone(Color color)
         {
-            ((JObject)dataColorObject).Add("onezone", new JObject{{"color",new JArray {color.R, color.G, color.B}}});
-    }
+            dataColorObject.Add("onezone", new JObject{{"color",new JArray {color.R, color.G, color.B}}});
+        }
 
         private void setTwoZone(Color[] colors)
         {
-            ((JObject) dataColorObject).Add("twozone", new JObject{{"colors", colorToJson(colors)}});
+            dataColorObject.Add("twozone", new JObject{{"colors", colorToJson(colors)}});
         }
 
         private void setThreeZone(Color[] colors)
         {
-            ((JObject) dataColorObject).Add("threezone", new JObject{{"colors", colorToJson(colors)}});
+            dataColorObject.Add("threezone", new JObject{{"colors", colorToJson(colors)}});
         }
 
         private void setFourZone(Color[] colors)
         {
-            ((JObject) dataColorObject).Add("fourzone", new JObject{{"colors", colorToJson(colors)}});
+            dataColorObject.Add("fourzone", new JObject{{"colors", colorToJson(colors)}});
         }
 
         private void setFiveZone(Color[] colors)
         {
-            ((JObject) dataColorObject).Add("fivezone", new JObject{{"colors", colorToJson(colors)}});
+            dataColorObject.Add("fivezone", new JObject{{"colors", colorToJson(colors)}});
         }
 
         private void setEightZone(Color[] colors)
         {
-            ((JObject) dataColorObject).Add("eightzone", new JObject{{"colors", colorToJson(colors)}});
+            dataColorObject.Add("eightzone", new JObject{{"colors", colorToJson(colors)}});
         }
 
         private void setTwelveZone(Color[] colors)
         {
-            ((JObject) dataColorObject).Add("twelvezone", new JObject{{"colors", colorToJson(colors)}});
+            dataColorObject.Add("twelvezone", new JObject{{"colors", colorToJson(colors)}});
         }
 
         private void setSeventeenZone(Color[] colors)
         {
-            ((JObject) dataColorObject).Add("seventeenzone", new JObject{{"colors", colorToJson(colors)}});
+            dataColorObject.Add("seventeenzone", new JObject{{"colors", colorToJson(colors)}});
         }
 
         private void setTwentyFourZone(Color[] colors)
         {
-            ((JObject) dataColorObject).Add("twentyfourzone", new JObject{{"colors", colorToJson(colors)}});
+            dataColorObject.Add("twentyfourzone", new JObject{{"colors", colorToJson(colors)}});
         }
 
         private void setHundredThreeZone(Color[] colors)
         {
-            ((JObject) dataColorObject).Add("hundredthreezone", new JObject{{"colors", colorToJson(colors)}});
+            dataColorObject.Add("hundredthreezone", new JObject{{"colors", colorToJson(colors)}});
         }
 
         private void setLogo(Color color)
         {
-            ((JObject) dataColorObject).Add("logo", new JObject{{"color",new JArray {color.R, color.G, color.B}}});
+            dataColorObject.Add("logo", new JObject{{"color",new JArray {color.R, color.G, color.B}}});
         }
 
         private void setWheel(Color color)
         {
-            ((JObject) dataColorObject).Add("wheel", new JObject{{"color",new JArray {color.R, color.G, color.B}}});
+            dataColorObject.Add("wheel", new JObject{{"color",new JArray {color.R, color.G, color.B}}});
         }
 
         private void setMouse(Color color)
         {
-            ((JObject) dataColorObject).Add("mouse", new JObject{{"color",new JArray {color.R, color.G, color.B}}});
+            dataColorObject.Add("mouse", new JObject{{"color",new JArray {color.R, color.G, color.B}}});
         }
 
         private void setGeneric(Color color)
         {
-            ((JObject) dataColorObject).Add("periph", new JObject{{"color",new JArray {color.R, color.G, color.B}}});
+            dataColorObject.Add("periph", new JObject{{"color",new JArray {color.R, color.G, color.B}}});
         }
 
         private async Task sendPing(CancellationToken token)
@@ -160,7 +161,7 @@ namespace Aurora.Devices.SteelSeries
         private void sendLighting()
         {
             sendJson("/game_event", baseColorObject);
-            ((JObject) dataColorObject).RemoveAll();
+            dataColorObject.RemoveAll();
         }
 
         private void sendJson(string endpoint, object obj)
@@ -175,12 +176,7 @@ namespace Aurora.Devices.SteelSeries
 
         private static JArray colorToJson(Color[] colors)
         {
-            var arr = new JArray();
-            foreach (var color in colors)
-            {
-                arr.Add(new JArray{color.R,color.G,color.B});
-            }
-            return arr;
+            return new JArray(colors.Select(color => new JArray {color.R, color.G, color.B}).ToArray());
         }
     }
 }

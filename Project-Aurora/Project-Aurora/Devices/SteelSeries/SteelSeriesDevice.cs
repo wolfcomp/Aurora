@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Net.Http;
+
 using Aurora.Settings;
 using Aurora.Utils;
 
@@ -11,7 +13,7 @@ namespace Aurora.Devices.SteelSeries
 {
     public partial class SteelSeriesDevice : Device
     {
-        Stopwatch watch = new Stopwatch();
+        TimeSpan updateTime = TimeSpan.Zero;
         object lock_obj = new object();
 
         public VariableRegistry GetRegisteredVariables()
@@ -25,7 +27,12 @@ namespace Aurora.Devices.SteelSeries
 
         public string GetDeviceUpdatePerformance()
         {
-            return (IsInitialized() ? watch.ElapsedMilliseconds + " ms" : "");
+            return (IsInitialized() ? getDeviceUpdateTime() + " ms" : "");
+        }
+
+        private string getDeviceUpdateTime()
+        {
+            return updateTime.TotalMilliseconds > 1000 ? "Restart SteelSeries Engine it has not responded for over 1000" : ((int)updateTime.TotalMilliseconds).ToString();
         }
 
         public bool Initialize()
@@ -49,6 +56,7 @@ namespace Aurora.Devices.SteelSeries
                         baseObject.Add("game", "PROJECTAURORA");
                         baseColorObject.Add("game", baseObject["game"]);
                     }
+                    client = new HttpClient {Timeout = TimeSpan.FromSeconds(30)};
                     loadCoreProps();
                     return true;
                 }
@@ -65,6 +73,7 @@ namespace Aurora.Devices.SteelSeries
             lock (lock_obj)
             {
                 pingTaskTokenSource.Cancel();
+                client?.Dispose();
                 loadedLisp = false;
             }
         }
@@ -97,7 +106,7 @@ namespace Aurora.Devices.SteelSeries
 
         public bool UpdateDevice(DeviceColorComposition colorComposition, DoWorkEventArgs e, bool forced = false)
         {
-            watch.Restart();
+            var tmpTime = DateTime.Now;
             var keyColors = colorComposition.keyColors.ToDictionary(t => t.Key, t => ColorUtils.MultiplyColorByScalar(t.Value, t.Value.A / 255D));
             if (!Global.Configuration.devices_disable_mouse || !Global.Configuration.devices_disable_headset)
             {
@@ -132,7 +141,7 @@ namespace Aurora.Devices.SteelSeries
                 UpdateDevice(keyColors, e, forced);
             }
             sendLighting();
-            watch.Stop();
+            updateTime = DateTime.Now - tmpTime;
             return true;
         }
     }

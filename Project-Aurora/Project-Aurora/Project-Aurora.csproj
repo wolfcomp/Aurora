@@ -696,15 +696,6 @@
     <Compile Include="Settings\Layers\Control_RazerLayer.xaml.cs">
       <DependentUpon>Control_RazerLayer.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Settings\Bindables\Bindable.cs" />
-    <Compile Include="Settings\Bindables\BindableBindableDictionary.cs" />
-    <Compile Include="Settings\Bindables\BindableDictionary.cs" />
-    <Compile Include="Settings\Bindables\BindableNumber.cs" />
-    <Compile Include="Settings\Bindables\ExtraBindables.cs" />
-    <Compile Include="Settings\Bindables\InterfacesBindable.cs" />
-    <Compile Include="Settings\Bindables\LockedWeakList.cs" />
-    <Compile Include="Settings\ConfigManager.cs" />
-    <Compile Include="Settings\JsonConfigManager.cs" />
     <Compile Include="Settings\Layers\BinaryCounterLayerHandler.cs" />
     <Compile Include="Settings\Layers\Control_BinaryCounterLayer.xaml.cs">
       <DependentUpon>Control_BinaryCounterLayer.xaml</DependentUpon>
