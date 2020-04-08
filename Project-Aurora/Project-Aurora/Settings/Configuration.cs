@@ -5,11 +5,10 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
-
 using Aurora.Profiles.Generic_Application;
 using Aurora.Profiles;
 using Newtonsoft.Json.Serialization;
+using Aurora.Utils;
 
 namespace Aurora.Settings
 {
@@ -145,21 +144,6 @@ namespace Aurora.Settings
         LeftHanded = 2
     }
 
-    public enum ExtraFeatures
-    {
-        [Description("None")]
-        None = 0,
-        
-        [Description("Razer Firefly + Corsair MM800")]
-        Mousemats = 1,
-
-        [Description("MSI MPG27CQ")]
-        Monitor = 2,
-
-        [Description("Razer Firefly + Corsair MM800 + MSI MPG27CQ")]
-        MonitorMousemats = 3,
-    }
-
     public enum PreferredKeyboard
     {
         [Description("None")]
@@ -193,7 +177,7 @@ namespace Aurora.Settings
         Logitech_G810 = 102,
         [Description("Logitech - GPRO")]
         Logitech_GPRO = 103,
-		[Description("Logitech - G213")]
+        [Description("Logitech - G213")]
         Logitech_G213 = 104,
 
         //Corsair range is 200-299
@@ -211,6 +195,8 @@ namespace Aurora.Settings
         Corsair_K68 = 205,
         [Description("Corsair - K70 MK2")]
         Corsair_K70MK2 = 206,
+        [Description("Corsair - STRAFE MK2")]
+        Corsair_STRAFE_MK2 = 207,
 
         //Razer range is 300-399
         [Description("Razer - Blackwidow")]
@@ -233,6 +219,8 @@ namespace Aurora.Settings
         Masterkeys_Pro_M = 502,
         [Description("Cooler Master - Masterkeys MK750")]
         Masterkeys_MK750 = 503,
+        [Description("Cooler Master - Masterkeys MK730")]
+        Masterkeys_MK730 = 504,
 
         //Roccat range is 600-699
         [Description("Roccat Ryos")]
@@ -258,9 +246,15 @@ namespace Aurora.Settings
         [Description("Drevo BladeMaster")]
         Drevo_BladeMaster = 1000,
 
-	//Creative range is 1100-1199
+        //Creative range is 1100-1199
         [Description("SoundBlasterX VanguardK08")]
         SoundBlasterX_Vanguard_K08 = 1100,
+
+        //Ducky range is 1200-1299
+        [Description("Ducky Shine 7/One 2 RGB")]
+        Ducky_Shine_7 = 1200,
+        [Description("Ducky One 2 RGB TKL")]
+        Ducky_One_2_RGB_TKL = 1201,
     }
 
     public enum PreferredKeyboardLocalization
@@ -314,6 +308,8 @@ namespace Aurora.Settings
 
         [Description("Generic Peripheral")]
         Generic_Peripheral = 1,
+        [Description("Razer/Corsair Mousepad + Mouse")]
+        Generic_Mousepad = 2,
 
         //Logitech range is 100-199
         [Description("Logitech - G900")]
@@ -328,12 +324,8 @@ namespace Aurora.Settings
         Corsair_M65 = 201,
         [Description("Corsair - Katar")]
         Corsair_Katar = 202,
-        [Description("Corsair - MM800 + Mouse")]
-        Corsair_MM800 = 203,
 
         //Razer range is 300-399
-        [Description("Razer - Mousepad + Mouse")]
-        Razer_Mousepad = 300,
 
         //Clevo range is 400-499
         [Description("Clevo - Touchpad")]
@@ -352,8 +344,6 @@ namespace Aurora.Settings
         SteelSeries_QcK_Prism = 702,
         [Description("SteelSeries - Two-zone QcK Mousepad + Mouse")]
         SteelSeries_QcK_2_Zone = 703,
-        [Description("SteelSeries - Rival 600")]
-        SteelSeries_Rival_600 = 704,
         //Asus range is 900-999
         [Description("Asus - Pugio")]
         Asus_Pugio = 900
@@ -446,7 +436,6 @@ namespace Aurora.Settings
         public PreferredKeyboardLocalization keyboard_localization;
         public PreferredMouse mouse_preference;
         public KeycapType virtualkeyboard_keycap_type;
-        public ExtraFeatures extra_features;
         public ApplicationDetectionMode detection_mode;
         public HashSet<String> excluded_programs;
         public bool devices_disable_keyboard;
@@ -481,13 +470,25 @@ namespace Aurora.Settings
 
         public VariableRegistry VarRegistry;
 
-        //Debug Settings
+        //BitmapDebug Data
         private bool bitmapDebugTopMost;
         public bool BitmapDebugTopMost { get { return bitmapDebugTopMost; } set { bitmapDebugTopMost = value; InvokePropertyChanged(); } }
 
+        private WINDOWPLACEMENT bitmapPlacement;
+        public WINDOWPLACEMENT BitmapPlacement { get { return bitmapPlacement; } set { bitmapPlacement = value; InvokePropertyChanged(); } }
+
+        private bool bitmapWindowOnStartUp;
+        public bool BitmapWindowOnStartUp { get { return bitmapWindowOnStartUp; } set { bitmapWindowOnStartUp = value; InvokePropertyChanged(); } }
+
+        //httpDebug Data
         private bool httpDebugTopMost;
         public bool HttpDebugTopMost { get { return httpDebugTopMost; } set { httpDebugTopMost = value; InvokePropertyChanged(); } }
 
+        private WINDOWPLACEMENT httpDebugPlacement;
+        public WINDOWPLACEMENT HttpDebugPlacement { get { return httpDebugPlacement; } set { httpDebugPlacement = value; InvokePropertyChanged(); } }
+
+        private bool httpWindowOnStartUp;
+        public bool HttpWindowOnStartUp { get { return httpWindowOnStartUp; } set { httpWindowOnStartUp = value; InvokePropertyChanged(); } }
 
         public List<string> ProfileOrder { get; set; } = new List<string>();
 
@@ -524,7 +525,6 @@ namespace Aurora.Settings
             devices_disable_mouse = false;
             devices_disable_headset = false;
             devices_disabled = new HashSet<Type>();
-            devices_disabled.Add(typeof(Devices.Dualshock.DualshockDevice));
             devices_disabled.Add(typeof(Devices.AtmoOrbDevice.AtmoOrbDevice));
             devices_disabled.Add(typeof(Devices.NZXT.NZXTDevice));
             OverlaysInPreview = false;
@@ -561,7 +561,7 @@ namespace Aurora.Settings
             VarRegistry = new VariableRegistry();
         }
 
-        
+
     }
 
     public static class ExtensionHelpers
@@ -597,7 +597,7 @@ namespace Aurora.Settings
             if (String.IsNullOrWhiteSpace(content))
                 return CreateDefaultConfigurationFile();
 
-            Configuration config = JsonConvert.DeserializeObject<Configuration>(content, Global.SerializerSettings);
+            Configuration config = JsonConvert.DeserializeObject<Configuration>(content, new JsonSerializerSettings { ObjectCreationHandling = ObjectCreationHandling.Replace, TypeNameHandling = TypeNameHandling.All, SerializationBinder = Aurora.Utils.JSONUtils.SerializationBinder, Error = DeserializeErrorHandler });
 
             if (!config.unified_hid_disabled)
             {
@@ -627,7 +627,7 @@ namespace Aurora.Settings
                 _last_save_time = current_time;
 
             var configPath = ConfigPath + ConfigExtension;
-            string content = JsonConvert.SerializeObject(configuration, Formatting.Indented, Global.SerializerSettings);
+            string content = JsonConvert.SerializeObject(configuration, Formatting.Indented, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All, Binder = Aurora.Utils.JSONUtils.SerializationBinder });
 
             Directory.CreateDirectory(System.IO.Path.GetDirectoryName(configPath));
             File.WriteAllText(configPath, content, Encoding.UTF8);
@@ -636,7 +636,7 @@ namespace Aurora.Settings
         private static Configuration CreateDefaultConfigurationFile()
         {
             Configuration config = new Configuration();
-            var configData = JsonConvert.SerializeObject(config, Formatting.Indented, Global.SerializerSettings);
+            var configData = JsonConvert.SerializeObject(config, Formatting.Indented, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All, Binder = Aurora.Utils.JSONUtils.SerializationBinder });
             var configPath = ConfigPath + ConfigExtension;
 
             Directory.CreateDirectory(System.IO.Path.GetDirectoryName(configPath));

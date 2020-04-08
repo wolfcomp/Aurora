@@ -1,10 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
-using System.Linq;
 using System.Windows.Data;
 
 namespace Aurora.Utils
@@ -138,6 +136,23 @@ namespace Aurora.Utils
                 return background;
 
             return BlendColors(background, foreground, foreground.A / 255.0);
+        }
+
+        /// <summary>
+        /// Multiplies all non-alpha values by alpha/255.
+        /// Device integrations don't support alpha values, so we correct them here
+        /// </summary>
+        /// <param name="color">Color to correct</param>
+        /// <returns>Corrected Color</returns>
+        public static System.Drawing.Color CorrectWithAlpha(System.Drawing.Color color)
+        {
+            float scalar = color.A / 255.0f;
+
+            int Red = ColorByteMultiplication(color.R, scalar);
+            int Green = ColorByteMultiplication(color.G, scalar);
+            int Blue = ColorByteMultiplication(color.B, scalar);
+
+            return System.Drawing.Color.FromArgb(255, Red, Green, Blue);
         }
 
         /// <summary>
@@ -514,7 +529,7 @@ namespace Aurora.Utils
 
     public class RealColor : ICloneable
     {
-        [JsonProperty, JsonConverter(typeof(RealColorJsonConverter))]
+        [JsonProperty]
         private System.Drawing.Color Color { get; set; }
 
         public RealColor()
@@ -559,31 +574,5 @@ namespace Aurora.Utils
 
         public static implicit operator System.Drawing.Color(RealColor c) => c.GetDrawingColor();
         public static implicit operator System.Windows.Media.Color(RealColor c) => c.GetMediaColor();
-
-        public override string ToString()
-        {
-            return Color.ToString();
-        }
-    }
-
-    internal class RealColorJsonConverter : JsonConverter {
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            writer.WriteValue(value.ToString());
-        }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            
-            var t = reader.Value.ToString().Replace(" ", "").Split('[')[1];
-            var h = t.Substring(0, t.Length - 1).Split(',').Select(f =>
-            {
-                var k = f.Split('=');
-                return new KeyValuePair<string, string>(k[0], k[1]);
-            }).ToDictionary(f => f.Key, f => f.Value);
-            return Color.FromArgb(Convert.ToInt32(h["A"]), Convert.ToInt32(h["R"]), Convert.ToInt32(h["G"]), Convert.ToInt32(h["B"]));
-        }
-        
-        public override bool CanConvert(Type objectType) => objectType == typeof(RealColor);
     }
 }

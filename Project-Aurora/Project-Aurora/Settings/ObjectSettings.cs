@@ -20,15 +20,20 @@ namespace Aurora.Settings
 
         protected void SaveSettings(Type settingsType)
         {
-            if (Settings == null)
+            if (Settings == null) {
                 Settings = (T)Activator.CreateInstance(settingsType);
+                SettingsCreateHook();
+            }
 
             string dir = Path.GetDirectoryName(SettingsSavePath);
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
-            File.WriteAllText(SettingsSavePath, JsonConvert.SerializeObject(Settings, Global.SerializerSettings));
+            File.WriteAllText(SettingsSavePath, JsonConvert.SerializeObject(Settings, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All, Formatting = Formatting.Indented }));
         }
+
+        /// <summary>A method that is called immediately after the settings being created. Can be overriden to provide specalized handling.</summary>
+        protected virtual void SettingsCreateHook() { }
 
         protected void LoadSettings()
         {
@@ -37,11 +42,11 @@ namespace Aurora.Settings
 
         protected virtual void LoadSettings(Type settingsType)
         {
-            if (!SettingsSavePath.Contains("ProfilesSettings.json") && File.Exists(SettingsSavePath))
+            if (File.Exists(SettingsSavePath))
             {
                 try
                 {
-                    Settings = (T)JsonConvert.DeserializeObject(File.ReadAllText(SettingsSavePath), settingsType, Global.SerializerSettings);
+                    Settings = (T)JsonConvert.DeserializeObject(File.ReadAllText(SettingsSavePath), settingsType, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All });
                 }
                 catch (Exception exc)
                 {

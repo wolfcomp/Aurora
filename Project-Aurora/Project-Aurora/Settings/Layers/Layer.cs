@@ -253,9 +253,13 @@ namespace Aurora.Settings.Layers
 
         public object Clone()
         {
-            string str = JsonConvert.SerializeObject(this, Formatting.None, Global.SerializerSettings);
+            string str = JsonConvert.SerializeObject(this, Formatting.None, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All, Binder = Aurora.Utils.JSONUtils.SerializationBinder });
 
-            return JsonConvert.DeserializeObject(str,this.GetType(),Global.SerializerSettings);
+            return JsonConvert.DeserializeObject(
+                    str,
+                    this.GetType(),
+                    new JsonSerializerSettings { ObjectCreationHandling = ObjectCreationHandling.Replace, TypeNameHandling = TypeNameHandling.All, Binder = Aurora.Utils.JSONUtils.SerializationBinder }
+                    );
         }
 
         public void SetGameState(IGameState new_game_state)

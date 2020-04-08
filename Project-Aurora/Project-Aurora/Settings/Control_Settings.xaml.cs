@@ -18,6 +18,7 @@ using RazerSdkWrapper.Utils;
 using System.Net;
 using RazerSdkWrapper.Data;
 using System.Windows.Threading;
+using Aurora.Utils;
 
 namespace Aurora.Settings
 {
@@ -28,10 +29,6 @@ namespace Aurora.Settings
     {
         private RegistryKey runRegistryPath = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
         private const string StartupTaskID = "AuroraStartup";
-
-        private Window winBitmapView = null;
-        private Image imgBitmap = new Image();
-        private static bool bitmapViewOpen;
 
         public Control_Settings()
         {
@@ -129,7 +126,6 @@ namespace Aurora.Settings
             this.devices_disable_keyboard_lighting.IsChecked = Global.Configuration.devices_disable_keyboard;
             this.devices_disable_mouse_lighting.IsChecked = Global.Configuration.devices_disable_mouse;
             this.devices_disable_headset_lighting.IsChecked = Global.Configuration.devices_disable_headset;
-            this.cmbExtraFeatures.SelectedItem = Global.Configuration.extra_features;
 
             this.updates_autocheck_on_start.IsChecked = Global.Configuration.updates_check_on_start_up;
 
@@ -137,32 +133,27 @@ namespace Aurora.Settings
             var rzSdkEnabled = RzHelper.IsSdkEnabled();
 
             this.razer_wrapper_installed_version_label.Content = rzVersion.ToString();
-            if (!RzHelper.IsSdkVersionSupported(rzVersion))
-            {
-                this.razer_wrapper_installed_version_label.Foreground = new SolidColorBrush(Colors.PaleVioletRed);
-                this.razer_wrapper_install_button.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                this.razer_wrapper_installed_version_label.Foreground = new SolidColorBrush(Colors.LightGreen);
-                this.razer_wrapper_install_button.Visibility = Visibility.Hidden;
-            }
+            this.razer_wrapper_installed_version_label.Foreground = new SolidColorBrush(RzHelper.IsSdkVersionSupported(rzVersion) ? Colors.LightGreen : Colors.PaleVioletRed);
+            this.razer_wrapper_supported_versions_label.Content = $"[{RzHelper.SupportedFromVersion}-{RzHelper.SupportedToVersion})";
+
+            if (rzVersion == new RzSdkVersion())
+                this.razer_wrapper_uninstall_button.Visibility = Visibility.Hidden;
 
             this.razer_wrapper_enabled_label.Content = rzSdkEnabled ? "Enabled" : "Disabled";
             this.razer_wrapper_enabled_label.Foreground = rzSdkEnabled ? new SolidColorBrush(Colors.LightGreen) : new SolidColorBrush(Colors.PaleVioletRed);
 
-            if (Global.razerManager != null)
+            if (Global.razerSdkManager != null)
             {
                 this.razer_wrapper_connection_status_label.Content = "Success";
                 this.razer_wrapper_connection_status_label.Foreground = new SolidColorBrush(Colors.LightGreen);
 
                 {
-                    var appList = Global.razerManager.GetDataProvider<RzAppListDataProvider>();
+                    var appList = Global.razerSdkManager.GetDataProvider<RzAppListDataProvider>();
                     appList.Update();
-                    this.razer_wrapper_current_application_label.Content = $"{appList.CurrentAppExecutable} [{appList.CurrentAppPid}]";
+                    this.razer_wrapper_current_application_label.Content = $"{appList.CurrentAppExecutable ?? "None"} [{appList.CurrentAppPid}]";
                 }
 
-                Global.razerManager.DataUpdated += (s, _) =>
+                Global.razerSdkManager.DataUpdated += (s, _) =>
                 {
                     if (!(s is RzAppListDataProvider appList))
                         return;
@@ -179,48 +170,9 @@ namespace Aurora.Settings
             }
         }
 
-        private void OnLayerRendered(System.Drawing.Bitmap map)
-        {
-            try
-            {
-                Dispatcher.Invoke(
-                            () =>
-                            {
-                                using (MemoryStream memory = new MemoryStream())
-                                {
-                                    //Fix conflict with AtomOrb due to async
-                                    lock (map)
-                                    {
-                                        map.Save(memory, System.Drawing.Imaging.ImageFormat.Png);
-                                    }
-                                    memory.Position = 0;
-                                    BitmapImage bitmapimage = new BitmapImage();
-                                    bitmapimage.BeginInit();
-                                    bitmapimage.StreamSource = memory;
-                                    bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
-                                    bitmapimage.EndInit();
-
-                                    this.debug_bitmap_preview.Width = 4 * bitmapimage.Width;
-                                    this.debug_bitmap_preview.Height = 4 * bitmapimage.Height;
-                                    this.debug_bitmap_preview.Source = bitmapimage;
-                                }
-                            });
-            }
-            catch (Exception ex)
-            {
-                Global.logger.Warn(ex.ToString());
-            }
-        }
-
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            Global.effengine.NewLayerRender += OnLayerRendered;
             this.ctrlPluginManager.Host = Global.PluginManager;
-        }
-
-        private void UserControl_Unloaded(object sender, RoutedEventArgs e)
-        {
-            Global.effengine.NewLayerRender -= OnLayerRendered;
         }
 
         private void app_exit_mode_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -547,8 +499,8 @@ namespace Aurora.Settings
 
         private void devices_view_first_time_dualshock_Click(object sender, RoutedEventArgs e)
         {
-            Devices.Dualshock.DualshockInstallInstructions instructions = new Devices.Dualshock.DualshockInstallInstructions();
-            instructions.ShowDialog();
+            //Devices.Dualshock.DualshockInstallInstructions instructions = new Devices.Dualshock.DualshockInstallInstructions();
+            //instructions.ShowDialog();
         }
 
         private void devices_view_first_time_roccat_Click(object sender, RoutedEventArgs e)
@@ -747,150 +699,122 @@ namespace Aurora.Settings
 
         private void razer_wrapper_install_button_Click(object sender, RoutedEventArgs e)
         {
+            void HandleExceptions(AggregateException ae)
+            {
+                ShowMessageBox(ae.ToString(), "Exception!", MessageBoxImage.Error);
+                ae.Handle(ex => {
+                    Global.logger.Error(ex.ToString());
+                    return true;
+                });
+            }
+
+            void SetButtonContent(string s)
+                => Application.Current.Dispatcher.Invoke(() => razer_wrapper_install_button.Content = s);
+
+            void ShowMessageBox(string message, string title, MessageBoxImage image = MessageBoxImage.Exclamation)
+                => Application.Current.Dispatcher.Invoke(() => System.Windows.MessageBox.Show(message, title, MessageBoxButton.OK, image));
+
             razer_wrapper_install_button.IsEnabled = false;
-
-            #region Razer SDK Installer/Uninstaller helpers
-            Task<int> UninstallAsync()
-            {
-                return System.Threading.Tasks.Task.Run(() =>
-                {
-                    if (RzHelper.IsSdkVersionSupported(RzHelper.GetSdkVersion()))
-                        return 0;
-
-                    using (var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32))
-                    {
-                        var key = hklm.OpenSubKey(@"Software\Razer Chroma SDK");
-                        var path = (string)key?.GetValue("UninstallPath", null);
-                        var filename = (string)key?.GetValue("UninstallFilename", null);
-
-                        if (path == null || filename == null)
-                            return 0;
-
-                        try
-                        {
-                            var processInfo = new ProcessStartInfo
-                            {
-                                FileName = filename,
-                                WorkingDirectory = path,
-                                Arguments = $"/S _?={path}",
-                                ErrorDialog = true
-                            };
-
-                            var process = Process.Start(processInfo);
-                            process.WaitForExit(120000);
-                            return process.ExitCode;
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new OperationCanceledException("Razer SDK Uninstallation failed!", ex);
-                        }
-                    }
-                });
-            }
-
-            Task<string> DownloadAsync()
-            {
-                return System.Threading.Tasks.Task.Run(() =>
-                {
-                    var url = "http://cdn.razersynapse.com/156092369797u1UA8NRazerChromaBroadcasterSetup_v3.4.0630.061913.exe";
-
-                    try
-                    {
-                        using (var client = new WebClient())
-                        {
-                            var path = Path.ChangeExtension(Path.GetTempFileName(), ".exe");
-                            client.DownloadFile(url, path);
-                            return path;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new OperationCanceledException("Razer SDK Downloading failed!", ex);
-                    }
-                });
-            }
-
-            Task<int> InstallAsync(string installerPath)
-            {
-                return System.Threading.Tasks.Task.Run(() =>
-                {
-                    try
-                    {
-                        var processInfo = new ProcessStartInfo
-                        {
-                            FileName = Path.GetFileName(installerPath),
-                            WorkingDirectory = Path.GetDirectoryName(installerPath),
-                            Arguments = "/S",
-                            ErrorDialog = true
-                        };
-
-                        var process = Process.Start(processInfo);
-                        process.WaitForExit(120000);
-                        return process.ExitCode;
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new OperationCanceledException("Razer SDK Installation failed!", ex);
-                    }
-                });
-            }
-            #endregion
-
-            bool HandleErrorLevel(int errorlevel)
-            {
-                switch (errorlevel)
-                {
-                    case 3010:
-                        {
-                            Application.Current.Dispatcher.Invoke(() => Xceed.Wpf.Toolkit.MessageBox.Show("Razer SDK requested system restart!\nPlease reboot your pc and re-run the installation.",
-                                "Restart required!", MessageBoxButton.OK, MessageBoxImage.Exclamation));
-                            return false;
-                        }
-                }
-
-                return true;
-            }
-
-            void SetState(string name)
-                => Application.Current.Dispatcher.Invoke(() => razer_wrapper_install_button.Content = name);
+            razer_wrapper_uninstall_button.IsEnabled = false;
 
             System.Threading.Tasks.Task.Run(async () =>
             {
-                try
+                SetButtonContent("Uninstalling");
+                var uninstallSuccess = await RazerChromaUtils.UninstallAsync()
+                .ContinueWith(t =>
                 {
-                    SetState("Uninstalling");
-                    var errorlevel = await UninstallAsync();
-                    if (!HandleErrorLevel(errorlevel))
+                    if (t.Exception != null)
+                    {
+                        HandleExceptions(t.Exception);
                         return false;
-
-                    SetState("Downloading");
-                    var path = await DownloadAsync();
-
-                    SetState("Installing");
-                    errorlevel = await InstallAsync(path);
-                    if (!HandleErrorLevel(errorlevel))
+                    }
+                    else if (t.Result == (int)RazerChromaInstallerExitCode.RestartRequired)
+                    {
+                        ShowMessageBox("The uninstaller requested system restart!\nPlease reboot your pc and re-run the installation.", "Restart required!");
                         return false;
-                }
-                catch (OperationCanceledException ex)
+                    }
+
+                    return true;
+                })
+                .ConfigureAwait(false);
+
+                if (!uninstallSuccess)
+                    return;
+
+                SetButtonContent("Downloading");
+                var downloadPath = await RazerChromaUtils.DownloadAsync()
+                .ContinueWith(t =>
                 {
-                    Application.Current.Dispatcher.Invoke(() => Xceed.Wpf.Toolkit.MessageBox.Show($"{ex.Message}:\n{ex.InnerException.ToString()}",
-                        "Exception!", MessageBoxButton.OK, MessageBoxImage.Error));
-                    return false;
-                }
+                    if (t.Exception != null)
+                    {
+                        HandleExceptions(t.Exception);
+                        return null;
+                    }
 
-                return true;
-            }).ContinueWith(t =>
+                    return t.Result;
+                })
+                .ConfigureAwait(false);
+
+                if (downloadPath == null)
+                    return;
+
+                SetButtonContent("Installing");
+                await RazerChromaUtils.InstallAsync(downloadPath)
+                .ContinueWith(t =>
+                {
+                    if (t.Exception != null)
+                        HandleExceptions(t.Exception);
+                    else if (t.Result == (int)RazerChromaInstallerExitCode.RestartRequired)
+                        ShowMessageBox("The installer requested system restart!\nPlease reboot your pc.", "Restart required!");
+                    else
+                    {
+                        SetButtonContent("Done!");
+                        ShowMessageBox("Installation successful!\nPlease restart aurora for changes to take effect.", "Restart required!");
+                    }
+                })
+                .ConfigureAwait(false);
+            });
+        }
+
+        private void razer_wrapper_uninstall_button_Click(object sender, RoutedEventArgs e)
+        {
+            void HandleExceptions(AggregateException ae)
             {
-                if (t.Result)
+                ShowMessageBox(ae.ToString(), "Exception!", MessageBoxImage.Error);
+                ae.Handle(ex => {
+                    Global.logger.Error(ex.ToString());
+                    return true;
+                });
+            }
+
+            void SetButtonContent(string s)
+                => Application.Current.Dispatcher.Invoke(() => razer_wrapper_uninstall_button.Content = s);
+            
+            void ShowMessageBox(string message, string title, MessageBoxImage image = MessageBoxImage.Exclamation)
+                => Application.Current.Dispatcher.Invoke(() => System.Windows.MessageBox.Show(message, title, MessageBoxButton.OK, image));
+
+            razer_wrapper_install_button.IsEnabled = false;
+            razer_wrapper_uninstall_button.IsEnabled = false;
+
+            System.Threading.Tasks.Task.Run(async () =>
+            {
+                SetButtonContent("Uninstalling");
+                await RazerChromaUtils.UninstallAsync()
+                .ContinueWith(t =>
                 {
-                    SetState("Success!");
-                    Application.Current.Dispatcher.Invoke(() => Xceed.Wpf.Toolkit.MessageBox.Show("Installation successful!\nPlease restart Aurora for changes to take effect.",
-                        "Success!", MessageBoxButton.OK, MessageBoxImage.Information));
-                }
-                else
-                {
-                    SetState("Failure!");
-                }
+                    if (t.Exception != null)
+                        HandleExceptions(t.Exception);
+                    else if (t.Result == (int)RazerChromaInstallerExitCode.RestartRequired)
+                        ShowMessageBox("The uninstaller requested system restart!\nPlease reboot your pc.", "Restart required!");
+                    else if (t.Result == (int)RazerChromaInstallerExitCode.InvalidState)
+                        ShowMessageBox("There is nothing to install!", "Invalid State!");
+                    else
+                    {
+                        SetButtonContent("Done!");
+                        ShowMessageBox("Uninstallation successful!\nPlease restart aurora for changes to take effect.", "Restart required!");
+                    }
+                })
+                .ConfigureAwait(false);
             });
         }
 
@@ -984,84 +908,6 @@ namespace Aurora.Settings
             }
         }
 
-        private void btnShowBitmapWindow_Click(object sender, RoutedEventArgs e)
-        {
-            if (winBitmapView == null)
-            {
-                if (bitmapViewOpen == true)
-                {
-                    System.Windows.MessageBox.Show("Keyboard Bitmap View already open.\r\nPlease close it.");
-                    return;
-                }
-
-                winBitmapView = new Window();
-                winBitmapView.Closed += WinBitmapView_Closed;
-                winBitmapView.ResizeMode = ResizeMode.CanResize;
-
-                winBitmapView.SetBinding(Window.TopmostProperty, new Binding("BitmapDebugTopMost") { Source = Global.Configuration });
-
-                //winBitmapView.SizeToContent = SizeToContent.WidthAndHeight;
-
-                winBitmapView.Title = "Keyboard Bitmap View";
-                winBitmapView.Background = new SolidColorBrush(Color.FromArgb(255, 0, 0, 0));
-                Global.effengine.NewLayerRender += Effengine_NewLayerRender;
-
-                imgBitmap.SnapsToDevicePixels = true;
-                imgBitmap.HorizontalAlignment = HorizontalAlignment.Stretch;
-                imgBitmap.VerticalAlignment = VerticalAlignment.Stretch;
-                /*imgBitmap.MinWidth = 0;
-                imgBitmap.MinHeight = 0;*/
-                imgBitmap.MinWidth = Effects.canvas_width;
-                imgBitmap.MinHeight = Effects.canvas_height;
-
-                winBitmapView.Content = imgBitmap;
-
-                winBitmapView.UpdateLayout();
-                winBitmapView.Show();
-            }
-            else
-            {
-                winBitmapView.BringIntoView();
-            }
-        }
-
-        private void Effengine_NewLayerRender(System.Drawing.Bitmap bitmap)
-        {
-            try
-            {
-                Dispatcher.Invoke(
-                    () =>
-                    {
-                        lock (bitmap)
-                        {
-                            using (MemoryStream memory = new MemoryStream())
-                            {
-                                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Png);
-                                memory.Position = 0;
-                                BitmapImage bitmapimage = new BitmapImage();
-                                bitmapimage.BeginInit();
-                                bitmapimage.StreamSource = memory;
-                                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
-                                bitmapimage.EndInit();
-
-                                imgBitmap.Source = bitmapimage;
-                            }
-                        }
-                    });
-            }
-            catch (Exception ex)
-            {
-                Global.logger.Warn(ex.ToString());
-            }
-        }
-
-        private void WinBitmapView_Closed(object sender, EventArgs e)
-        {
-            winBitmapView = null;
-            Global.effengine.NewLayerRender -= Effengine_NewLayerRender;
-            bitmapViewOpen = false;
-        }
-
         private void btnShowLogsFolder_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button)
@@ -1082,7 +928,9 @@ namespace Aurora.Settings
             Process.GetCurrentProcess().PriorityClass = Global.Configuration.HighPriority ? ProcessPriorityClass.High : ProcessPriorityClass.Normal;
         }
 
-        private void btnShowGSILog_Click(object sender, RoutedEventArgs e) => new Window_GSIHttpDebug().Show();
+        private void btnShowBitmapWindow_Click(object sender, RoutedEventArgs e) => Window_BitmapView.Open();
+
+        private void btnShowGSILog_Click(object sender, RoutedEventArgs e) => Window_GSIHttpDebug.Open();
 
         private void startDelayAmount_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e) {
             using (TaskService service = new TaskService()) {
@@ -1091,17 +939,6 @@ namespace Aurora.Settings
                     trigger.Delay = new TimeSpan(0, 0, ((IntegerUpDown)sender).Value ?? 0);
                     task.RegisterChanges();
                 }
-            }
-        }
-
-        private void CmbExtraFeatures_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (IsLoaded)
-            {
-                Global.Configuration.extra_features = (ExtraFeatures)Enum.Parse(typeof(ExtraFeatures), this.cmbExtraFeatures.SelectedItem.ToString());
-                ConfigManager.Save(Global.Configuration);
-
-                Global.kbLayout.LoadBrandDefault();
             }
         }
     }

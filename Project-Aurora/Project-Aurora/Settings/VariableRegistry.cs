@@ -1,14 +1,11 @@
 ﻿using Aurora.Utils;
-
 using Newtonsoft.Json;
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 
 namespace Aurora.Settings
 {
@@ -23,16 +20,21 @@ namespace Aurora.Settings
         public string Remark = "";
         public VariableFlags Flags = VariableFlags.None;
 
-        public VariableRegistryItem() { }
+        public VariableRegistryItem()
+        {
+        }
 
         public VariableRegistryItem(object defaultValue, object max = null, object min = null, string title = "", string remark = "", VariableFlags flags = VariableFlags.None)
         {
             this.Value = defaultValue;
             this.Default = defaultValue;
+
             if (this.Value != null && max != null && this.Value.GetType() == max.GetType())
                 this.Max = max;
+
             if (this.Value != null && min != null && this.Value.GetType() == min.GetType())
                 this.Min = min;
+
             this.Title = title;
             this.Remark = remark;
             this.Flags = flags;
@@ -48,21 +50,21 @@ namespace Aurora.Settings
 
         internal void Merge(VariableRegistryItem variableRegistryItem)
         {
-            Default = variableRegistryItem.Default;
-            Title = variableRegistryItem.Title;
-            Remark = variableRegistryItem.Remark;
-            Min = variableRegistryItem.Min;
-            Max = variableRegistryItem.Max;
-            var typ = Value.GetType();
-            var defaultType = variableRegistryItem.Default.GetType();
+            this.Default = variableRegistryItem.Default;
+            this.Title = variableRegistryItem.Title;
+            this.Remark = variableRegistryItem.Remark;
+            this.Min = variableRegistryItem.Min;
+            this.Max = variableRegistryItem.Max;
+            Type typ = this.Value.GetType();
+            Type defaultType = variableRegistryItem.Default.GetType();
+
             if (!defaultType.Equals(typ) && typ.Equals(typeof(long)) && defaultType.IsEnum)
-                Value = Enum.ToObject(defaultType, Value);
-            else if (!defaultType.Equals(typ) && Value.GetType().Equals(typeof(long)) && TypeUtils.IsNumericType(defaultType))
-                Value = Convert.ChangeType(Value, defaultType);
-            else if (Value == null && !defaultType.Equals(typ))
-                Value = variableRegistryItem.Default;
-            Flags = variableRegistryItem.Flags;
-            variableRegistryItem.Value = Value;
+                this.Value = Enum.ToObject(defaultType, Value);
+            else if (!defaultType.Equals(typ) && this.Value.GetType().Equals(typeof(long)) && TypeUtils.IsNumericType(defaultType))
+                this.Value = Convert.ChangeType(this.Value, defaultType);
+            else if (this.Value == null && !defaultType.Equals(typ))
+                this.Value = variableRegistryItem.Default;
+            this.Flags = variableRegistryItem.Flags;
         }
     }
 
@@ -89,6 +91,7 @@ namespace Aurora.Settings
         {
             //Below doesn't work for added variables
             Dictionary<string, VariableRegistryItem> vars = new Dictionary<string, VariableRegistryItem>();
+
             foreach (var variable in otherRegistry._variables)
             {
                 if (removeMissing)
@@ -98,15 +101,16 @@ namespace Aurora.Settings
                         local.Merge(variable.Value);
                     else
                         local = variable.Value;
+
                     vars.Add(variable.Key, local);
                 }
                 else
-                {
                     Register(variable.Key, variable.Value);
-                }
             }
+
             if (removeMissing)
                 _variables = vars;
+            
         }
 
         public string[] GetRegisteredVariableKeys()
@@ -135,6 +139,7 @@ namespace Aurora.Settings
                 _variables[name].SetVariable(variable);
                 return true;
             }
+
             return false;
         }
 
@@ -169,6 +174,7 @@ namespace Aurora.Settings
                 value = (T)_variables[name].Max;
                 return true;
             }
+
             value = Activator.CreateInstance<T>();
             return false;
         }
@@ -180,6 +186,7 @@ namespace Aurora.Settings
                 value = (T)_variables[name].Min;
                 return true;
             }
+
             value = Activator.CreateInstance<T>();
             return false;
         }
@@ -216,16 +223,6 @@ namespace Aurora.Settings
             return VariableFlags.None;
         }
 
-        public VariableRegistryItem GetVariableItem(string name)
-        {
-            return _variables.ContainsKey(name) ? _variables[name] : null;
-        }
-
-        public bool HasVariable(string name)
-        {
-            return _variables.ContainsKey(name);
-        }
-
         public void RemoveVariable(string name)
         {
             if (_variables.ContainsKey(name))
@@ -234,12 +231,13 @@ namespace Aurora.Settings
 
         public object Clone()
         {
-            string str = JsonConvert.SerializeObject(this, Formatting.None, new JsonSerializerSettings {TypeNameHandling = TypeNameHandling.All, Binder = Aurora.Utils.JSONUtils.SerializationBinder});
+            string str = JsonConvert.SerializeObject(this, Formatting.None, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All, Binder = Aurora.Utils.JSONUtils.SerializationBinder });
+
             return JsonConvert.DeserializeObject(
-                str,
-                this.GetType(),
-                new JsonSerializerSettings {ObjectCreationHandling = ObjectCreationHandling.Replace, TypeNameHandling = TypeNameHandling.All, Binder = Aurora.Utils.JSONUtils.SerializationBinder}
-            );
+                    str,
+                    this.GetType(),
+                    new JsonSerializerSettings { ObjectCreationHandling = ObjectCreationHandling.Replace, TypeNameHandling = TypeNameHandling.All, Binder = Aurora.Utils.JSONUtils.SerializationBinder }
+                    );
         }
     }
 }

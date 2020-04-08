@@ -12,7 +12,7 @@
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:Controls="clr-namespace:Aurora.Controls" xmlns:params="http://schemas.codeplex.com/elysium/params" x:Class="Aurora.Settings.Control_Settings"
              mc:Ignorable="d"
-             d:DesignHeight="400" d:DesignWidth="403.521" Height="Auto" Width="Auto" MinHeight="300" MinWidth="850" Loaded="UserControl_Loaded" Unloaded="UserControl_Unloaded" x:Name="ctrlSettings">
+             d:DesignHeight="400" d:DesignWidth="403.521" Height="Auto" Width="Auto" MinHeight="300" MinWidth="850" Loaded="UserControl_Loaded" x:Name="ctrlSettings">
     <UserControl.Resources>
         <ResourceDictionary>
             <ObjectDataProvider x:Key="PercentEffectType" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
@@ -98,16 +98,6 @@
             <EnumValueConverters:BitmapAccuracyToStringVC x:Key="BitmapAccuracyToStringVC"/>
             <DataTemplate x:Key="BitmapAccuracyTemplate">
                 <TextBlock Text="{Binding Converter={StaticResource BitmapAccuracyToStringVC}}" />
-            </DataTemplate>
-
-            <ObjectDataProvider x:Key="ExtraFeatures" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
-                <ObjectDataProvider.MethodParameters>
-                    <x:Type TypeName="local:ExtraFeatures" />
-                </ObjectDataProvider.MethodParameters>
-            </ObjectDataProvider>
-            <EnumValueConverters:ExtraFeaturesToStringVC x:Key="ExtraFeaturesToStringVC"/>
-            <DataTemplate x:Key="ExtraFeaturesTemplate">
-                <TextBlock Text="{Binding Converter={StaticResource ExtraFeaturesToStringVC}}" />
             </DataTemplate>
 
             <ObjectDataProvider x:Key="appexitmode" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
@@ -230,7 +220,7 @@
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="170"/>
+                                <RowDefinition Height="150"/>
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
                             <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical">
@@ -240,7 +230,6 @@
                                 <TextBlock HorizontalAlignment="Left" Margin="0,1,0,1" Height="22" TextWrapping="Wrap" Text="Keycap type:" VerticalAlignment="Top"/>
                                 <TextBlock HorizontalAlignment="Left" Margin="0,1,0,1" Height="22" TextWrapping="Wrap" Text="Mouse Orientation:" VerticalAlignment="Top"/>
                                 <TextBlock HorizontalAlignment="Left" Margin="0,1,0,1" Height="22" TextWrapping="Wrap" Text="Bitmap Accuracy/Ratio: " VerticalAlignment="Top" ToolTip="Determines how accurate the Freestyle key sequence option will map to the keys it is drawn over. Better accuracy comes at the cost of CPU/RAM usage, will likely only be a problem at Best"/>
-                                <TextBlock HorizontalAlignment="Left" Margin="0,1,0,1" TextWrapping="Wrap" Text="Extra Features: " VerticalAlignment="Top" ToolTip="Adds more features such as multiple mousemats and monitor rgb lights such as the MPG27CQ from MSI" Height="15.96"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Vertical">
                                 <ComboBox x:Name="devices_kb_layout" HorizontalAlignment="Left" Margin="0,1,0,1" VerticalAlignment="Top" Width="192" ItemsSource="{Binding Source={StaticResource KbLayout}}" ItemTemplate="{Binding Source={StaticResource KbLayoutTemplate}}" SelectionChanged="devices_kb_layout_SelectionChanged"/>
@@ -249,7 +238,6 @@
                                 <ComboBox x:Name="ComboBox_virtualkeyboard_keycap_type" HorizontalAlignment="Left" Margin="0,1,0,1" VerticalAlignment="Top" Width="192" ItemsSource="{Binding Source={StaticResource KeycapType}}" ItemTemplate="{Binding Source={StaticResource KeycapTypeTemplate}}" SelectionChanged="ComboBox_virtualkeyboard_keycap_type_SelectionChanged"/>
                                 <ComboBox x:Name="devices_mouse_orientation" HorizontalAlignment="Left" Margin="0,1,0,1" VerticalAlignment="Top" Width="192" ItemsSource="{Binding Source={StaticResource MouseOrientation}}" ItemTemplate="{Binding Source={StaticResource MouseOrientationTemplate}}" SelectionChanged="devices_mouse_orientation_SelectionChanged"/>
                                 <ComboBox x:Name="cmbBitmapAccuracy" HorizontalAlignment="Left" Margin="0,1,0,1" VerticalAlignment="Top" Width="192" ItemsSource="{Binding Source={StaticResource BitmapAccuracy}}" ItemTemplate="{Binding Source={StaticResource BitmapAccuracyTemplate}}" SelectedItem="{Binding BitmapAccuracy, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                <ComboBox x:Name="cmbExtraFeatures" HorizontalAlignment="Left" Margin="0,1,0,1" VerticalAlignment="Top" Width="192" ItemsSource="{Binding Source={StaticResource ExtraFeatures}}" ItemTemplate="{Binding Source={StaticResource ExtraFeaturesTemplate}}" SelectedItem="{Binding ExtraFeatures, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectionChanged="CmbExtraFeatures_SelectionChanged"/>
                             </StackPanel>
                             <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1">
                                 <CheckBox Grid.Row="1" x:Name="wrapper_allow_in_background_enabled" Content="Allow Aurora wrappers to take priority over desktop profile while active" HorizontalAlignment="Left" Margin="0,1,0,1" VerticalAlignment="Top" Unchecked="wrapper_allow_in_background_enabled_Checked" Checked="wrapper_allow_in_background_enabled_Checked"/>
@@ -288,13 +276,14 @@
                                             </Grid.RowDefinitions>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="120"/>
-                                                <ColumnDefinition Width="40"/>
+                                                <ColumnDefinition Width="100"/>
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <Label Grid.Row="0" Grid.Column="0" Content="Supported Version:" Margin="5 0 5 0" Padding="0" VerticalAlignment="Center"/>
-                                            <Label Grid.Row="0" Grid.Column="1" Content="3.5.6" Padding="0" Margin="5 0 5 0" VerticalAlignment="Center"/>
-                                            <Button x:Name="razer_wrapper_install_button" Grid.Row="0" Grid.Column="2" Content="Install" Width="120" Margin="5 0 5 0" VerticalAlignment="Center" HorizontalAlignment="Left" Click="razer_wrapper_install_button_Click"/>
+                                            <Label Grid.Row="0" Grid.Column="0" Content="Supported Versions:" Margin="5 0 5 0" Padding="0" VerticalAlignment="Center"/>
+                                            <Label x:Name="razer_wrapper_supported_versions_label" Grid.Row="0" Grid.Column="1" Padding="0" Margin="5 0 5 0" VerticalAlignment="Center"/>
+                                            <Button x:Name="razer_wrapper_install_button" Grid.Row="0" Grid.Column="2" Content="Install" Width="75" Margin="5 0 5 0" VerticalAlignment="Center" HorizontalAlignment="Left" Click="razer_wrapper_install_button_Click"/>
+                                            <Button x:Name="razer_wrapper_uninstall_button" Grid.Row="0" Grid.Column="2" Content="Uninstall" Width="75" Margin="5 0 5 0" VerticalAlignment="Center" HorizontalAlignment="Right" Click="razer_wrapper_uninstall_button_Click"/>
 
                                             <Label Grid.Row="1" Grid.Column="0" Content="Installed Version:" Margin="5 0 5 0" Padding="0" VerticalAlignment="Center"/>
                                             <Label x:Name="razer_wrapper_installed_version_label" Grid.Row="1" Grid.Column="1" Margin="5 0 5 0" Padding="0" VerticalAlignment="Center"/>
@@ -373,14 +362,69 @@
             </TabItem>
             <TabItem Header="Debug">
                 <Grid>
-                    <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Current Keyboard bitmap:" VerticalAlignment="Top"/>
-                    <Image x:Name="debug_bitmap_preview" HorizontalAlignment="Left" Margin="152,10,0,0" VerticalAlignment="Top" MaxWidth="400" MaxHeight="400"/>
-                    <Button x:Name="btnShowBitmapWindow" Content="Show Bitmap Window" HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top" Click="btnShowBitmapWindow_Click"/>
-                    <CheckBox x:Name="chkBitmapTopMost" Content="Always on top" HorizontalAlignment="Left" Margin="10,56,0,0" VerticalAlignment="Top" IsChecked="{Binding BitmapDebugTopMost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <Button x:Name="btnShowLogsFolder" Content="Show Logs Folder" HorizontalAlignment="Left" Margin="10,121,0,0" VerticalAlignment="Top" Click="btnShowLogsFolder_Click"/>
-                    <Button x:Name="btnShowGSILog" Content="Show GSI HTTP requests" HorizontalAlignment="Left" Margin="10,76,0,0" VerticalAlignment="Top" Click="btnShowGSILog_Click" />
-                    <CheckBox x:Name="chkHttpDebugTopMost" Content="Always on top" HorizontalAlignment="Left" Margin="10,101,0,0" VerticalAlignment="Top" IsChecked="{Binding HttpDebugTopMost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <Button Content="Record" HorizontalAlignment="Left" Margin="10,81,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click" IsEnabled="False" Visibility="Collapsed"/>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Top" >
+                        <Button 
+                            x:Name="btnShowBitmapWindow" 
+                            Content="Show Bitmap Window" 
+                            Click="btnShowBitmapWindow_Click"
+                            Margin="0,50,0,0"
+                            Width="150"
+                            Height="30"
+                        />
+                        <CheckBox 
+                            x:Name="chkBitmapTopMost" 
+                            Content="Always on top" 
+                            IsChecked="{Binding BitmapDebugTopMost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            Margin="0,10,0,0"
+                        />
+                        <CheckBox 
+                            x:Name="chkBitmapStartUp" 
+                            Content="Open at startup"  
+                            IsChecked="{Binding BitmapWindowOnStartUp, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            Margin="0,10,0,0"
+                        />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Top">
+                        <Button 
+                            x:Name="btnShowGSILog" 
+                            Content="Show GSI HTTP requests"
+                            Click="btnShowGSILog_Click" 
+                            Margin="0,50,0,0"
+                            Width="150"
+                            Height="30"
+                        />
+                        <CheckBox 
+                            x:Name="chkHttpDebugTopMost" 
+                            Content="Always on top" 
+                            IsChecked="{Binding HttpDebugTopMost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            Margin="0,10,0,0"
+                        />
+                        <CheckBox 
+                            x:Name="chkHttpStartUp" 
+                            Content="Open at startup" 
+                            IsChecked="{Binding HttpWindowOnStartUp, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                        Margin="0,10,0,0"
+
+                        />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Top">
+                        <Button 
+                            x:Name="btnShowLogsFolder" 
+                            Content="Show Logs Folder" 
+                            Click="btnShowLogsFolder_Click"
+                            Margin="0,50,0,0"
+                            Width="150"
+                            Height="30"
+                        />
+                    </StackPanel>
                 </Grid>
             </TabItem>
         </TabControl>
