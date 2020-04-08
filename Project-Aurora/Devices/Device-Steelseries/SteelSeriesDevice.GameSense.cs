@@ -41,6 +41,7 @@ namespace Device_SteelSeries
                 sendJson("/load_golisp_handlers", core);
                 pingTask = Task.Run(async () => await sendPing(pingTaskTokenSource.Token), pingTaskTokenSource.Token);
                 loadedLisp = true;
+                isInitialized = true;
             }
             catch (Exception e)
             {

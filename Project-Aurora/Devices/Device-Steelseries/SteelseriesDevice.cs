@@ -85,14 +85,6 @@ namespace Device_SteelSeries
 
         public override bool Reconnect() => true;
 
-        public override bool IsInitialized() => loadedLisp;
-
-        public override bool IsConnected() => loadedLisp;
-
-        public override bool IsKeyboardConnected() => IsConnected();
-
-        public override bool IsPeripheralConnected() => IsConnected();
-
         public override bool UpdateDevice(Dictionary<DeviceKeys, Color> keyColors, DoWorkEventArgs e, bool forced = false)
         {
             foreach (var (key, color) in keyColors)
