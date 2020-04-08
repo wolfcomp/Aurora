@@ -240,7 +240,7 @@ namespace Aurora.Devices
             int devicesToRetryNo = 0;
             foreach (DeviceContainer device in DeviceContainers)
             {
-                if (device.Device.IsInitialized() || Global.Configuration.devices_disabled.Contains(device.Device.GetType()))
+                if (device.Device.IsInitialized() || Global.Configuration.devices_disabled.Contains(device.Device.GetDeviceName()))
                     continue;
 
                 if (device.Device.Initialize())
@@ -282,7 +282,7 @@ namespace Aurora.Devices
                 bool _anyInitialized = false;
                 foreach (DeviceContainer device in DeviceContainers)
                 {
-                    if (device.Device.IsInitialized() || Global.Configuration.devices_disabled.Contains(device.Device.GetType()))
+                    if (device.Device.IsInitialized() || Global.Configuration.devices_disabled.Contains(device.Device.GetDeviceName()))
                         continue;
 
                     devicesAttempted++;
@@ -351,7 +351,7 @@ namespace Aurora.Devices
             {
                 if (device.Device.IsInitialized())
                 {
-                    if (Global.Configuration.devices_disabled.Contains(device.Device.GetType()))
+                    if (Global.Configuration.devices_disabled.Contains(device.Device.GetDeviceName()))
                     {
                         //Initialized when it's supposed to be disabled? SMACK IT!
                         device.Device.Shutdown();

@@ -77,11 +77,11 @@ namespace Aurora.Controls
 
         private void btnToggleEnableDisable_Click(object sender, RoutedEventArgs e)
         {
-            if (Global.Configuration.devices_disabled.Contains(Device.Device.GetType()))
-                Global.Configuration.devices_disabled.Remove(Device.Device.GetType());
+            if (Global.Configuration.devices_disabled.Contains(Device.Device.GetDeviceName()))
+                Global.Configuration.devices_disabled.Remove(Device.Device.GetDeviceName());
             else
             {
-                Global.Configuration.devices_disabled.Add(Device.Device.GetType());
+                Global.Configuration.devices_disabled.Add(Device.Device.GetDeviceName());
                 if(Device.Device.IsInitialized())
                     Device.Device.Shutdown();
             }
@@ -108,7 +108,7 @@ namespace Aurora.Controls
                 btnToggleEnableDisable.IsEnabled = false;
             else
             {
-                if (Global.Configuration.devices_disabled.Contains(Device.Device.GetType()))
+                if (Global.Configuration.devices_disabled.Contains(Device.Device.GetDeviceName()))
                 {
                     btnToggleEnableDisable.Content = "Enable";
                     btnToggleOnOff.IsEnabled = false;
