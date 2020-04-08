@@ -13,6 +13,7 @@ using System.Drawing;
 using System.Windows.Media.Imaging;
 using Aurora.Settings.Keycaps;
 using System.Windows.Threading;
+using Newtonsoft.Json.Converters;
 
 namespace Aurora.Settings
 {
@@ -480,11 +481,11 @@ namespace Aurora.Settings
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                LoadBrand(Global.Configuration.keyboard_brand, Global.Configuration.mouse_preference, Global.Configuration.mouse_orientation);
+                LoadBrand(Global.Configuration.keyboard_brand, Global.Configuration.mouse_preference, Global.Configuration.mouse_orientation, Global.Configuration.extra_features);
             });
         }
 
-        public void LoadBrand(PreferredKeyboard keyboard_preference = PreferredKeyboard.None, PreferredMouse mouse_preference = PreferredMouse.None, MouseOrientationType mouse_orientation = MouseOrientationType.RightHanded)
+        public void LoadBrand(PreferredKeyboard keyboard_preference = PreferredKeyboard.None, PreferredMouse mouse_preference = PreferredMouse.None, MouseOrientationType mouse_orientation = MouseOrientationType.RightHanded, ExtraFeatures extra_features = ExtraFeatures.None)
         {
 #if !DEBUG
             try
@@ -767,7 +768,7 @@ namespace Aurora.Settings
             if (!String.IsNullOrWhiteSpace(layoutConfigPath) && File.Exists(layoutConfigPath))
             {
                 string content = File.ReadAllText(layoutConfigPath, Encoding.UTF8);
-                VirtualGroupConfiguration layoutConfig = JsonConvert.DeserializeObject<VirtualGroupConfiguration>(content, new JsonSerializerSettings { ObjectCreationHandling = ObjectCreationHandling.Replace });
+                VirtualGroupConfiguration layoutConfig = getConfiguration<VirtualGroupConfiguration>(content);
 
                 virtualKeyboardGroup.AdjustKeys(layoutConfig.key_modifications);
                 virtualKeyboardGroup.RemoveKeys(layoutConfig.keys_to_remove);
@@ -788,7 +789,7 @@ namespace Aurora.Settings
                     if (File.Exists(feature_path))
                     {
                         string feature_content = File.ReadAllText(feature_path, Encoding.UTF8);
-                        VirtualGroup feature_config = JsonConvert.DeserializeObject<VirtualGroup>(feature_content, new JsonSerializerSettings { ObjectCreationHandling = ObjectCreationHandling.Replace });
+                        VirtualGroup feature_config = getConfiguration<VirtualGroup>(feature_content);
 
                         virtualKeyboardGroup.AddFeature(feature_config.grouped_keys.ToArray(), feature_config.origin_region);
                         if (feature_config.KeyConversion != null)
@@ -827,8 +828,11 @@ namespace Aurora.Settings
                     case PreferredMouse.Generic_Peripheral:
                         mouse_feature_path = Path.Combine(layoutsPath, "Extra Features", "generic_peripheral.json");
                         break;
-                    case PreferredMouse.Generic_Mousepad:
-                        mouse_feature_path = Path.Combine(layoutsPath, "Extra Features", "generic_mousepad.json");
+                    case PreferredMouse.Razer_Mousepad:
+                        mouse_feature_path = Path.Combine(layoutsPath, "Extra Features", "razer_mousepad.json");
+                        break;
+                    case PreferredMouse.Corsair_MM800:
+                        mouse_feature_path = Path.Combine(layoutsPath, "Extra Features", "corsair_mousepad.json");
                         break;
                     case PreferredMouse.Logitech_G900:
                         mouse_feature_path = Path.Combine(layoutsPath, "Extra Features", "logitech_g900_features.json");
@@ -860,6 +864,9 @@ namespace Aurora.Settings
                     case PreferredMouse.SteelSeries_QcK_2_Zone:
                         mouse_feature_path = Path.Combine(layoutsPath, "Extra Features", "steelseries_qck_2zone_features.json");
                         break;
+                    case PreferredMouse.SteelSeries_Rival_600:
+                        mouse_feature_path = Path.Combine(layoutsPath, "Extra Features", "steelseries_rival_600_features.json");
+                        break;
                     case PreferredMouse.Asus_Pugio:
                         mouse_feature_path = Path.Combine(layoutsPath, "Extra Features", "asus_pugio_features.json");
                         break;
@@ -868,7 +875,7 @@ namespace Aurora.Settings
                 if (!string.IsNullOrWhiteSpace(mouse_feature_path))
                 {
                     string feature_content = File.ReadAllText(mouse_feature_path, Encoding.UTF8);
-                    VirtualGroup featureConfig = JsonConvert.DeserializeObject<VirtualGroup>(feature_content, new JsonSerializerSettings { ObjectCreationHandling = ObjectCreationHandling.Replace });
+                    VirtualGroup featureConfig = getConfiguration<VirtualGroup>(feature_content);
 
                     if (mouse_orientation == MouseOrientationType.LeftHanded)
                     {
@@ -896,6 +903,29 @@ namespace Aurora.Settings
                         }
 
                     }
+
+                    virtualKeyboardGroup.AddFeature(featureConfig.grouped_keys.ToArray(), featureConfig.origin_region);
+                }
+
+                string extra_feature = "";
+
+                switch (extra_features)
+                {
+                    case ExtraFeatures.Mousemats:
+                        extra_feature = Path.Combine(layoutsPath, "Extra Features", "mm800_firefly_features.json");
+                        break;
+                    case ExtraFeatures.Monitor:
+                        extra_feature = Path.Combine(layoutsPath, "Extra Features", "mpg27cq_features.json");
+                        break;
+                    case ExtraFeatures.MonitorMousemats:
+                        extra_feature = Path.Combine(layoutsPath, "Extra Features", "mm800_firefly_mpg27cq_features.json");
+                        break;
+                }
+
+                if (!string.IsNullOrWhiteSpace(extra_feature))
+                {
+                    string feature_content = File.ReadAllText(extra_feature, Encoding.UTF8);
+                    VirtualGroup featureConfig = getConfiguration<VirtualGroup>(feature_content);
 
                     virtualKeyboardGroup.AddFeature(featureConfig.grouped_keys.ToArray(), featureConfig.origin_region);
                 }
@@ -1323,7 +1353,7 @@ namespace Aurora.Settings
                 LoadDefault();
 
             string content = File.ReadAllText(layoutPath, Encoding.UTF8);
-            KeyboardLayout keyboard = JsonConvert.DeserializeObject<KeyboardLayout>(content, new JsonSerializerSettings { ObjectCreationHandling = ObjectCreationHandling.Replace });
+            KeyboardLayout keyboard = getConfiguration<KeyboardLayout>(content);
 
             virtualKeyboardGroup = new VirtualGroup(keyboard.Keys);
 
@@ -1494,6 +1524,18 @@ namespace Aurora.Settings
                     System.Drawing.Color key_color = keylights[kvp.Key];
                     kvp.Value.SetColor(Utils.ColorUtils.DrawingColorToMediaColor(System.Drawing.Color.FromArgb(255, Utils.ColorUtils.MultiplyColorByScalar(key_color, key_color.A / 255.0D))));
                 }
+            }
+        }
+
+        private T getConfiguration<T>(string content)
+        {
+            try
+            {
+                return JsonConvert.DeserializeObject<T>(content, new JsonSerializerSettings {ObjectCreationHandling = ObjectCreationHandling.Replace});
+            }
+            catch
+            {
+                return JsonConvert.DeserializeObject<T>(content, new JsonSerializerSettings {ObjectCreationHandling = ObjectCreationHandling.Replace, Converters = new List<JsonConverter> {new StringEnumConverter()}});
             }
         }
     }

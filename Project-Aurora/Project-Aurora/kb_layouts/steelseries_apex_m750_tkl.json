@@ -1,130 +1,145 @@
-{
-  "keys_to_remove": [
-    "NUM_LOCK",
-    "NUM_SLASH",
-    "NUM_ASTERISK",
-    "NUM_MINUS",
-    "NUM_SEVEN",
-    "NUM_EIGHT",
-    "NUM_NINE",
-    "NUM_PLUS",
-    "NUM_FOUR",
-    "NUM_FIVE",
-    "NUM_SIX",
-    "NUM_ONE",
-    "NUM_TWO",
-    "NUM_THREE",
-    "NUM_ENTER",
-    "NUM_ZERO",
-    "NUM_PERIOD"
+{  
+   "keys_to_remove": [
+    34,
+    35,
+    36,
+    37,
+    55,
+    56,
+    57,
+    58,
+    73,
+    74,
+    75,
+    90,
+    91,
+    92,
+    93,
+    105,
+    106
   ],
   "key_modifications": {
-    "PAUSE_BREAK": {
+    "16": {
       "visualName": null,
-      "tag": "PAUSE_BREAK",
+      "tag": 16,
       "line_break": true,
       "margin_left": null,
       "margin_top": null,
       "width": null,
       "height": null,
       "font_size": null,
-      "enabled": null,
-      "absolute_location": false,
-      "image": ""
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": null
     },
-    "PAGE_UP": {
+    "33": {
       "visualName": null,
-      "tag": "PAGE_UP",
+      "tag": 33,
       "line_break": true,
       "margin_left": null,
       "margin_top": null,
       "width": null,
       "height": null,
       "font_size": null,
-      "enabled": null,
-      "absolute_location": false,
-      "image": ""
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": null
     },
-    "PAGE_DOWN": {
+    "54": {
       "visualName": null,
-      "tag": "PAGE_DOWN",
+      "tag": 54,
       "line_break": true,
       "margin_left": null,
       "margin_top": null,
       "width": null,
       "height": null,
       "font_size": null,
-      "enabled": null,
-      "absolute_location": false,
-      "image": ""
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": null
     },
-    "ENTER": {
+    "72": {
       "visualName": null,
-      "tag": "ENTER",
+      "tag": 72,
       "line_break": true,
       "margin_left": null,
       "margin_top": null,
       "width": null,
       "height": null,
       "font_size": null,
-      "enabled": null,
-      "absolute_location": false,
-      "image": ""
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": null
     },
-    "ARROW_UP": {
+    "89": {
       "visualName": null,
-      "tag": "ARROW_UP",
+      "tag": 89,
       "line_break": true,
       "margin_left": null,
       "margin_top": null,
       "width": null,
       "height": null,
       "font_size": null,
-      "enabled": null,
-      "absolute_location": false,
-      "image": ""
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": null
     },
-    "ARROW_RIGHT": {
+    "104": {
       "visualName": null,
-      "tag": "ARROW_RIGHT",
+      "tag": 104,
       "line_break": true,
       "margin_left": null,
       "margin_top": null,
       "width": null,
       "height": null,
       "font_size": null,
-      "enabled": null,
-      "absolute_location": false,
-      "image": ""
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": null
     },
-    "RIGHT_WINDOWS": {
+    "99": {
       "visualName": "FN",
-      "tag": "FN_Key",
+      "tag": 107,
       "line_break": null,
       "margin_left": null,
       "margin_top": null,
       "width": null,
       "height": null,
       "font_size": null,
-      "enabled": null,
-      "absolute_location": false,
-      "image": ""
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": null
     },
-    "SPACE": {
+    "97": {
       "visualName": "SPACE",
-      "tag": "SPACE",
+      "tag": 97,
       "line_break": null,
       "margin_left": null,
       "margin_top": null,
       "width": null,
       "height": null,
       "font_size": null,
-      "enabled": true,
-      "absolute_location": false,
-      "image": ""
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": true
     }
   },
-  "key_conversion": null,
   "included_features": [
     "steelseries_apex_m750_tkl_features.json"
   ]

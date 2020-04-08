@@ -1,21 +1,22 @@
 {
   "keys_to_remove": [],
   "key_modifications": {
-    "APPLICATION_SELECT": {
+    "100": {
       "visualName": "FN",
-      "tag": "FN_Key",
+      "tag": 107,
       "line_break": null,
       "margin_left": null,
       "margin_top": null,
       "width": null,
       "height": null,
       "font_size": null,
-      "enabled": null,
-      "absolute_location": false,
-      "image": ""
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": null
     }
   },
-  "key_conversion": null,
   "included_features": [
     "masterkeys_mk750_right_features.json",
     "masterkeys_mk750_bottom_features.json",

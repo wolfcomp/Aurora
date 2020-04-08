@@ -144,6 +144,21 @@ namespace Aurora.Settings
         LeftHanded = 2
     }
 
+    public enum ExtraFeatures
+    {
+        [Description("None")]
+        None = 0,
+
+        [Description("Razer Firefly + Corsair MM800")]
+        Mousemats = 1,
+
+        [Description("MSI MPG27CQ")]
+        Monitor = 2,
+
+        [Description("Razer Firefly + Corsair MM800 + MSI MPG27CQ")]
+        MonitorMousemats = 3,
+    }
+
     public enum PreferredKeyboard
     {
         [Description("None")]
@@ -324,8 +339,12 @@ namespace Aurora.Settings
         Corsair_M65 = 201,
         [Description("Corsair - Katar")]
         Corsair_Katar = 202,
+        [Description("Corsair - MM800 + Mouse")]
+        Corsair_MM800 = 203,
 
         //Razer range is 300-399
+        [Description("Razer - Mousepad + Mouse")]
+        Razer_Mousepad = 300,
 
         //Clevo range is 400-499
         [Description("Clevo - Touchpad")]
@@ -344,6 +363,8 @@ namespace Aurora.Settings
         SteelSeries_QcK_Prism = 702,
         [Description("SteelSeries - Two-zone QcK Mousepad + Mouse")]
         SteelSeries_QcK_2_Zone = 703,
+        [Description("SteelSeries - Rival 600")]
+        SteelSeries_Rival_600 = 704,
         //Asus range is 900-999
         [Description("Asus - Pugio")]
         Asus_Pugio = 900
@@ -435,6 +456,7 @@ namespace Aurora.Settings
         public PreferredKeyboard keyboard_brand;
         public PreferredKeyboardLocalization keyboard_localization;
         public PreferredMouse mouse_preference;
+        public ExtraFeatures extra_features;
         public KeycapType virtualkeyboard_keycap_type;
         public ApplicationDetectionMode detection_mode;
         public HashSet<String> excluded_programs;

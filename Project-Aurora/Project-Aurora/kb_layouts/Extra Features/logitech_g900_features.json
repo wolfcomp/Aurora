@@ -1,51 +1,35 @@
 {
   "group_tag": "mouse",
-  "origin_region": "BottomRight",
+  "origin_region": 4,
   "grouped_keys": [
-    {
-      "visualName": null,
-      "tag": "NONE",
-      "line_break": null,
+  {
+      "tag": -1,
       "margin_left": 10.0,
       "margin_top": -232.0,
       "width": 123.0,
       "height": 232.0,
-      "font_size": null,
+      "margin_left_bits": 1,
+      "margin_top_bits": -19,
+      "width_bits": 10,
+      "height_bits": 19,
+      "image": "Logi_G900_outline.png",
       "enabled": true,
-      "absolute_location": true,
-      "image": "Logi_G900_outline.png"
+      "absolute_location": true
     },
     {
       "visualName": "Logo",
-      "tag": "Peripheral_Logo",
-      "line_break": null,
+      "tag": 160,
       "margin_left": 60.0,
       "margin_top": -69.0,
       "width": 22.0,
       "height": 24.0,
-      "font_size": null,
+      "width_bits": 2,
+      "height_bits": 2,
+      "margin_left_bits": 5,
+      "margin_top_bits": -5,
+      "image": "Logi_G900_logo.png",
       "enabled": true,
-      "absolute_location": true,
-      "image": "Logi_G900_logo.png"
+      "absolute_location": true
     }
-  ],
-  "KeyText": {},
-  "key_conversion": null,
-  "Region": {
-    "Location": {
-      "IsEmpty": true,
-      "X": 0.0,
-      "Y": 0.0
-    },
-    "Size": "0, 0",
-    "X": 0.0,
-    "Y": 0.0,
-    "Width": 0.0,
-    "Height": 0.0,
-    "Left": 0.0,
-    "Top": 0.0,
-    "Right": 0.0,
-    "Bottom": 0.0,
-    "IsEmpty": true
-  }
+  ]
 }

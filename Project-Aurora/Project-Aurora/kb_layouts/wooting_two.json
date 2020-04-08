@@ -1,47 +1,53 @@
 {
-  "keys_to_remove": [],
+  "keys_to_remove": [
+  ],
   "key_modifications": {
-    "SCROLL_LOCK": {
+    "15": {
       "visualName": "PAUSE",
-      "tag": "PAUSE_BREAK",
+      "tag": 16,
       "line_break": null,
       "margin_left": null,
       "margin_top": null,
       "width": null,
       "height": null,
       "font_size": null,
-      "enabled": null,
-      "absolute_location": false,
-      "image": ""
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": null
     },
-    "PAUSE_BREAK": {
+    "16": {
       "visualName": "SCRL LOCK",
-      "tag": "SCROLL_LOCK",
+      "tag": 15,
       "line_break": null,
       "margin_left": null,
       "margin_top": null,
       "width": null,
       "height": null,
       "font_size": null,
-      "enabled": null,
-      "absolute_location": false,
-      "image": ""
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": null
     },
-    "APPLICATION_SELECT": {
+    "100": {
       "visualName": "FN",
-      "tag": "FN_Key",
+      "tag": 107,
       "line_break": null,
       "margin_left": null,
       "margin_top": null,
       "width": null,
       "height": null,
       "font_size": null,
-      "enabled": null,
-      "absolute_location": false,
-      "image": ""
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": null
     }
   },
-  "key_conversion": null,
   "included_features": [
     "wooting_two_features.json"
   ]

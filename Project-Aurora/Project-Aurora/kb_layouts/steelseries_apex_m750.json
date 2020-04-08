@@ -1,34 +1,37 @@
 {
   "keys_to_remove": [],
   "key_modifications": {
-    "APPLICATION_SELECT": {
+    "100": {
       "visualName": "FN",
-      "tag": "FN_Key",
+      "tag": 107,
       "line_break": null,
       "margin_left": null,
       "margin_top": null,
       "width": null,
       "height": null,
       "font_size": null,
-      "enabled": null,
-      "absolute_location": false,
-      "image": ""
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": null
     },
-    "SPACE": {
+    "97": {
       "visualName": "SPACE",
-      "tag": "SPACE",
+      "tag": 97,
       "line_break": null,
       "margin_left": null,
       "margin_top": null,
       "width": null,
       "height": null,
       "font_size": null,
-      "enabled": true,
-      "absolute_location": false,
-      "image": ""
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": true
     }
   },
-  "key_conversion": null,
   "included_features": [
     "steelseries_apex_m750_features.json"
   ]

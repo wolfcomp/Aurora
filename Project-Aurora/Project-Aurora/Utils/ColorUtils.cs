@@ -1,8 +1,10 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
+using System.Linq;
 using System.Windows.Data;
 
 namespace Aurora.Utils
@@ -529,7 +531,7 @@ namespace Aurora.Utils
 
     public class RealColor : ICloneable
     {
-        [JsonProperty]
+        [JsonProperty, JsonConverter(typeof(RealColorJsonConverter))]
         private System.Drawing.Color Color { get; set; }
 
         public RealColor()
@@ -574,5 +576,32 @@ namespace Aurora.Utils
 
         public static implicit operator System.Drawing.Color(RealColor c) => c.GetDrawingColor();
         public static implicit operator System.Windows.Media.Color(RealColor c) => c.GetMediaColor();
+
+        public override string ToString()
+        {
+            return Color.ToString();
+        }
+    }
+
+    internal class RealColorJsonConverter : JsonConverter
+    {
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            writer.WriteValue(value.ToString());
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+
+            var t = reader.Value.ToString().Replace(" ", "").Split('[')[1];
+            var h = t.Substring(0, t.Length - 1).Split(',').Select(f =>
+            {
+                var k = f.Split('=');
+                return new KeyValuePair<string, string>(k[0], k[1]);
+            }).ToDictionary(f => f.Key, f => f.Value);
+            return Color.FromArgb(Convert.ToInt32(h["A"]), Convert.ToInt32(h["R"]), Convert.ToInt32(h["G"]), Convert.ToInt32(h["B"]));
+        }
+
+        public override bool CanConvert(Type objectType) => objectType == typeof(RealColor);
     }
 }
