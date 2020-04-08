@@ -44,7 +44,7 @@ namespace Aurora.Devices.SteelSeries
             }
             catch (Exception e)
             {
-                Global.logger.Error("SteelSeries Lisp Code failed: " + e);
+                Global.logger.Error(e,"SteelSeries Lisp Code failed.");
                 throw;
             }
         }
@@ -55,11 +55,18 @@ namespace Aurora.Devices.SteelSeries
             if (!file.Exists)
                 throw new FileNotFoundException($"Core Props file could not be found.");
 
-            var reader = file.OpenText();
-            var coreProps = JObject.Parse(reader.ReadToEnd());
-            reader.Dispose();
-            client.BaseAddress = new Uri("http://" + coreProps["address"]);
-            sendLispCode();
+            try
+            {
+                var reader = file.OpenText();
+                var coreProps = JObject.Parse(reader.ReadToEnd());
+                reader.Dispose();
+                client.BaseAddress = new Uri("http://" + coreProps["address"]);
+                sendLispCode();
+            }
+            catch (Exception e)
+            {
+                Global.logger.Error(e, "SteelSeries Core Props Load failed.");
+            }
         }
 
         private void setKeyboardLed(byte led, Color color)
@@ -151,9 +158,9 @@ namespace Aurora.Devices.SteelSeries
                 }
                 catch (Exception e)
                 {
-                    Global.logger.Error(e, "Error while sending heartbeat to SteelSeries Engine");
-                    //To stop all other events from erroring
-                    Shutdown();
+                    Global.logger.Error(e, "Error while sending heartbeat to SteelSeries Engine trying to restart.");
+                    //To stop all other events from erroring and try and reboot steelseries engine
+                    Reset();
                 }
             }
         }
@@ -161,7 +168,6 @@ namespace Aurora.Devices.SteelSeries
         private void sendLighting()
         {
             sendJson("/game_event", baseColorObject);
-            dataColorObject.RemoveAll();
         }
 
         private void sendJson(string endpoint, object obj)

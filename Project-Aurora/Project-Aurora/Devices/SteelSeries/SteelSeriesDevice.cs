@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Net.Http;
-
+using System.Threading.Tasks;
 using Aurora.Settings;
 using Aurora.Utils;
 
@@ -80,6 +80,13 @@ namespace Aurora.Devices.SteelSeries
 
         public void Reset()
         {
+            Shutdown();
+            lock (lock_obj)
+            {
+                Process.Start(@"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\SteelSeries\SteelSeries Engine 3\SteelSeries Engine 3.lnk");
+                Task.Delay(15000).GetAwaiter().GetResult();
+            }
+            Initialize();
         }
 
         public bool Reconnect() => true;
@@ -108,30 +115,30 @@ namespace Aurora.Devices.SteelSeries
         {
             var tmpTime = DateTime.Now;
             var keyColors = colorComposition.keyColors.ToDictionary(t => t.Key, t => ColorUtils.MultiplyColorByScalar(t.Value, t.Value.A / 255D));
+            dataColorObject.RemoveAll();
             if (!Global.Configuration.devices_disable_mouse || !Global.Configuration.devices_disable_headset)
             {
                 if (!keyColors.ContainsKey(DeviceKeys.Peripheral))
                 {
                     var mousePad = keyColors.Where(t => t.Key >= DeviceKeys.MOUSEPADLIGHT1 && t.Key <= DeviceKeys.MOUSEPADLIGHT12).Select(t => t.Value).ToArray();
-                    var tmpmouse = new List<Color> { keyColors[DeviceKeys.Peripheral_Logo], keyColors[DeviceKeys.Peripheral_ScrollWheel]};
-                    var mouse = tmpmouse.ToArray();
-                    tmpmouse.Clear();
-                    var monitor = keyColors.Where(t => t.Key >= DeviceKeys.MONITORLIGHT1 && t.Key <= DeviceKeys.MONITORLIGHT103).Select(t => t.Value).ToArray();
-                    if (mouse.Length <= 1)
+                    var mouse = new List<Color> { keyColors[DeviceKeys.Peripheral_Logo], keyColors[DeviceKeys.Peripheral_ScrollWheel]};
+                    mouse.AddRange(keyColors.Where(t => t.Key <= DeviceKeys.MOUSELIGHT1 && t.Key >= DeviceKeys.MOUSELIGHT6).Select(t => t.Value));
+                    setOneZone(keyColors[DeviceKeys.Peripheral_Logo]);
+                    if (mouse.Count != 1)
                         setMouse(keyColors[DeviceKeys.Peripheral_Logo]);
                     else
                     {
                         setLogo(keyColors[DeviceKeys.Peripheral_Logo]);
                         setWheel(keyColors[DeviceKeys.Peripheral_ScrollWheel]);
-                        if (mouse.Length == 8)
-                            setEightZone(mouse);
+                        if (mouse.Count == 8)
+                            setEightZone(mouse.ToArray());
                     }
                     if (mousePad.Length == 2)
                         setTwoZone(mousePad);
                     else
                         setTwelveZone(mousePad);
-                    if (monitor.Length == 103)
-                        setHundredThreeZone(monitor);
+                    if (keyColors.Count(t => t.Key >= DeviceKeys.MONITORLIGHT1 && t.Key <= DeviceKeys.MONITORLIGHT103) == 103)
+                        setHundredThreeZone(keyColors.Where(t => t.Key >= DeviceKeys.MONITORLIGHT1 && t.Key <= DeviceKeys.MONITORLIGHT103).Select(t => t.Value).ToArray());
                 }
                 else
                     setGeneric(keyColors[DeviceKeys.Peripheral]);
