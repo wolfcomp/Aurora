@@ -2131,6 +2131,12 @@ namespace Aurora.Devices
         /// </summary>
         [Description("Mouse Light 6")]
         MOUSELIGHT6 = 344,
+
+        ///<summary>
+        /// Calculator Key
+        /// </summary>
+        [Description("Calculator")]
+        CALC = 345,
     };
 
     /// <summary>
