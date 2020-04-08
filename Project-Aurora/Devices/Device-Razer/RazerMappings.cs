@@ -147,21 +147,21 @@ namespace Device_Razer
         };
         public static readonly Dictionary<DeviceKeys, int> mousepadDictionary = new Dictionary<DeviceKeys, int>()
         {
-            [DeviceKeys.MOUSEPADLIGHT1] = 14,
-            [DeviceKeys.MOUSEPADLIGHT2] = 13,
-            [DeviceKeys.MOUSEPADLIGHT3] = 12,
-            [DeviceKeys.MOUSEPADLIGHT4] = 11,
-            [DeviceKeys.MOUSEPADLIGHT5] = 10,
-            [DeviceKeys.MOUSEPADLIGHT6] = 9,
-            [DeviceKeys.MOUSEPADLIGHT7] = 8,
-            [DeviceKeys.MOUSEPADLIGHT8] = 7,
-            [DeviceKeys.MOUSEPADLIGHT9] = 6,
-            [DeviceKeys.MOUSEPADLIGHT10] = 5,
-            [DeviceKeys.MOUSEPADLIGHT11] = 4,
-            [DeviceKeys.MOUSEPADLIGHT12] = 3,
-            [DeviceKeys.MOUSEPADLIGHT13] = 2,
-            [DeviceKeys.MOUSEPADLIGHT14] = 1,
-            [DeviceKeys.MOUSEPADLIGHT15] = 0,
+            [DeviceKeys.RMPL1] = 14,
+            [DeviceKeys.RMPL2] = 13,
+            [DeviceKeys.RMPL3] = 12,
+            [DeviceKeys.RMPL4] = 11,
+            [DeviceKeys.RMPL5] = 10,
+            [DeviceKeys.RMPL6] = 9,
+            [DeviceKeys.RMPL7] = 8,
+            [DeviceKeys.RMPL8] = 7,
+            [DeviceKeys.RMPL9] = 6,
+            [DeviceKeys.RMPL10] = 5,
+            [DeviceKeys.RMPL11] = 4,
+            [DeviceKeys.RMPL12] = 3,
+            [DeviceKeys.RMPL13] = 2,
+            [DeviceKeys.RMPL14] = 1,
+            [DeviceKeys.RMPL15] = 0,
         };
         public static readonly Dictionary<DeviceKeys, int> headsetDictionary = new Dictionary<DeviceKeys, int>() { };
         public static readonly Dictionary<DeviceKeys, int> chromalinkDictionary = new Dictionary<DeviceKeys, int>() { };

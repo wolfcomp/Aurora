@@ -11,6 +11,7 @@ using Aurora.Devices;
 using Aurora.Devices.SteelSeries;
 using Aurora.Settings;
 using Aurora.Utils;
+using Newtonsoft.Json.Linq;
 
 namespace Device_SteelSeries
 {
@@ -47,7 +48,7 @@ namespace Device_SteelSeries
                     if (!baseObject.ContainsKey("game"))
                     {
                         baseObject.Add("game", "PROJECTAURORA");
-                        baseColorObject.Add("game", baseObject["game"]);
+                        baseColorObject.AddFirst(new JProperty("game", baseObject["game"]));
                     }
                     client = new HttpClient {Timeout = TimeSpan.FromSeconds(30)};
                     loadCoreProps();
@@ -117,7 +118,7 @@ namespace Device_SteelSeries
                     var mouse = new List<Color> { keyColors[DeviceKeys.Peripheral_Logo], keyColors[DeviceKeys.Peripheral_ScrollWheel]};
                     mouse.AddRange(keyColors.Where(t => t.Key <= DeviceKeys.MOUSELIGHT1 && t.Key >= DeviceKeys.MOUSELIGHT6).Select(t => t.Value));
                     setOneZone(keyColors[DeviceKeys.Peripheral_Logo]);
-                    if (mouse.Count != 1)
+                    if (mouse.Count <= 1)
                         setMouse(keyColors[DeviceKeys.Peripheral_Logo]);
                     else
                     {

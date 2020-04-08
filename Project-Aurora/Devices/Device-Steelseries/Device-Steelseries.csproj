@@ -7,8 +7,8 @@
     <ProjectGuid>{CBF7BC9C-DC9F-47EF-89BD-7AEFDDCA6C4E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Device_Steelseries</RootNamespace>
-    <AssemblyName>Device-Steelseries</AssemblyName>
+    <RootNamespace>Device_SteelSeries</RootNamespace>
+    <AssemblyName>Device-SteelSeries</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
