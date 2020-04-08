@@ -1,14 +1,10 @@
 using Aurora.Devices;
 using Aurora.Profiles;
 using Aurora.Settings;
-
 using IronPython.Hosting;
-
 using Microsoft.Scripting.Hosting;
 using Microsoft.Win32;
-
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -19,20 +15,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
-
 using SharpDX.RawInput;
-
 using NLog;
-
 using System.Reflection;
 using System.Text;
-
 using RazerSdkWrapper;
 using RazerSdkWrapper.Utils;
 using RazerSdkWrapper.Data;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace Aurora
 {
@@ -43,18 +32,6 @@ namespace Aurora
     {
         public static string ScriptDirectory = "Scripts";
         public static ScriptEngine PythonEngine = Python.CreateEngine();
-
-        public static JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
-        {
-            ObjectCreationHandling = ObjectCreationHandling.Replace,
-            SerializationBinder = Utils.JSONUtils.SerializationBinder,
-            TypeNameHandling = TypeNameHandling.All,
-            Converters = new List<JsonConverter>
-            {
-                new StringEnumConverter()
-            },
-            Formatting = Formatting.Indented
-        };
 
         /// <summary>
         /// A boolean indicating if Aurora was started with Debug parameter
@@ -142,7 +119,7 @@ namespace Aurora
         public static KeyboardLayoutManager kbLayout;
         public static Effects effengine;
         public static KeyRecorder key_recorder;
-        public static RzManager razerManager;
+        public static RzSdkManager razerSdkManager;
 
         /// <summary>
         /// Currently held down modifer key
@@ -307,7 +284,9 @@ namespace Aurora
                     Global.Configuration = new Configuration();
                 }
 
-                Global.Configuration.PropertyChanged += (sender, eventArgs) => { ConfigManager.Save(Global.Configuration); };
+                Global.Configuration.PropertyChanged += (sender, eventArgs) => {
+                    ConfigManager.Save(Global.Configuration);
+                };
 
                 Process.GetCurrentProcess().PriorityClass = Global.Configuration.HighPriority ? ProcessPriorityClass.High : ProcessPriorityClass.Normal;
 
@@ -347,12 +326,12 @@ namespace Aurora
 
                 Global.key_recorder = new KeyRecorder(Global.InputEvents);
 
-                Global.logger.Info("Loading RazerManager");
+                Global.logger.Info("Loading RazerSdkManager");
                 if (RzHelper.IsSdkVersionSupported(RzHelper.GetSdkVersion()))
                 {
                     try
                     {
-                        Global.razerManager = new RzManager()
+                        Global.razerSdkManager = new RzSdkManager()
                         {
                             KeyboardEnabled = true,
                             MouseEnabled = true,
@@ -360,17 +339,17 @@ namespace Aurora
                             AppListEnabled = true,
                         };
 
-                        Global.logger.Info("RazerManager loaded successfully!");
+                        Global.logger.Info("RazerSdkManager loaded successfully!");
                     }
                     catch (Exception exc)
                     {
-                        Global.logger.Fatal("RazerManager failed to load!");
+                        Global.logger.Fatal("RazerSdkManager failed to load!");
                         Global.logger.Fatal(exc.ToString());
                     }
                 }
                 else
                 {
-                    Global.logger.Warn("Currently installed razer sdk version \"{0}\" is not supported!", RzHelper.GetSdkVersion());
+                    Global.logger.Warn("Currently installed razer sdk version \"{0}\" is not supported by the RazerSdkManager!", RzHelper.GetSdkVersion());
                 }
 
                 Global.logger.Info("Loading Applications");
@@ -418,14 +397,21 @@ namespace Aurora
                 Global.logger.Info("Listening for game integration calls...");
 
                 Global.logger.Info("Loading ResourceDictionaries...");
-                this.Resources.MergedDictionaries.Add(new ResourceDictionary {Source = new Uri("Themes/MetroDark/MetroDark.MSControls.Core.Implicit.xaml", UriKind.Relative)});
-                this.Resources.MergedDictionaries.Add(new ResourceDictionary {Source = new Uri("Themes/MetroDark/MetroDark.MSControls.Toolkit.Implicit.xaml", UriKind.Relative)});
+                this.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("Themes/MetroDark/MetroDark.MSControls.Core.Implicit.xaml", UriKind.Relative) });
+                this.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("Themes/MetroDark/MetroDark.MSControls.Toolkit.Implicit.xaml", UriKind.Relative) });
                 Global.logger.Info("Loaded ResourceDictionaries");
+
 
                 Global.logger.Info("Loading ConfigUI...");
 
                 MainWindow = new ConfigUI();
                 ((ConfigUI)MainWindow).Display();
+
+                //Debug Windows on Startup
+                if (Global.Configuration.BitmapWindowOnStartUp)
+                    Window_BitmapView.Open();
+                if (Global.Configuration.HttpWindowOnStartUp)
+                    Window_GSIHttpDebug.Open();
             }
             else
             {
@@ -467,24 +453,24 @@ namespace Aurora
         private static void InterceptVolumeAsBrightness(object sender, InputInterceptor.InputEventData e)
         {
             var keys = (Keys)e.Data.VirtualKeyCode;
-            if ((keys.Equals(Keys.VolumeDown) || keys.Equals(Keys.VolumeUp)) && Global.InputEvents.Alt)
+            if ((keys.Equals(Keys.VolumeDown) || keys.Equals(Keys.VolumeUp))
+                && Global.InputEvents.Alt)
             {
                 e.Intercepted = true;
                 Task.Factory.StartNew(() =>
+                {
+                    if (e.KeyDown)
                     {
-                        if (e.KeyDown)
-                        {
-                            float brightness = Global.Configuration.GlobalBrightness;
-                            brightness += keys == Keys.VolumeUp ? 0.05f : -0.05f;
-                            Global.Configuration.GlobalBrightness = Math.Max(0f, Math.Min(1f, brightness));
+                        float brightness = Global.Configuration.GlobalBrightness;
+                        brightness += keys == Keys.VolumeUp ? 0.05f : -0.05f;
+                        Global.Configuration.GlobalBrightness = Math.Max(0f, Math.Min(1f, brightness));
 
-                            ConfigManager.Save(Global.Configuration);
-                        }
+                        ConfigManager.Save(Global.Configuration);
                     }
+                }
                 );
             }
         }
-
         protected override void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);
@@ -503,7 +489,7 @@ namespace Aurora
 
             try
             {
-                Global.razerManager?.Dispose();
+                Global.razerSdkManager?.Dispose();
             }
             catch (Exception exc)
             {
@@ -536,6 +522,7 @@ namespace Aurora
             Global.logger.Fatal(String.Format("Runtime terminating: {0}", e.IsTerminating));
             LogManager.Flush();
 
+            
             System.Windows.MessageBox.Show("Aurora fatally crashed. Please report the follow to author: \r\n\r\n" + exc, "Aurora has stopped working");
             //Perform exit operations
             System.Windows.Application.Current.Shutdown();
@@ -571,7 +558,7 @@ namespace Aurora
             }
 
             //Patch 32-bit
-            string logitech_path = (string)Microsoft.Win32.Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Classes\WOW6432Node\CLSID\{a6519e67-7632-4375-afdf-caa889744403}\ServerBinary", null, null); //null gets the default value
+            string logitech_path = (string)Microsoft.Win32.Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Classes\WOW6432Node\CLSID\{a6519e67-7632-4375-afdf-caa889744403}\ServerBinary", null, null);//null gets the default value
             if (logitech_path == null || logitech_path == @"C:\Program Files\LGHUB\sdk_legacy_led_x86.dll")
             {
                 logitech_path = @"C:\Program Files\Logitech Gaming Software\SDK\LED\x86\LogitechLed.dll";
@@ -596,7 +583,7 @@ namespace Aurora
                 key.CreateSubKey("ServerBinary");
                 key = key.OpenSubKey("ServerBinary", true);
 
-                key.SetValue(null, logitech_path); //null to set the default value
+                key.SetValue(null, logitech_path);//null to set the default value
             }
 
             if (File.Exists(logitech_path) && !File.Exists(logitech_path + ".aurora_backup"))

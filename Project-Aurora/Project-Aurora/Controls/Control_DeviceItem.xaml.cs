@@ -82,7 +82,8 @@ namespace Aurora.Controls
             else
             {
                 Global.Configuration.devices_disabled.Add(Device.Device.GetType());
-                Device.Device.Shutdown();
+                if(Device.Device.IsInitialized())
+                    Device.Device.Shutdown();
             }
 
             UpdateControls();
@@ -90,8 +91,6 @@ namespace Aurora.Controls
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            if(!Device.Device.GetRegisteredVariables().GetRegisteredVariableKeys().Any())
-                btnViewOptions.IsEnabled = false;
             UpdateControls();
         }
 
@@ -121,6 +120,8 @@ namespace Aurora.Controls
                 }
             }
 
+            if(Device.Device.GetRegisteredVariables().GetRegisteredVariableKeys().Count() == 0)
+                btnViewOptions.IsEnabled = false;
         }
 
         private void btnViewOptions_Click(object sender, RoutedEventArgs e)

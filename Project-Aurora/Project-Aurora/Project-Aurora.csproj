@@ -2641,10 +2641,16 @@
   </Target>
   <Import Project="..\packages\RGB.NET.Resources.Asus.0.3.0\build\RGB.NET.Resources.Asus.targets" Condition="Exists('..\packages\RGB.NET.Resources.Asus.0.3.0\build\RGB.NET.Resources.Asus.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+
        Other similar extension points exist, see Microsoft.Common.targets.
+
   <Target Name="BeforeBuild">
+
   </Target>
+
   <Target Name="AfterBuild">
+
   </Target>
+
   -->
 </Project>
