@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
+using Aurora.Settings;
 
 namespace Aurora.Devices
 {
@@ -2144,13 +2146,13 @@ namespace Aurora.Devices
     /// <summary>
     /// An interface for a device class.
     /// </summary>
-    public interface Device
+    public interface IDevice
     {
         /// <summary>
         /// Gets registered variables by this device.
         /// </summary>
         /// <returns>Registered Variables</returns>
-        Settings.VariableRegistry GetRegisteredVariables();
+        VariableRegistry GetRegisteredVariables();
 
         /// <summary>
         /// Gets the device name.
@@ -2231,5 +2233,120 @@ namespace Aurora.Devices
         /// <param name="forced">A boolean value indicating whether or not to forcefully update this device</param>
         /// <returns></returns>
         bool UpdateDevice(DeviceColorComposition colorComposition, DoWorkEventArgs e, bool forced = false);
+    }
+
+    /// <summary>
+    /// Default Device implementation
+    /// </summary>
+    public abstract class Device : IDevice
+    {
+        protected abstract string DeviceName { get; }
+
+        protected virtual bool isInitialized { get; set; }
+
+        private readonly Stopwatch watch = new Stopwatch();
+
+        private long lastUpdateTime = 0;
+
+        private VariableRegistry variableRegistry;
+
+        protected void LogInfo(string s) => Global.logger.Info(s);
+
+        protected void LogError(string s) => Global.logger.Error(s);
+
+        protected Color CorrectAlpha(Color clr) => Color.FromArgb(255, Utils.ColorUtils.MultiplyColorByScalar(clr, clr.A / 255.0D));
+
+        protected VariableRegistry GlobalVarRegistry => Global.Configuration.VarRegistry;
+
+        public virtual string GetDeviceDetails()
+        {
+            return DeviceName + ": " + (isInitialized ? "Initialized" : "Not initialized");
+        }
+
+        public virtual string GetDeviceName()
+        {
+            return DeviceName;
+        }
+
+        public virtual string GetDeviceUpdatePerformance()
+        {
+            return isInitialized ? lastUpdateTime + " ms" : "";
+        }
+
+        public virtual VariableRegistry GetRegisteredVariables()
+        {
+            if(variableRegistry == null)
+            {
+                variableRegistry = new VariableRegistry();
+                RegisterVariables(variableRegistry);
+            }
+            return variableRegistry;
+        }
+
+        public virtual bool IsInitialized()
+        {
+            return isInitialized;
+        }
+
+        public virtual bool UpdateDevice(DeviceColorComposition colorComposition, DoWorkEventArgs e, bool forced = false)
+        {
+            watch.Restart();
+
+            bool update_result = UpdateDevice(colorComposition.keyColors, e, forced);
+
+            watch.Stop();
+            lastUpdateTime = watch.ElapsedMilliseconds;
+
+            return update_result;
+        }
+
+        public virtual bool IsConnected()
+        {
+            return isInitialized;
+        }
+
+        public virtual bool IsKeyboardConnected()
+        {
+            return isInitialized;
+        }
+
+        public virtual bool IsPeripheralConnected()
+        {
+            return isInitialized;
+        }
+
+        public virtual bool Reconnect()
+        {
+            return isInitialized;
+        }
+
+        public virtual void Reset()
+        {
+            Shutdown();
+            Initialize();
+        }
+
+        /// <summary>
+        /// Only called once when registering variables. Can be empty if not needed
+        /// </summary>
+        protected virtual void RegisterVariables(VariableRegistry local)
+        {
+            //purposefully empty, if varibles are needed, this should be overridden
+        }
+
+        /// <summary>
+        /// Is called first. Initialize the device here
+        /// </summary>
+        public abstract bool Initialize();
+
+        /// <summary>
+        /// Is called last. Dispose of the devices here
+        /// </summary>
+        public abstract void Shutdown();
+
+        /// <summary>
+        /// Is called every frame (30fps). Update the device here
+        /// </summary>
+        public abstract bool UpdateDevice(Dictionary<DeviceKeys, Color> keyColors, DoWorkEventArgs e, bool forced = false);
     }
 }
