@@ -14,12 +14,6 @@ namespace Aurora.Devices
     public enum DeviceKeys
     {
         /// <summary>
-        /// None
-        /// </summary>
-        [Description("None")]
-        NONE = -1,
-
-        /// <summary>
         /// Peripheral Device
         /// <note type="note">Setting this key will make entire peripheral device one color</note>
         /// </summary>
@@ -122,12 +116,25 @@ namespace Aurora.Devices
         [Description("Pause")]
         PAUSE_BREAK = 16,
 
+
+        /// <summary>
+        /// Half/Full width (Japanese layout) key
+        /// </summary>
+        [Description("Half/Full width")]
+        JPN_HALFFULLWIDTH = 152,
+
+        /// <summary>
+        /// OEM 5 key
+        /// </summary>
+        [Description("OEM 5")]
+        OEM5 = 156,
+
         /// <summary>
         /// Tilde key
         /// </summary>
         [Description("Tilde")]
         TILDE = 17,
-
+        
         /// <summary>
         /// One key
         /// </summary>
@@ -201,6 +208,12 @@ namespace Aurora.Devices
         EQUALS = 29,
 
         /// <summary>
+        /// OEM 6 key
+        /// </summary>
+        [Description("OEM 6")]
+        OEM6 = 169,
+
+        /// <summary>
         /// Backspace key
         /// </summary>
         [Description("Backspace")]
@@ -247,6 +260,7 @@ namespace Aurora.Devices
         /// </summary>
         [Description("Numpad -")]
         NUM_MINUS = 37,
+
 
         /// <summary>
         /// Tab key
@@ -315,10 +329,22 @@ namespace Aurora.Devices
         P = 48,
 
         /// <summary>
+        /// OEM 1 key
+        /// </summary>
+        [Description("OEM 1")]
+        OEM1 = 170,
+
+        /// <summary>
         /// Open Bracket key
         /// </summary>
         [Description("{")]
         OPEN_BRACKET = 49,
+
+        /// <summary>
+        /// OEM Plus key
+        /// </summary>
+        [Description("OEM Plus")]
+        OEMPlus = 171,
 
         /// <summary>
         /// Close Bracket key
@@ -327,9 +353,9 @@ namespace Aurora.Devices
         CLOSE_BRACKET = 50,
 
         /// <summary>
-        /// P key
+        /// Backslash key
         /// </summary>
-        [Description("P")]
+        [Description("\\")]
         BACKSLASH = 51,
 
         /// <summary>
@@ -373,6 +399,7 @@ namespace Aurora.Devices
         /// </summary>
         [Description("Numpad +")]
         NUM_PLUS = 58,
+
 
         /// <summary>
         /// Caps Lock key
@@ -435,6 +462,12 @@ namespace Aurora.Devices
         L = 68,
 
         /// <summary>
+        /// OEM Tilde key
+        /// </summary>
+        [Description("OEM Tilde")]
+        OEMTilde = 157,
+
+        /// <summary>
         /// Semicolon key
         /// </summary>
         [Description("Semicolon")]
@@ -475,6 +508,7 @@ namespace Aurora.Devices
         /// </summary>
         [Description("Numpad 6")]
         NUM_SIX = 75,
+
 
         /// <summary>
         /// Left Shift key
@@ -549,6 +583,18 @@ namespace Aurora.Devices
         FORWARD_SLASH = 87,
 
         /// <summary>
+        /// OEM 8 key
+        /// </summary>
+        [Description("OEM 8")]
+        OEM8 = 158,
+
+        /// <summary>
+        /// OEM 102 key
+        /// </summary>
+        [Description("OEM 102")]
+        OEM102 = 159,
+
+        /// <summary>
         /// Right Shift key
         /// </summary>
         [Description("Right Shift")]
@@ -584,6 +630,7 @@ namespace Aurora.Devices
         [Description("Numpad Enter")]
         NUM_ENTER = 93,
 
+
         /// <summary>
         /// Left Control key
         /// </summary>
@@ -603,10 +650,28 @@ namespace Aurora.Devices
         LEFT_ALT = 96,
 
         /// <summary>
+        /// Non-conversion (Japanese layout) key
+        /// </summary>
+        [Description("Non-conversion")]
+        JPN_MUHENKAN = 153,
+
+        /// <summary>
         /// Spacebar key
         /// </summary>
         [Description("Spacebar")]
         SPACE = 97,
+
+        /// <summary>
+        /// Conversion (Japanese layout) key
+        /// </summary>
+        [Description("Conversion")]
+        JPN_HENKAN = 154,
+
+        /// <summary>
+        /// Hiragana/Katakana (Japanese layout) key
+        /// </summary>
+        [Description("Hiragana/Katakana")]
+        JPN_HIRAGANA_KATAKANA = 155,
 
         /// <summary>
         /// Right Alt key
@@ -662,11 +727,13 @@ namespace Aurora.Devices
         [Description("Numpad Period")]
         NUM_PERIOD = 106,
 
+
         /// <summary>
         /// Function key
         /// </summary>
         [Description("FN Key")]
         FN_Key = 107,
+
 
         /// <summary>
         /// Macrokey 1 key
@@ -788,6 +855,7 @@ namespace Aurora.Devices
         [Description("G20")]
         G20 = 127,
 
+
         /// <summary>
         /// Brand Logo
         /// </summary>
@@ -817,6 +885,7 @@ namespace Aurora.Devices
         /// </summary>
         [Description("Lock Switch")]
         LOCK_SWITCH = 132,
+
 
         /// <summary>
         /// Multimedia Play/Pause
@@ -854,6 +923,7 @@ namespace Aurora.Devices
         [Description("Media Next")]
         MEDIA_NEXT = 138,
 
+
         /// <summary>
         /// Volume Mute
         /// </summary>
@@ -872,185 +942,138 @@ namespace Aurora.Devices
         [Description("Volume Up")]
         VOLUME_UP = 141,
 
-        /// <summary>
-        /// Half/Full width (Japanese layout) key
-        /// </summary>
-        [Description("Half/Full width")]
-        JPN_HALFFULLWIDTH = 142,
-
-        /// <summary>
-        /// Non-conversion (Japanese layout) key
-        /// </summary>
-        [Description("Non-conversion")]
-        JPN_MUHENKAN = 143,
-
-        /// <summary>
-        /// Conversion (Japanese layout) key
-        /// </summary>
-        [Description("Conversion")]
-        JPN_HENKAN = 144,
-
-        /// <summary>
-        /// Hiragana/Katakana (Japanese layout) key
-        /// </summary>
-        [Description("Hiragana/Katakana")]
-        JPN_HIRAGANA_KATAKANA = 145,
-
-        /// <summary>
-        /// OEM 5 key
-        /// </summary>
-        [Description("OEM 5")]
-        OEM5 = 146,
-
-        /// <summary>
-        /// OEM Tilde key
-        /// </summary>
-        [Description("OEM Tilde")]
-        OEMTilde = 147,
-
-        /// <summary>
-        /// OEM 8 key
-        /// </summary>
-        [Description("OEM 8")]
-        OEM8 = 148,
-
-        /// <summary>
-        /// OEM 102 key
-        /// </summary>
-        [Description("OEM 102")]
-        OEM102 = 149,
-
-        /// <summary>
-        /// Peripheral Logo
-        /// </summary>
-        [Description("Peripheral Logo")]
-        Peripheral_Logo = 150,
-
-        /// <summary>
-        /// Peripheral Scroll Wheel
-        /// </summary>
-        [Description("Peripheral Scroll Wheel")]
-        Peripheral_ScrollWheel = 151,
-
-        /// <summary>
-        /// Peripheral Front-facing lights
-        /// </summary>
-        [Description("Peripheral Front Lights")]
-        Peripheral_FrontLight = 152,
-
-        /// <summary>
-        /// Profile key 1
-        /// </summary>
-        [Description("Profile Key 1")]
-        Profile_Key1 = 153,
-
-        /// <summary>
-        /// Profile key 2
-        /// </summary>
-        [Description("Profile Key 2")]
-        Profile_Key2 = 154,
-
-        /// <summary>
-        /// Profile key 3
-        /// </summary>
-        [Description("Profile Key 3")]
-        Profile_Key3 = 155,
-
-        /// <summary>
-        /// Profile key 4
-        /// </summary>
-        [Description("Profile Key 4")]
-        Profile_Key4 = 156,
-
-        /// <summary>
-        /// Profile key 5
-        /// </summary>
-        [Description("Profile Key 5")]
-        Profile_Key5 = 157,
-
-        /// <summary>
-        /// Profile key 6
-        /// </summary>
-        [Description("Profile Key 6")]
-        Profile_Key6 = 158,
-
-        /// <summary>
-        /// Numpad 00
-        /// </summary>
-        [Description("Numpad 00")]
-        NUM_ZEROZERO = 159,
-
-        /// <summary>
-        /// Macrokey 0 key
-        /// </summary>
-        [Description("G0")]
-        G0 = 160,
-
-        /// <summary>
-        /// Macrokey 0 key
-        /// </summary>
-        [Description("Left FN")]
-        LEFT_FN = 161,
 
         /// <summary>
         /// Additional Light 1
         /// </summary>
         [Description("Additional Light 1")]
-        ADDITIONALLIGHT1 = 162,
+        ADDITIONALLIGHT1 = 142,
 
         /// <summary>
         /// Additional Light 2
         /// </summary>
         [Description("Additional Light 2")]
-        ADDITIONALLIGHT2 = 163,
+        ADDITIONALLIGHT2 = 143,
 
         /// <summary>
         /// Additional Light 3
         /// </summary>
         [Description("Additional Light 3")]
-        ADDITIONALLIGHT3 = 164,
+        ADDITIONALLIGHT3 = 144,
 
         /// <summary>
         /// Additional Light 4
         /// </summary>
         [Description("Additional Light 4")]
-        ADDITIONALLIGHT4 = 165,
+        ADDITIONALLIGHT4 = 145,
 
         /// <summary>
         /// Additional Light 5
         /// </summary>
         [Description("Additional Light 5")]
-        ADDITIONALLIGHT5 = 166,
+        ADDITIONALLIGHT5 = 146,
 
         /// <summary>
         /// Additional Light 6
         /// </summary>
         [Description("Additional Light 6")]
-        ADDITIONALLIGHT6 = 167,
+        ADDITIONALLIGHT6 = 147,
 
         /// <summary>
         /// Additional Light 7
         /// </summary>
         [Description("Additional Light 7")]
-        ADDITIONALLIGHT7 = 168,
+        ADDITIONALLIGHT7 = 148,
 
         /// <summary>
         /// Additional Light 8
         /// </summary>
         [Description("Additional Light 8")]
-        ADDITIONALLIGHT8 = 169,
+        ADDITIONALLIGHT8 = 149,
 
         /// <summary>
         /// Additional Light 9
         /// </summary>
         [Description("Additional Light 9")]
-        ADDITIONALLIGHT9 = 170,
+        ADDITIONALLIGHT9 = 150,
 
         /// <summary>
         /// Additional Light 10
         /// </summary>
         [Description("Additional Light 10")]
-        ADDITIONALLIGHT10 = 171,
+        ADDITIONALLIGHT10 = 151,
+
+        /// <summary>
+        /// Peripheral Logo
+        /// </summary>
+        [Description("Peripheral Logo")]
+        Peripheral_Logo = 160,
+
+        /// <summary>
+        /// Peripheral Scroll Wheel
+        /// </summary>
+        [Description("Peripheral Scroll Wheel")]
+        Peripheral_ScrollWheel = 161,
+
+        /// <summary>
+        /// Peripheral Front-facing lights
+        /// </summary>
+        [Description("Peripheral Front Lights")]
+        Peripheral_FrontLight = 162,
+
+        /// <summary>
+        /// Profile key 1
+        /// </summary>
+        [Description("Profile Key 1")]
+        Profile_Key1 = 163,
+
+        /// <summary>
+        /// Profile key 2
+        /// </summary>
+        [Description("Profile Key 2")]
+        Profile_Key2 = 164,
+
+        /// <summary>
+        /// Profile key 3
+        /// </summary>
+        [Description("Profile Key 3")]
+        Profile_Key3 = 165,
+
+        /// <summary>
+        /// Profile key 4
+        /// </summary>
+        [Description("Profile Key 4")]
+        Profile_Key4 = 166,
+
+        /// <summary>
+        /// Profile key 5
+        /// </summary>
+        [Description("Profile Key 5")]
+        Profile_Key5 = 167,
+
+        /// <summary>
+        /// Profile key 6
+        /// </summary>
+        [Description("Profile Key 6")]
+        Profile_Key6 = 168,
+
+        /// <summary>
+        /// Numpad 00
+        /// </summary>
+        [Description("Numpad 00")]
+        NUM_ZEROZERO = 169,
+
+        /// <summary>
+        /// Macrokey 0 key
+        /// </summary>
+        [Description("G0")]
+        G0 = 170,
+
+        /// <summary>
+        /// Macrokey 0 key
+        /// </summary>
+        [Description("Left FN")]
+        LEFT_FN = 171,
 
         /// <summary>
         /// Additional Light 11
@@ -1153,7 +1176,7 @@ namespace Aurora.Devices
         /// </summary>
         [Description("Additional Light 27")]
         ADDITIONALLIGHT27 = 188,
-
+        
         /// <summary>
         /// Additional Light 28
         /// </summary>
@@ -1186,957 +1209,922 @@ namespace Aurora.Devices
 
         /// <summary>
         /// Mousepad Light 1
-        /// SteelSeries QcK
         /// </summary>
         [Description("Mousepad Light 1")]
-        MOUSEPADLIGHT1 = 194,
+        MOUSEPADLIGHT1 = 201,
 
         /// <summary>
         /// Mousepad Light 2
-        /// SteelSeries QcK
         /// </summary>
         [Description("Mousepad Light 2")]
-        MOUSEPADLIGHT2 = 195,
-
-        /// <summary>
-        /// Mousepad Light 3
-        /// SteelSeries QcK
-        /// </summary>
-        [Description("Mousepad Light 3")]
-        MOUSEPADLIGHT3 = 196,
-
-        /// <summary>
-        /// Mousepad Light 4
-        /// SteelSeries QcK
-        /// </summary>
-        [Description("Mousepad Light 4")]
-        MOUSEPADLIGHT4 = 197,
-
-        /// <summary>
-        /// Mousepad Light 5
-        /// SteelSeries QcK
-        /// </summary>
-        [Description("Mousepad Light 5")]
-        MOUSEPADLIGHT5 = 198,
-
-        /// <summary>
-        /// Mousepad Light 6
-        /// SteelSeries QcK
-        /// </summary>
-        [Description("Mousepad Light 6")]
-        MOUSEPADLIGHT6 = 199,
-
-        /// <summary>
-        /// Mousepad Light 7
-        /// SteelSeries QcK
-        /// </summary>
-        [Description("Mousepad Light 7")]
-        MOUSEPADLIGHT7 = 200,
-
-        /// <summary>
-        /// Mousepad Light 8
-        /// SteelSeries QcK
-        /// </summary>
-        [Description("Mousepad Light 8")]
-        MOUSEPADLIGHT8 = 201,
-
-        /// <summary>
-        /// Mousepad Light 9
-        /// SteelSeries QcK
-        /// </summary>
-        [Description("Mousepad Light 9")]
-        MOUSEPADLIGHT9 = 202,
-
-        /// <summary>
-        /// Mousepad Light 10
-        /// SteelSeries QcK
-        /// </summary>
-        [Description("Mousepad Light 10")]
-        MOUSEPADLIGHT10 = 203,
-
-        /// <summary>
-        /// Mousepad Light 11
-        /// SteelSeries QcK
-        /// </summary>
-        [Description("Mousepad Light 11")]
-        MOUSEPADLIGHT11 = 204,
-
-        /// <summary>
-        /// Mousepad Light 12
-        /// SteelSeries QcK
-        /// </summary>
-        [Description("Mousepad Light 12")]
-        MOUSEPADLIGHT12 = 205,
+        MOUSEPADLIGHT2 = 202,
 
         /// <summary>
         /// Mousepad Light 1
-        /// Corsair MM800
         /// </summary>
-        [Description("Mousepad Light 1")]
-        MOUSEPADLIGHT13 = 206,
+        [Description("Mousepad Light 3")]
+        MOUSEPADLIGHT3 = 203,
 
         /// <summary>
         /// Mousepad Light 2
-        /// Corsair MM800
-        /// </summary>
-        [Description("Mousepad Light 2")]
-        MOUSEPADLIGHT14 = 207,
-
-        /// <summary>
-        /// Mousepad Light 3
-        /// Corsair MM800
-        /// </summary>
-        [Description("Mousepad Light 3")]
-        MOUSEPADLIGHT15 = 208,
-
-        /// <summary>
-        /// Mousepad Light 4
-        /// Corsair MM800
         /// </summary>
         [Description("Mousepad Light 4")]
-        MOUSEPADLIGHT16 = 209,
-
-        /// <summary>
-        /// Mousepad Light 5
-        /// Corsair MM800
-        /// </summary>
-        [Description("Mousepad Light 5")]
-        MOUSEPADLIGHT17 = 210,
-
-        /// <summary>
-        /// Mousepad Light 6
-        /// Corsair MM800
-        /// </summary>
-        [Description("Mousepad Light 6")]
-        MOUSEPADLIGHT18 = 211,
-
-        /// <summary>
-        /// Mousepad Light 7
-        /// Corsair MM800
-        /// </summary>
-        [Description("Mousepad Light 7")]
-        MOUSEPADLIGHT19 = 212,
-
-        /// <summary>
-        /// Mousepad Light 8
-        /// Corsair MM800
-        /// </summary>
-        [Description("Mousepad Light 8")]
-        MOUSEPADLIGHT20 = 213,
-
-        /// <summary>
-        /// Mousepad Light 9
-        /// Corsair MM800
-        /// </summary>
-        [Description("Mousepad Light 9")]
-        MOUSEPADLIGHT21 = 214,
-
-        /// <summary>
-        /// Mousepad Light 10
-        /// Corsair MM800
-        /// </summary>
-        [Description("Mousepad Light 10")]
-        MOUSEPADLIGHT22 = 215,
-
-        /// <summary>
-        /// Mousepad Light 11
-        /// Corsair MM800
-        /// </summary>
-        [Description("Mousepad Light 11")]
-        MOUSEPADLIGHT23 = 216,
-
-        /// <summary>
-        /// Mousepad Light 12
-        /// Corsair MM800
-        /// </summary>
-        [Description("Mousepad Light 12")]
-        MOUSEPADLIGHT24 = 217,
-
-        /// <summary>
-        /// Mousepad Light 13
-        /// Corsair MM800
-        /// </summary>
-        [Description("Mousepad Light 13")]
-        MOUSEPADLIGHT25 = 218,
-
-        /// <summary>
-        /// Mousepad Light 14
-        /// Corsair MM800
-        /// </summary>
-        [Description("Mousepad Light 14")]
-        MOUSEPADLIGHT26 = 219,
-
-        /// <summary>
-        /// Mousepad Light 15
-        /// Corsair MM800
-        /// </summary>
-        [Description("Mousepad Light 15")]
-        MOUSEPADLIGHT27 = 220,
+        MOUSEPADLIGHT4 = 204,
 
         /// <summary>
         /// Mousepad Light 1
-        /// Razer
         /// </summary>
-        [Description("Mousepad Light 1")]
-        MOUSEPADLIGHT28 = 221,
+        [Description("Mousepad Light 5")]
+        MOUSEPADLIGHT5 = 205,
 
         /// <summary>
         /// Mousepad Light 2
-        /// Razer
-        /// </summary>
-        [Description("Mousepad Light 2")]
-        MOUSEPADLIGHT29 = 222,
-
-        /// <summary>
-        /// Mousepad Light 3
-        /// Razer
-        /// </summary>
-        [Description("Mousepad Light 3")]
-        MOUSEPADLIGHT30 = 223,
-
-        /// <summary>
-        /// Mousepad Light 4
-        /// Razer
-        /// </summary>
-        [Description("Mousepad Light 4")]
-        MOUSEPADLIGHT31 = 224,
-
-        /// <summary>
-        /// Mousepad Light 5
-        /// Razer
-        /// </summary>
-        [Description("Mousepad Light 5")]
-        MOUSEPADLIGHT32 = 225,
-
-        /// <summary>
-        /// Mousepad Light 6
-        /// Razer
         /// </summary>
         [Description("Mousepad Light 6")]
-        MOUSEPADLIGHT33 = 226,
+        MOUSEPADLIGHT6 = 206,
 
         /// <summary>
-        /// Mousepad Light 7
-        /// Razer
+        /// Mousepad Light 1
         /// </summary>
         [Description("Mousepad Light 7")]
-        MOUSEPADLIGHT34 = 227,
+        MOUSEPADLIGHT7 = 207,
 
         /// <summary>
-        /// Mousepad Light 8
-        /// Razer
+        /// Mousepad Light 2
         /// </summary>
         [Description("Mousepad Light 8")]
-        MOUSEPADLIGHT35 = 228,
+        MOUSEPADLIGHT8 = 208,
 
         /// <summary>
-        /// Mousepad Light 9
-        /// Razer
+        /// Mousepad Light 1
         /// </summary>
         [Description("Mousepad Light 9")]
-        MOUSEPADLIGHT36 = 229,
+        MOUSEPADLIGHT9 = 209,
 
         /// <summary>
-        /// Mousepad Light 10
-        /// Razer
+        /// Mousepad Light 2
         /// </summary>
         [Description("Mousepad Light 10")]
-        MOUSEPADLIGHT37 = 230,
+        MOUSEPADLIGHT10 = 210,
 
         /// <summary>
-        /// Mousepad Light 11
-        /// Razer
+        /// Mousepad Light 2
         /// </summary>
         [Description("Mousepad Light 11")]
-        MOUSEPADLIGHT38 = 231,
+        MOUSEPADLIGHT11 = 211,
 
         /// <summary>
-        /// Mousepad Light 12
-        /// Razer
+        /// Mousepad Light 1
         /// </summary>
         [Description("Mousepad Light 12")]
-        MOUSEPADLIGHT39 = 232,
+        MOUSEPADLIGHT12 = 212,
 
         /// <summary>
-        /// Mousepad Light 13
-        /// Razer
+        /// Mousepad Light 2
         /// </summary>
         [Description("Mousepad Light 13")]
-        MOUSEPADLIGHT40 = 233,
+        MOUSEPADLIGHT13 = 213,
 
         /// <summary>
-        /// Mousepad Light 14
-        /// Razer
+        /// Mousepad Light 1
         /// </summary>
         [Description("Mousepad Light 14")]
-        MOUSEPADLIGHT41 = 234,
+        MOUSEPADLIGHT14 = 214,
 
         /// <summary>
-        /// Mousepad Light 15
-        /// Razer
+        /// Mousepad Light 2
         /// </summary>
         [Description("Mousepad Light 15")]
-        MOUSEPADLIGHT42 = 235,
-
-        /// <summary>
-        /// Monitor Light 1
-        /// </summary>
-        [Description("Monitor Light 1")]
-        MONITORLIGHT1 = 236,
-
-        /// <summary>
-        /// Monitor Light 2
-        /// </summary>
-        [Description("Monitor Light 2")]
-        MONITORLIGHT2 = 237,
-
-        /// <summary>
-        /// Monitor Light 3
-        /// </summary>
-        [Description("Monitor Light 3")]
-        MONITORLIGHT3 = 238,
-
-        /// <summary>
-        /// Monitor Light 4
-        /// </summary>
-        [Description("Monitor Light 4")]
-        MONITORLIGHT4 = 239,
-
-        /// <summary>
-        /// Monitor Light 5
-        /// </summary>
-        [Description("Monitor Light 5")]
-        MONITORLIGHT5 = 240,
-
-        /// <summary>
-        /// Monitor Light 6
-        /// </summary>
-        [Description("Monitor Light 6")]
-        MONITORLIGHT6 = 241,
-
-        /// <summary>
-        /// Monitor Light 7
-        /// </summary>
-        [Description("Monitor Light 7")]
-        MONITORLIGHT7 = 242,
-
-        /// <summary>
-        /// Monitor Light 8
-        /// </summary>
-        [Description("Monitor Light 8")]
-        MONITORLIGHT8 = 243,
-
-        /// <summary>
-        /// Monitor Light 9
-        /// </summary>
-        [Description("Monitor Light 9")]
-        MONITORLIGHT9 = 244,
-
-        /// <summary>
-        /// Monitor Light 10
-        /// </summary>
-        [Description("Monitor Light 10")]
-        MONITORLIGHT10 = 245,
-
-        /// <summary>
-        /// Monitor Light 11
-        /// </summary>
-        [Description("Monitor Light 11")]
-        MONITORLIGHT11 = 246,
-
-        /// <summary>
-        /// Monitor Light 12
-        /// </summary>
-        [Description("Monitor Light 12")]
-        MONITORLIGHT12 = 247,
-
-        /// <summary>
-        /// Monitor Light 13
-        /// </summary>
-        [Description("Monitor Light 13")]
-        MONITORLIGHT13 = 248,
-
-        /// <summary>
-        /// Monitor Light 14
-        /// </summary>
-        [Description("Monitor Light 14")]
-        MONITORLIGHT14 = 249,
-
-        /// <summary>
-        /// Monitor Light 15
-        /// </summary>
-        [Description("Monitor Light 15")]
-        MONITORLIGHT15 = 250,
-
-        /// <summary>
-        /// Monitor Light 16
-        /// </summary>
-        [Description("Monitor Light 16")]
-        MONITORLIGHT16 = 251,
-
-        /// <summary>
-        /// Monitor Light 17
-        /// </summary>
-        [Description("Monitor Light 17")]
-        MONITORLIGHT17 = 252,
-
-        /// <summary>
-        /// Monitor Light 18
-        /// </summary>
-        [Description("Monitor Light 18")]
-        MONITORLIGHT18 = 253,
-
-        /// <summary>
-        /// Monitor Light 19
-        /// </summary>
-        [Description("Monitor Light 19")]
-        MONITORLIGHT19 = 254,
-
-        /// <summary>
-        /// Monitor Light 20
-        /// </summary>
-        [Description("Monitor Light 20")]
-        MONITORLIGHT20 = 255,
-
-        /// <summary>
-        /// Monitor Light 21
-        /// </summary>
-        [Description("Monitor Light 21")]
-        MONITORLIGHT21 = 256,
-
-        /// <summary>
-        /// Monitor Light 22
-        /// </summary>
-        [Description("Monitor Light 22")]
-        MONITORLIGHT22 = 257,
-
-        /// <summary>
-        /// Monitor Light 23
-        /// </summary>
-        [Description("Monitor Light 23")]
-        MONITORLIGHT23 = 258,
-
-        /// <summary>
-        /// Monitor Light 24
-        /// </summary>
-        [Description("Monitor Light 24")]
-        MONITORLIGHT24 = 259,
-
-        /// <summary>
-        /// Monitor Light 25
-        /// </summary>
-        [Description("Monitor Light 25")]
-        MONITORLIGHT25 = 260,
-
-        /// <summary>
-        /// Monitor Light 26
-        /// </summary>
-        [Description("Monitor Light 26")]
-        MONITORLIGHT26 = 261,
-
-        /// <summary>
-        /// Monitor Light 27
-        /// </summary>
-        [Description("Monitor Light 27")]
-        MONITORLIGHT27 = 262,
-
-        /// <summary>
-        /// Monitor Light 28
-        /// </summary>
-        [Description("Monitor Light 28")]
-        MONITORLIGHT28 = 263,
-
-        /// <summary>
-        /// Monitor Light 29
-        /// </summary>
-        [Description("Monitor Light 29")]
-        MONITORLIGHT29 = 264,
-
-        /// <summary>
-        /// Monitor Light 30
-        /// </summary>
-        [Description("Monitor Light 30")]
-        MONITORLIGHT30 = 265,
-
-        /// <summary>
-        /// Monitor Light 31
-        /// </summary>
-        [Description("Monitor Light 31")]
-        MONITORLIGHT31 = 266,
-
-        /// <summary>
-        /// Monitor Light 32
-        /// </summary>
-        [Description("Monitor Light 32")]
-        MONITORLIGHT32 = 267,
-
-        /// <summary>
-        /// Monitor Light 33
-        /// </summary>
-        [Description("Monitor Light 33")]
-        MONITORLIGHT33 = 268,
-
-        /// <summary>
-        /// Monitor Light 34
-        /// </summary>
-        [Description("Monitor Light 34")]
-        MONITORLIGHT34 = 269,
-
-        /// <summary>
-        /// Monitor Light 35
-        /// </summary>
-        [Description("Monitor Light 35")]
-        MONITORLIGHT35 = 270,
-
-        /// <summary>
-        /// Monitor Light 36
-        /// </summary>
-        [Description("Monitor Light 36")]
-        MONITORLIGHT36 = 271,
-
-        /// <summary>
-        /// Monitor Light 37
-        /// </summary>
-        [Description("Monitor Light 37")]
-        MONITORLIGHT37 = 272,
-
-        /// <summary>
-        /// Monitor Light 38
-        /// </summary>
-        [Description("Monitor Light 38")]
-        MONITORLIGHT38 = 273,
-
-        /// <summary>
-        /// Monitor Light 39
-        /// </summary>
-        [Description("Monitor Light 39")]
-        MONITORLIGHT39 = 274,
-
-        /// <summary>
-        /// Monitor Light 40
-        /// </summary>
-        [Description("Monitor Light 40")]
-        MONITORLIGHT40 = 275,
-
-        /// <summary>
-        /// Monitor Light 41
-        /// </summary>
-        [Description("Monitor Light 41")]
-        MONITORLIGHT41 = 276,
-
-        /// <summary>
-        /// Monitor Light 42
-        /// </summary>
-        [Description("Monitor Light 42")]
-        MONITORLIGHT42 = 277,
-
-        /// <summary>
-        /// Monitor Light 43
-        /// </summary>
-        [Description("Monitor Light 43")]
-        MONITORLIGHT43 = 278,
-
-        /// <summary>
-        /// Monitor Light 44
-        /// </summary>
-        [Description("Monitor Light 44")]
-        MONITORLIGHT44 = 279,
-
-        /// <summary>
-        /// Monitor Light 45
-        /// </summary>
-        [Description("Monitor Light 45")]
-        MONITORLIGHT45 = 280,
-
-        /// <summary>
-        /// Monitor Light 46
-        /// </summary>
-        [Description("Monitor Light 46")]
-        MONITORLIGHT46 = 281,
-
-        /// <summary>
-        /// Monitor Light 47
-        /// </summary>
-        [Description("Monitor Light 47")]
-        MONITORLIGHT47 = 282,
-
-        /// <summary>
-        /// Monitor Light 48
-        /// </summary>
-        [Description("Monitor Light 48")]
-        MONITORLIGHT48 = 283,
-
-        /// <summary>
-        /// Monitor Light 49
-        /// </summary>
-        [Description("Monitor Light 49")]
-        MONITORLIGHT49 = 284,
-
-        /// <summary>
-        /// Monitor Light 50
-        /// </summary>
-        [Description("Monitor Light 50")]
-        MONITORLIGHT50 = 285,
-
-        /// <summary>
-        /// Monitor Light 51
-        /// </summary>
-        [Description("Monitor Light 51")]
-        MONITORLIGHT51 = 286,
-
-        /// <summary>
-        /// Monitor Light 52
-        /// </summary>
-        [Description("Monitor Light 52")]
-        MONITORLIGHT52 = 287,
-
-        /// <summary>
-        /// Monitor Light 53
-        /// </summary>
-        [Description("Monitor Light 53")]
-        MONITORLIGHT53 = 288,
-
-        /// <summary>
-        /// Monitor Light 54
-        /// </summary>
-        [Description("Monitor Light 54")]
-        MONITORLIGHT54 = 289,
-
-        /// <summary>
-        /// Monitor Light 55
-        /// </summary>
-        [Description("Monitor Light 55")]
-        MONITORLIGHT55 = 290,
-
-        /// <summary>
-        /// Monitor Light 56
-        /// </summary>
-        [Description("Monitor Light 56")]
-        MONITORLIGHT56 = 291,
-
-        /// <summary>
-        /// Monitor Light 57
-        /// </summary>
-        [Description("Monitor Light 57")]
-        MONITORLIGHT57 = 292,
-
-        /// <summary>
-        /// Monitor Light 58
-        /// </summary>
-        [Description("Monitor Light 58")]
-        MONITORLIGHT58 = 293,
-
-        /// <summary>
-        /// Monitor Light 59
-        /// </summary>
-        [Description("Monitor Light 59")]
-        MONITORLIGHT59 = 294,
-
-        /// <summary>
-        /// Monitor Light 60
-        /// </summary>
-        [Description("Monitor Light 60")]
-        MONITORLIGHT60 = 295,
-
-        /// <summary>
-        /// Monitor Light 61
-        /// </summary>
-        [Description("Monitor Light 61")]
-        MONITORLIGHT61 = 296,
-
-        /// <summary>
-        /// Monitor Light 62
-        /// </summary>
-        [Description("Monitor Light 62")]
-        MONITORLIGHT62 = 297,
-
-        /// <summary>
-        /// Monitor Light 63
-        /// </summary>
-        [Description("Monitor Light 63")]
-        MONITORLIGHT63 = 298,
-
-        /// <summary>
-        /// Monitor Light 64
-        /// </summary>
-        [Description("Monitor Light 64")]
-        MONITORLIGHT64 = 299,
-
-        /// <summary>
-        /// Monitor Light 65
-        /// </summary>
-        [Description("Monitor Light 65")]
-        MONITORLIGHT65 = 300,
-
-        /// <summary>
-        /// Monitor Light 66
-        /// </summary>
-        [Description("Monitor Light 66")]
-        MONITORLIGHT66 = 301,
-
-        /// <summary>
-        /// Monitor Light 67
-        /// </summary>
-        [Description("Monitor Light 67")]
-        MONITORLIGHT67 = 302,
-
-        /// <summary>
-        /// Monitor Light 68
-        /// </summary>
-        [Description("Monitor Light 68")]
-        MONITORLIGHT68 = 303,
-
-        /// <summary>
-        /// Monitor Light 69
-        /// </summary>
-        [Description("Monitor Light 69")]
-        MONITORLIGHT69 = 304,
-
-        /// <summary>
-        /// Monitor Light 70
-        /// </summary>
-        [Description("Monitor Light 70")]
-        MONITORLIGHT70 = 305,
-
-        /// <summary>
-        /// Monitor Light 71
-        /// </summary>
-        [Description("Monitor Light 71")]
-        MONITORLIGHT71 = 306,
-
-        /// <summary>
-        /// Monitor Light 72
-        /// </summary>
-        [Description("Monitor Light 72")]
-        MONITORLIGHT72 = 307,
-
-        /// <summary>
-        /// Monitor Light 73
-        /// </summary>
-        [Description("Monitor Light 73")]
-        MONITORLIGHT73 = 308,
-
-        /// <summary>
-        /// Monitor Light 74
-        /// </summary>
-        [Description("Monitor Light 74")]
-        MONITORLIGHT74 = 309,
-
-        /// <summary>
-        /// Monitor Light 75
-        /// </summary>
-        [Description("Monitor Light 75")]
-        MONITORLIGHT75 = 310,
-
-        /// <summary>
-        /// Monitor Light 76
-        /// </summary>
-        [Description("Monitor Light 76")]
-        MONITORLIGHT76 = 311,
-
-        /// <summary>
-        /// Monitor Light 77
-        /// </summary>
-        [Description("Monitor Light 77")]
-        MONITORLIGHT77 = 312,
-
-        /// <summary>
-        /// Monitor Light 78
-        /// </summary>
-        [Description("Monitor Light 78")]
-        MONITORLIGHT78 = 313,
-
-        /// <summary>
-        /// Monitor Light 79
-        /// </summary>
-        [Description("Monitor Light 79")]
-        MONITORLIGHT79 = 314,
-
-        /// <summary>
-        /// Monitor Light 80
-        /// </summary>
-        [Description("Monitor Light 80")]
-        MONITORLIGHT80 = 315,
-
-        /// <summary>
-        /// Monitor Light 81
-        /// </summary>
-        [Description("Monitor Light 81")]
-        MONITORLIGHT81 = 316,
-
-        /// <summary>
-        /// Monitor Light 82
-        /// </summary>
-        [Description("Monitor Light 82")]
-        MONITORLIGHT82 = 317,
-
-        /// <summary>
-        /// Monitor Light 83
-        /// </summary>
-        [Description("Monitor Light 83")]
-        MONITORLIGHT83 = 318,
-
-        /// <summary>
-        /// Monitor Light 84
-        /// </summary>
-        [Description("Monitor Light 84")]
-        MONITORLIGHT84 = 319,
-
-        /// <summary>
-        /// Monitor Light 85
-        /// </summary>
-        [Description("Monitor Light 85")]
-        MONITORLIGHT85 = 320,
-
-        /// <summary>
-        /// Monitor Light 86
-        /// </summary>
-        [Description("Monitor Light 86")]
-        MONITORLIGHT86 = 321,
-
-        /// <summary>
-        /// Monitor Light 87
-        /// </summary>
-        [Description("Monitor Light 87")]
-        MONITORLIGHT87 = 322,
-
-        /// <summary>
-        /// Monitor Light 88
-        /// </summary>
-        [Description("Monitor Light 88")]
-        MONITORLIGHT88 = 323,
-
-        /// <summary>
-        /// Monitor Light 89
-        /// </summary>
-        [Description("Monitor Light 89")]
-        MONITORLIGHT89 = 324,
-
-        /// <summary>
-        /// Monitor Light 90
-        /// </summary>
-        [Description("Monitor Light 90")]
-        MONITORLIGHT90 = 325,
-
-        /// <summary>
-        /// Monitor Light 91
-        /// </summary>
-        [Description("Monitor Light 91")]
-        MONITORLIGHT91 = 326,
-
-        /// <summary>
-        /// Monitor Light 92
-        /// </summary>
-        [Description("Monitor Light 92")]
-        MONITORLIGHT92 = 327,
-
-        /// <summary>
-        /// Monitor Light 93
-        /// </summary>
-        [Description("Monitor Light 93")]
-        MONITORLIGHT93 = 328,
-
-        /// <summary>
-        /// Monitor Light 94
-        /// </summary>
-        [Description("Monitor Light 94")]
-        MONITORLIGHT94 = 329,
-
-        /// <summary>
-        /// Monitor Light 95
-        /// </summary>
-        [Description("Monitor Light 95")]
-        MONITORLIGHT95 = 330,
-
-        /// <summary>
-        /// Monitor Light 96
-        /// </summary>
-        [Description("Monitor Light 96")]
-        MONITORLIGHT96 = 331,
-
-        /// <summary>
-        /// Monitor Light 97
-        /// </summary>
-        [Description("Monitor Light 97")]
-        MONITORLIGHT97 = 332,
-
-        /// <summary>
-        /// Monitor Light 98
-        /// </summary>
-        [Description("Monitor Light 98")]
-        MONITORLIGHT98 = 333,
-
-        /// <summary>
-        /// Monitor Light 99
-        /// </summary>
-        [Description("Monitor Light 99")]
-        MONITORLIGHT99 = 334,
-
-        /// <summary>
-        /// Monitor Light 100
-        /// </summary>
-        [Description("Monitor Light 100")]
-        MONITORLIGHT100 = 335,
-
-        /// <summary>
-        /// Monitor Light 101
-        /// </summary>
-        [Description("Monitor Light 101")]
-        MONITORLIGHT101 = 336,
-
-        /// <summary>
-        /// Monitor Light 102
-        /// </summary>
-        [Description("Monitor Light 102")]
-        MONITORLIGHT102 = 337,
-
-        /// <summary>
-        /// Monitor Light 103
-        /// </summary>
-        [Description("Monitor Light 103")]
-        MONITORLIGHT103 = 338,
-
-        /// <summary>
-        /// Mouse Light 1
-        /// </summary>
-        [Description("Mouse Light 1")]
-        MOUSELIGHT1 = 339,
-
-        /// <summary>
-        /// Mouse Light 1
-        /// </summary>
-        [Description("Mouse Light 2")]
-        MOUSELIGHT2 = 340,
-
-        /// <summary>
-        /// Mouse Light 1
-        /// </summary>
-        [Description("Mouse Light 3")]
-        MOUSELIGHT3 = 341,
-
-        /// <summary>
-        /// Mouse Light 1
-        /// </summary>
-        [Description("Mouse Light 4")]
-        MOUSELIGHT4 = 342,
-
-        /// <summary>
-        /// Mouse Light 1
-        /// </summary>
-        [Description("Mouse Light 5")]
-        MOUSELIGHT5 = 343,
-
-        /// <summary>
-        /// Mouse Light 1
-        /// </summary>
-        [Description("Mouse Light 6")]
-        MOUSELIGHT6 = 344,
+        MOUSEPADLIGHT15 = 215,
 
         ///<summary>
         /// Calculator Key
         /// </summary>
         [Description("Calculator")]
-        CALC = 345,
+        CALC = 216,
+
+        /// <summary>
+        /// Mousepad Light 1
+        /// </summary>
+        [Description("Mousepad Light 1")]
+        SSMPL1 = 217,
+
+        /// <summary>
+        /// Mousepad Light 2
+        /// </summary>
+        [Description("Mousepad Light 2")]
+        SSMPL2 = 218,
+
+        /// <summary>
+        /// Mousepad Light 3
+        /// Corsair MM800
+        /// </summary>
+        [Description("Mousepad Light 3")]
+        SSMPL3 = 219,
+
+        /// <summary>
+        /// Mousepad Light 4
+        /// </summary>
+        [Description("Mousepad Light 4")]
+        SSMPL4 = 220,
+
+        /// <summary>
+        /// Mousepad Light 5
+        /// </summary>
+        [Description("Mousepad Light 5")]
+        SSMPL5 = 221,
+
+        /// <summary>
+        /// Mousepad Light 6
+        /// </summary>
+        [Description("Mousepad Light 6")]
+        SSMPL6 = 222,
+
+        /// <summary>
+        /// Mousepad Light 7
+        /// </summary>
+        [Description("Mousepad Light 7")]
+        SSMPL7 = 223,
+
+        /// <summary>
+        /// Mousepad Light 8
+        /// </summary>
+        [Description("Mousepad Light 8")]
+        SSMPL8 = 224,
+
+        /// <summary>
+        /// Mousepad Light 9
+        /// </summary>
+        [Description("Mousepad Light 9")]
+        SSMPL9 = 225,
+
+        /// <summary>
+        /// Mousepad Light 10
+        /// </summary>
+        [Description("Mousepad Light 10")]
+        SSMPL10 = 226,
+
+        /// <summary>
+        /// Mousepad Light 11
+        /// </summary>
+        [Description("Mousepad Light 11")]
+        SSMPL11 = 227,
+
+        /// <summary>
+        /// Mousepad Light 12
+        /// </summary>
+        [Description("Mousepad Light 12")]
+        SSMPL12 = 228,
+
+        /// <summary>
+        /// Mousepad Light 13
+        /// </summary>
+        [Description("Mousepad Light 1")]
+        RMPL1 = 229,
+
+        /// <summary>
+        /// Mousepad Light 14
+        /// </summary>
+        [Description("Mousepad Light 2")]
+        RMPL2 = 230,
+
+        /// <summary>
+        /// Mousepad Light 15
+        /// </summary>
+        [Description("Mousepad Light 3")]
+        RMPL3 = 231,
+
+        /// <summary>
+        /// Mousepad Light 1
+        /// </summary>
+        [Description("Mousepad Light 4")]
+        RMPL4 = 232,
+
+        /// <summary>
+        /// Mousepad Light 2
+        /// </summary>
+        [Description("Mousepad Light 5")]
+        RMPL5 = 233,
+
+        /// <summary>
+        /// Mousepad Light 3
+        /// </summary>
+        [Description("Mousepad Light 6")]
+        RMPL6 = 234,
+
+        /// <summary>
+        /// Mousepad Light 4
+        /// </summary>
+        [Description("Mousepad Light 7")]
+        RMPL7 = 235,
+
+        /// <summary>
+        /// Mousepad Light 5
+        /// </summary>
+        [Description("Mousepad Light 8")]
+        RMPL8 = 236,
+
+        /// <summary>
+        /// Mousepad Light 6
+        /// </summary>
+        [Description("Mousepad Light 9")]
+        RMPL9 = 237,
+
+        /// <summary>
+        /// Mousepad Light 7
+        /// </summary>
+        [Description("Mousepad Light 10")]
+        RMPL10 = 238,
+
+        /// <summary>
+        /// Mousepad Light 8
+        /// </summary>
+        [Description("Mousepad Light 11")]
+        RMPL11 = 239,
+
+        /// <summary>
+        /// Mousepad Light 9
+        /// </summary>
+        [Description("Mousepad Light 12")]
+        RMPL12 = 240,
+
+        /// <summary>
+        /// Mousepad Light 10
+        /// </summary>
+        [Description("Mousepad Light 13")]
+        RMPL13 = 241,
+
+        /// <summary>
+        /// Mousepad Light 11
+        /// </summary>
+        [Description("Mousepad Light 14")]
+        RMPL14 = 242,
+
+        /// <summary>
+        /// Mousepad Light 12
+        /// </summary>
+        [Description("Mousepad Light 15")]
+        RMPL15 = 243,
+
+        /// <summary>
+        /// Monitor Light 1
+        /// </summary>
+        [Description("Monitor Light 1")]
+        MONITORLIGHT1 = 244,
+
+        /// <summary>
+        /// Monitor Light 2
+        /// </summary>
+        [Description("Monitor Light 2")]
+        MONITORLIGHT2 = 245,
+
+        /// <summary>
+        /// Monitor Light 3
+        /// </summary>
+        [Description("Monitor Light 3")]
+        MONITORLIGHT3 = 246,
+
+        /// <summary>
+        /// Monitor Light 4
+        /// </summary>
+        [Description("Monitor Light 4")]
+        MONITORLIGHT4 = 247,
+
+        /// <summary>
+        /// Monitor Light 5
+        /// </summary>
+        [Description("Monitor Light 5")]
+        MONITORLIGHT5 = 248,
+
+        /// <summary>
+        /// Monitor Light 6
+        /// </summary>
+        [Description("Monitor Light 6")]
+        MONITORLIGHT6 = 249,
+
+        /// <summary>
+        /// Monitor Light 7
+        /// </summary>
+        [Description("Monitor Light 7")]
+        MONITORLIGHT7 = 250,
+
+        /// <summary>
+        /// Monitor Light 8
+        /// </summary>
+        [Description("Monitor Light 8")]
+        MONITORLIGHT8 = 251,
+
+        /// <summary>
+        /// Monitor Light 9
+        /// </summary>
+        [Description("Monitor Light 9")]
+        MONITORLIGHT9 = 252,
+
+        /// <summary>
+        /// Monitor Light 10
+        /// </summary>
+        [Description("Monitor Light 10")]
+        MONITORLIGHT10 = 253,
+
+        /// <summary>
+        /// Monitor Light 11
+        /// </summary>
+        [Description("Monitor Light 11")]
+        MONITORLIGHT11 = 254,
+
+        /// <summary>
+        /// Monitor Light 12
+        /// </summary>
+        [Description("Monitor Light 12")]
+        MONITORLIGHT12 = 255,
+
+        /// <summary>
+        /// Monitor Light 13
+        /// </summary>
+        [Description("Monitor Light 13")]
+        MONITORLIGHT13 = 256,
+
+        /// <summary>
+        /// Monitor Light 14
+        /// </summary>
+        [Description("Monitor Light 14")]
+        MONITORLIGHT14 = 257,
+
+        /// <summary>
+        /// Monitor Light 15
+        /// </summary>
+        [Description("Monitor Light 15")]
+        MONITORLIGHT15 = 250 + 8,
+
+        /// <summary>
+        /// Monitor Light 16
+        /// </summary>
+        [Description("Monitor Light 16")]
+        MONITORLIGHT16 = 251 + 8,
+
+        /// <summary>
+        /// Monitor Light 17
+        /// </summary>
+        [Description("Monitor Light 17")]
+        MONITORLIGHT17 = 252 + 8,
+
+        /// <summary>
+        /// Monitor Light 18
+        /// </summary>
+        [Description("Monitor Light 18")]
+        MONITORLIGHT18 = 253 + 8,
+
+        /// <summary>
+        /// Monitor Light 19
+        /// </summary>
+        [Description("Monitor Light 19")]
+        MONITORLIGHT19 = 254 + 8,
+
+        /// <summary>
+        /// Monitor Light 20
+        /// </summary>
+        [Description("Monitor Light 20")]
+        MONITORLIGHT20 = 255 + 8,
+
+        /// <summary>
+        /// Monitor Light 21
+        /// </summary>
+        [Description("Monitor Light 21")]
+        MONITORLIGHT21 = 256 + 8,
+
+        /// <summary>
+        /// Monitor Light 22
+        /// </summary>
+        [Description("Monitor Light 22")]
+        MONITORLIGHT22 = 257 + 8,
+
+        /// <summary>
+        /// Monitor Light 23
+        /// </summary>
+        [Description("Monitor Light 23")]
+        MONITORLIGHT23 = 258 + 8,
+
+        /// <summary>
+        /// Monitor Light 24
+        /// </summary>
+        [Description("Monitor Light 24")]
+        MONITORLIGHT24 = 259 + 8,
+
+        /// <summary>
+        /// Monitor Light 25
+        /// </summary>
+        [Description("Monitor Light 25")]
+        MONITORLIGHT25 = 260 + 8,
+
+        /// <summary>
+        /// Monitor Light 26
+        /// </summary>
+        [Description("Monitor Light 26")]
+        MONITORLIGHT26 = 261 + 8,
+
+        /// <summary>
+        /// Monitor Light 27
+        /// </summary>
+        [Description("Monitor Light 27")]
+        MONITORLIGHT27 = 262 + 8,
+
+        /// <summary>
+        /// Monitor Light 28
+        /// </summary>
+        [Description("Monitor Light 28")]
+        MONITORLIGHT28 = 263 + 8,
+
+        /// <summary>
+        /// Monitor Light 29
+        /// </summary>
+        [Description("Monitor Light 29")]
+        MONITORLIGHT29 = 264 + 8,
+
+        /// <summary>
+        /// Monitor Light 30
+        /// </summary>
+        [Description("Monitor Light 30")]
+        MONITORLIGHT30 = 265 + 8,
+
+        /// <summary>
+        /// Monitor Light 31
+        /// </summary>
+        [Description("Monitor Light 31")]
+        MONITORLIGHT31 = 266 + 8,
+
+        /// <summary>
+        /// Monitor Light 32
+        /// </summary>
+        [Description("Monitor Light 32")]
+        MONITORLIGHT32 = 267 + 8,
+
+        /// <summary>
+        /// Monitor Light 33
+        /// </summary>
+        [Description("Monitor Light 33")]
+        MONITORLIGHT33 = 268 + 8,
+
+        /// <summary>
+        /// Monitor Light 34
+        /// </summary>
+        [Description("Monitor Light 34")]
+        MONITORLIGHT34 = 269 + 8,
+
+        /// <summary>
+        /// Monitor Light 35
+        /// </summary>
+        [Description("Monitor Light 35")]
+        MONITORLIGHT35 = 270 + 8,
+
+        /// <summary>
+        /// Monitor Light 36
+        /// </summary>
+        [Description("Monitor Light 36")]
+        MONITORLIGHT36 = 271 + 8,
+
+        /// <summary>
+        /// Monitor Light 37
+        /// </summary>
+        [Description("Monitor Light 37")]
+        MONITORLIGHT37 = 272 + 8,
+
+        /// <summary>
+        /// Monitor Light 38
+        /// </summary>
+        [Description("Monitor Light 38")]
+        MONITORLIGHT38 = 273 + 8,
+
+        /// <summary>
+        /// Monitor Light 39
+        /// </summary>
+        [Description("Monitor Light 39")]
+        MONITORLIGHT39 = 274 + 8,
+
+        /// <summary>
+        /// Monitor Light 40
+        /// </summary>
+        [Description("Monitor Light 40")]
+        MONITORLIGHT40 = 275 + 8,
+
+        /// <summary>
+        /// Monitor Light 41
+        /// </summary>
+        [Description("Monitor Light 41")]
+        MONITORLIGHT41 = 276 + 8,
+
+        /// <summary>
+        /// Monitor Light 42
+        /// </summary>
+        [Description("Monitor Light 42")]
+        MONITORLIGHT42 = 277 + 8,
+
+        /// <summary>
+        /// Monitor Light 43
+        /// </summary>
+        [Description("Monitor Light 43")]
+        MONITORLIGHT43 = 278 + 8,
+
+        /// <summary>
+        /// Monitor Light 44
+        /// </summary>
+        [Description("Monitor Light 44")]
+        MONITORLIGHT44 = 279 + 8,
+
+        /// <summary>
+        /// Monitor Light 45
+        /// </summary>
+        [Description("Monitor Light 45")]
+        MONITORLIGHT45 = 280 + 8,
+
+        /// <summary>
+        /// Monitor Light 46
+        /// </summary>
+        [Description("Monitor Light 46")]
+        MONITORLIGHT46 = 281 + 8,
+
+        /// <summary>
+        /// Monitor Light 47
+        /// </summary>
+        [Description("Monitor Light 47")]
+        MONITORLIGHT47 = 282 + 8,
+
+        /// <summary>
+        /// Monitor Light 48
+        /// </summary>
+        [Description("Monitor Light 48")]
+        MONITORLIGHT48 = 283 + 8,
+
+        /// <summary>
+        /// Monitor Light 49
+        /// </summary>
+        [Description("Monitor Light 49")]
+        MONITORLIGHT49 = 284 + 8,
+
+        /// <summary>
+        /// Monitor Light 50
+        /// </summary>
+        [Description("Monitor Light 50")]
+        MONITORLIGHT50 = 285 + 8,
+
+        /// <summary>
+        /// Monitor Light 51
+        /// </summary>
+        [Description("Monitor Light 51")]
+        MONITORLIGHT51 = 286 + 8,
+
+        /// <summary>
+        /// Monitor Light 52
+        /// </summary>
+        [Description("Monitor Light 52")]
+        MONITORLIGHT52 = 287 + 8,
+
+        /// <summary>
+        /// Monitor Light 53
+        /// </summary>
+        [Description("Monitor Light 53")]
+        MONITORLIGHT53 = 288 + 8,
+
+        /// <summary>
+        /// Monitor Light 54
+        /// </summary>
+        [Description("Monitor Light 54")]
+        MONITORLIGHT54 = 289 + 8,
+
+        /// <summary>
+        /// Monitor Light 55
+        /// </summary>
+        [Description("Monitor Light 55")]
+        MONITORLIGHT55 = 290 + 8,
+
+        /// <summary>
+        /// Monitor Light 56
+        /// </summary>
+        [Description("Monitor Light 56")]
+        MONITORLIGHT56 = 291 + 8,
+
+        /// <summary>
+        /// Monitor Light 57
+        /// </summary>
+        [Description("Monitor Light 57")]
+        MONITORLIGHT57 = 292 + 8,
+
+        /// <summary>
+        /// Monitor Light 58
+        /// </summary>
+        [Description("Monitor Light 58")]
+        MONITORLIGHT58 = 293 + 8,
+
+        /// <summary>
+        /// Monitor Light 59
+        /// </summary>
+        [Description("Monitor Light 59")]
+        MONITORLIGHT59 = 294 + 8,
+
+        /// <summary>
+        /// Monitor Light 60
+        /// </summary>
+        [Description("Monitor Light 60")]
+        MONITORLIGHT60 = 295 + 8,
+
+        /// <summary>
+        /// Monitor Light 61
+        /// </summary>
+        [Description("Monitor Light 61")]
+        MONITORLIGHT61 = 296 + 8,
+
+        /// <summary>
+        /// Monitor Light 62
+        /// </summary>
+        [Description("Monitor Light 62")]
+        MONITORLIGHT62 = 297 + 8,
+
+        /// <summary>
+        /// Monitor Light 63
+        /// </summary>
+        [Description("Monitor Light 63")]
+        MONITORLIGHT63 = 298 + 8,
+
+        /// <summary>
+        /// Monitor Light 64
+        /// </summary>
+        [Description("Monitor Light 64")]
+        MONITORLIGHT64 = 299 + 8,
+
+        /// <summary>
+        /// Monitor Light 65
+        /// </summary>
+        [Description("Monitor Light 65")]
+        MONITORLIGHT65 = 300 + 8,
+
+        /// <summary>
+        /// Monitor Light 66
+        /// </summary>
+        [Description("Monitor Light 66")]
+        MONITORLIGHT66 = 301 + 8,
+
+        /// <summary>
+        /// Monitor Light 67
+        /// </summary>
+        [Description("Monitor Light 67")]
+        MONITORLIGHT67 = 302 + 8,
+
+        /// <summary>
+        /// Monitor Light 68
+        /// </summary>
+        [Description("Monitor Light 68")]
+        MONITORLIGHT68 = 303 + 8,
+
+        /// <summary>
+        /// Monitor Light 69
+        /// </summary>
+        [Description("Monitor Light 69")]
+        MONITORLIGHT69 = 304 + 8,
+
+        /// <summary>
+        /// Monitor Light 70
+        /// </summary>
+        [Description("Monitor Light 70")]
+        MONITORLIGHT70 = 305 + 8,
+
+        /// <summary>
+        /// Monitor Light 71
+        /// </summary>
+        [Description("Monitor Light 71")]
+        MONITORLIGHT71 = 306 + 8,
+
+        /// <summary>
+        /// Monitor Light 72
+        /// </summary>
+        [Description("Monitor Light 72")]
+        MONITORLIGHT72 = 307 + 8,
+
+        /// <summary>
+        /// Monitor Light 73
+        /// </summary>
+        [Description("Monitor Light 73")]
+        MONITORLIGHT73 = 308 + 8,
+
+        /// <summary>
+        /// Monitor Light 74
+        /// </summary>
+        [Description("Monitor Light 74")]
+        MONITORLIGHT74 = 309 + 8,
+
+        /// <summary>
+        /// Monitor Light 75
+        /// </summary>
+        [Description("Monitor Light 75")]
+        MONITORLIGHT75 = 310 + 8,
+
+        /// <summary>
+        /// Monitor Light 76
+        /// </summary>
+        [Description("Monitor Light 76")]
+        MONITORLIGHT76 = 311 + 8,
+
+        /// <summary>
+        /// Monitor Light 77
+        /// </summary>
+        [Description("Monitor Light 77")]
+        MONITORLIGHT77 = 312 + 8,
+
+        /// <summary>
+        /// Monitor Light 78
+        /// </summary>
+        [Description("Monitor Light 78")]
+        MONITORLIGHT78 = 313 + 8,
+
+        /// <summary>
+        /// Monitor Light 79
+        /// </summary>
+        [Description("Monitor Light 79")]
+        MONITORLIGHT79 = 314 + 8,
+
+        /// <summary>
+        /// Monitor Light 80
+        /// </summary>
+        [Description("Monitor Light 80")]
+        MONITORLIGHT80 = 315 + 8,
+
+        /// <summary>
+        /// Monitor Light 81
+        /// </summary>
+        [Description("Monitor Light 81")]
+        MONITORLIGHT81 = 316 + 8,
+
+        /// <summary>
+        /// Monitor Light 82
+        /// </summary>
+        [Description("Monitor Light 82")]
+        MONITORLIGHT82 = 317 + 8,
+
+        /// <summary>
+        /// Monitor Light 83
+        /// </summary>
+        [Description("Monitor Light 83")]
+        MONITORLIGHT83 = 318 + 8,
+
+        /// <summary>
+        /// Monitor Light 84
+        /// </summary>
+        [Description("Monitor Light 84")]
+        MONITORLIGHT84 = 319 + 8,
+
+        /// <summary>
+        /// Monitor Light 85
+        /// </summary>
+        [Description("Monitor Light 85")]
+        MONITORLIGHT85 = 320 + 8,
+
+        /// <summary>
+        /// Monitor Light 86
+        /// </summary>
+        [Description("Monitor Light 86")]
+        MONITORLIGHT86 = 321 + 8,
+
+        /// <summary>
+        /// Monitor Light 87
+        /// </summary>
+        [Description("Monitor Light 87")]
+        MONITORLIGHT87 = 322 + 8,
+
+        /// <summary>
+        /// Monitor Light 88
+        /// </summary>
+        [Description("Monitor Light 88")]
+        MONITORLIGHT88 = 323 + 8,
+
+        /// <summary>
+        /// Monitor Light 89
+        /// </summary>
+        [Description("Monitor Light 89")]
+        MONITORLIGHT89 = 324 + 8,
+
+        /// <summary>
+        /// Monitor Light 90
+        /// </summary>
+        [Description("Monitor Light 90")]
+        MONITORLIGHT90 = 325 + 8,
+
+        /// <summary>
+        /// Monitor Light 91
+        /// </summary>
+        [Description("Monitor Light 91")]
+        MONITORLIGHT91 = 326 + 8,
+
+        /// <summary>
+        /// Monitor Light 92
+        /// </summary>
+        [Description("Monitor Light 92")]
+        MONITORLIGHT92 = 327 + 8,
+
+        /// <summary>
+        /// Monitor Light 93
+        /// </summary>
+        [Description("Monitor Light 93")]
+        MONITORLIGHT93 = 328 + 8,
+
+        /// <summary>
+        /// Monitor Light 94
+        /// </summary>
+        [Description("Monitor Light 94")]
+        MONITORLIGHT94 = 329 + 8,
+
+        /// <summary>
+        /// Monitor Light 95
+        /// </summary>
+        [Description("Monitor Light 95")]
+        MONITORLIGHT95 = 330 + 8,
+
+        /// <summary>
+        /// Monitor Light 96
+        /// </summary>
+        [Description("Monitor Light 96")]
+        MONITORLIGHT96 = 331 + 8,
+
+        /// <summary>
+        /// Monitor Light 97
+        /// </summary>
+        [Description("Monitor Light 97")]
+        MONITORLIGHT97 = 332 + 8,
+
+        /// <summary>
+        /// Monitor Light 98
+        /// </summary>
+        [Description("Monitor Light 98")]
+        MONITORLIGHT98 = 333 + 8,
+
+        /// <summary>
+        /// Monitor Light 99
+        /// </summary>
+        [Description("Monitor Light 99")]
+        MONITORLIGHT99 = 334 + 8,
+
+        /// <summary>
+        /// Monitor Light 100
+        /// </summary>
+        [Description("Monitor Light 100")]
+        MONITORLIGHT100 = 335 + 8,
+
+        /// <summary>
+        /// Monitor Light 101
+        /// </summary>
+        [Description("Monitor Light 101")]
+        MONITORLIGHT101 = 336 + 8,
+
+        /// <summary>
+        /// Monitor Light 102
+        /// </summary>
+        [Description("Monitor Light 102")]
+        MONITORLIGHT102 = 337 + 8,
+
+        /// <summary>
+        /// Monitor Light 103
+        /// </summary>
+        [Description("Monitor Light 103")]
+        MONITORLIGHT103 = 338 + 8,
+
+        /// <summary>
+        /// Mouse Light 1
+        /// </summary>
+        [Description("Mouse Light 1")]
+        MOUSELIGHT1 = 339 + 8,
+
+        /// <summary>
+        /// Mouse Light 1
+        /// </summary>
+        [Description("Mouse Light 2")]
+        MOUSELIGHT2 = 340 + 8,
+
+        /// <summary>
+        /// Mouse Light 1
+        /// </summary>
+        [Description("Mouse Light 3")]
+        MOUSELIGHT3 = 341 + 8,
+
+        /// <summary>
+        /// Mouse Light 1
+        /// </summary>
+        [Description("Mouse Light 4")]
+        MOUSELIGHT4 = 342 + 8,
+
+        /// <summary>
+        /// Mouse Light 1
+        /// </summary>
+        [Description("Mouse Light 5")]
+        MOUSELIGHT5 = 343 + 8,
+
+        /// <summary>
+        /// Mouse Light 1
+        /// </summary>
+        [Description("Mouse Light 6")]
+        MOUSELIGHT6 = 344 + 8,
+
+        /// <summary>
+        /// None
+        /// </summary>
+        [Description("None")]
+        NONE = -1,
     };
 
     /// <summary>
