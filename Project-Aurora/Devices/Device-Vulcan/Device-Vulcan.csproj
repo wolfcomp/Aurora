@@ -77,6 +77,9 @@
   <PropertyGroup>
     <PostBuildEvent>RD /S /Q "$(TargetDir)ILMerge\"
 del /F "$(TargetDir)HidSharp.xml"
-del /F "$(TargetDir)Vulcan.NET.xml"</PostBuildEvent>
+del /F "$(TargetDir)Vulcan.NET.xml"
+if $(ConfigurationName) == Release del $(TargetDir)$(TargetName).pdb
+if $(ConfigurationName) == Release del $(TargetDir)$(TargetFileName).config
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

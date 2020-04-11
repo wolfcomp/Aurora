@@ -79,6 +79,9 @@
     <Error Condition="!Exists('..\..\packages\ILMerge.3.0.29\build\ILMerge.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\ILMerge.3.0.29\build\ILMerge.props'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>RD /S /Q "$(TargetDir)ILMerge\"</PostBuildEvent>
+    <PostBuildEvent>RD /S /Q "$(TargetDir)ILMerge\"
+if $(ConfigurationName) == Release del $(TargetDir)$(TargetName).pdb
+if $(ConfigurationName) == Release del $(TargetDir)$(TargetFileName).config
+</PostBuildEvent>
   </PropertyGroup>
 </Project>
