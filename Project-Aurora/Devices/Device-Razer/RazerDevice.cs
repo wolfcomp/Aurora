@@ -1,15 +1,17 @@
 ﻿using Aurora.Devices;
-using Colore;
-using Colore.Effects.ChromaLink;
-using Colore.Effects.Headset;
-using Colore.Effects.Keyboard;
-using Colore.Effects.Keypad;
-using Colore.Effects.Mouse;
-using Colore.Effects.Mousepad;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Corale.Colore.Core;
+using Corale.Colore.Razer;
+using Device = Aurora.Devices.Device;
+using KeyboardCustom = Corale.Colore.Razer.Keyboard.Effects.Custom;
+using MousepadCustom = Corale.Colore.Razer.Mousepad.Effects.Custom;
+using MouseCustom = Corale.Colore.Razer.Mouse.Effects.CustomGrid;
+using HeadsetCustom = Corale.Colore.Razer.Headset.Effects.Static;
+using KeypadCustom = Corale.Colore.Razer.Keypad.Effects.Custom;
+using ChromalinkCustom = Corale.Colore.Razer.ChromaLink.Effects.Custom;
 
 namespace Device_Razer
 {
@@ -18,13 +20,13 @@ namespace Device_Razer
         protected override string DeviceName => "Razer";
 
         private IChroma chroma;
-
+        
         private KeyboardCustom keyboard = KeyboardCustom.Create();
         private MousepadCustom mousepad = MousepadCustom.Create();
-        private MouseCustom mouse = MouseCustom.Create();
-        private HeadsetCustom headset = HeadsetCustom.Create();
+        private MouseCustom mouse =  MouseCustom.Create();
+        private HeadsetCustom headset = new HeadsetCustom(ToColore(System.Drawing.Color.Black));
         private KeypadCustom keypad = KeypadCustom.Create();
-        private ChromaLinkCustom chromalink = ChromaLinkCustom.Create();
+        private ChromalinkCustom chromalink = ChromalinkCustom.Create();
 
         private List<string> deviceNames;
 
@@ -33,7 +35,8 @@ namespace Device_Razer
             try
             {
                 //hack
-                chroma = ColoreProvider.CreateNativeAsync().Result;
+                chroma = Chroma.Instance;
+                chroma.Initialize();
 
                 DetectDevices();
 
@@ -72,8 +75,8 @@ namespace Device_Razer
         {
             try
             {
-                chroma.SetAllAsync(new Colore.Data.Color(0, 0, 0));
-                chroma.UninitializeAsync();
+                chroma.SetAll(new Color(0, 0, 0));
+                chroma.Uninitialize();
                 isInitialized = false;
             }
             catch (Exception e)
@@ -82,37 +85,42 @@ namespace Device_Razer
             }
         }
 
+        ~RazerDevice()
+        {
+            Shutdown();
+        }
+
         public override bool UpdateDevice(Dictionary<DeviceKeys, System.Drawing.Color> keyColors, DoWorkEventArgs e, bool forced = false)
         {
             foreach (var key in keyColors)
             {
+                var color = ToColore(key.Value);
                 if (RazerMappings.keyboardDictionary.TryGetValue(key.Key, out var kbIndex))
-                    keyboard[kbIndex] = ToColore(key.Value);
+                    keyboard[kbIndex] = color;
 
                 if (RazerMappings.mouseDictionary.TryGetValue(key.Key, out var mouseIndex))
-                    mouse[mouseIndex] = ToColore(key.Value);
+                    mouse[mouseIndex] = color;
 
                 if (RazerMappings.mousepadDictionary.TryGetValue(key.Key, out var mousepadIndex))
-                    mousepad[mousepadIndex] = ToColore(key.Value);
+                    mousepad[mousepadIndex] = color;
 
-                if (RazerMappings.headsetDictionary.TryGetValue(key.Key, out var headsetIndex))
-                    headset[headsetIndex] = ToColore(key.Value);
+                //if (RazerMappings.headsetDictionary.TryGetValue(key.Key, out var headsetIndex))
+                //    headset[headsetIndex] = ToColore(key.Value);
 
                 if (RazerMappings.chromalinkDictionary.TryGetValue(key.Key, out var chromalinkIndex))
-                    chromalink[chromalinkIndex] = ToColore(key.Value);
+                    chromalink[chromalinkIndex] = color;
             }
             UpdateAll();
             return true;
         }
 
-        private static Colore.Data.Color ToColore(System.Drawing.Color source) => new Colore.Data.Color(source.R, source.G, source.B);
+        private static Color ToColore(System.Drawing.Color source) => new Color(source.R, source.G, source.B);
 
         private void DetectDevices()
         {
             //get all devices from colore, with the respective names and Guids
-            IEnumerable<(string Name, Guid Guid)> DeviceGuids = typeof(Colore.Data.Devices).GetFields().Select(f =>
-                    ((Attribute.GetCustomAttribute(f, typeof(DescriptionAttribute), false) as DescriptionAttribute).Description,
-                    (Guid)f.GetValue(null)));
+            var k = typeof(Devices).GetFields();
+            IEnumerable<(string Name, Guid Guid)> DeviceGuids = k.Select(f => (f.Name, (Guid)f.GetValue(null)));
 
             deviceNames = new List<string>();
 
@@ -120,34 +128,34 @@ namespace Device_Razer
             {
                 try
                 {
-                    var devInfo = chroma.QueryAsync(device.Guid).Result;
+                    var devInfo = Chroma.Instance.Query(device.Guid);
                     if (devInfo.Connected)
                     {
                         deviceNames.Add(device.Name);
                     }
                 }
-                catch (AggregateException e)
+                catch (Exception e)
                 {
-                    if ((e.InnerException is Colore.Native.NativeCallException) && (e.InnerException as Colore.Native.NativeCallException).Result.Value == 1167)
-                    {
-                        //Global.logger.Info("device NOT connected: " + device.Name);
-                    }
-                    else
-                    {
-                        //Global.logger.Info(e);
-                    }
+                    //if ((e.InnerException is Colore.Native.NativeCallException) && (e.InnerException as Colore.Native.NativeCallException).Result.Value == 1167)
+                    //{
+                    //    //Global.logger.Info("device NOT connected: " + device.Name);
+                    //}
+                    //else
+                    //{
+                    //    //Global.logger.Info(e);
+                    //}
                 }
             }
         }
 
         private void UpdateAll()
         {
-            chroma.Keyboard.SetCustomAsync(keyboard);
-            chroma.Mouse.SetGridAsync(mouse);
-            chroma.Headset.SetCustomAsync(headset);
-            chroma.Mousepad.SetCustomAsync(mousepad);
-            chroma.Keypad.SetCustomAsync(keypad);
-            chroma.ChromaLink.SetCustomAsync(chromalink);
+            chroma.Keyboard.SetCustom(keyboard);
+            chroma.Mouse.SetGrid(mouse);
+            chroma.Headset.SetStatic(headset);
+            chroma.Mousepad.SetCustom(mousepad);
+            chroma.Keypad.SetCustom(keypad);
+            chroma.ChromaLink.SetCustom(chromalink);
         }
     }
 }

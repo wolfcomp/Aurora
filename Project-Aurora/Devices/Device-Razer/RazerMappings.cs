@@ -1,11 +1,11 @@
 ﻿using Aurora.Devices;
-using Colore.Effects.Keyboard;
-using Colore.Effects.Mouse;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Corale.Colore.Razer.Keyboard;
+using Corale.Colore.Razer.Mouse;
 
 namespace Device_Razer
 {
