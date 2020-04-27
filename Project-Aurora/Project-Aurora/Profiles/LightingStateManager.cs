@@ -43,27 +43,24 @@ namespace Aurora.Profiles
         {
             return Title;
         }
-    }    
+    }
 
     public class ProfilesManagerSettings
     {
-        public ProfilesManagerSettings()
-        {
-
-        }
+        public ProfilesManagerSettings() { }
 
         [OnDeserialized]
-        void OnDeserialized(StreamingContext context)
-        {
-
-        }
+        void OnDeserialized(StreamingContext context) { }
     }
 
     public class LightingStateManager : ObjectSettings<ProfilesManagerSettings>, IInit
     {
         public Dictionary<string, ILightEvent> Events { get; private set; } = new Dictionary<string, ILightEvent> { { "desktop", new Desktop.Desktop() } };
 
-        public Desktop.Desktop DesktopProfile { get { return (Desktop.Desktop)Events["desktop"]; } }
+        public Desktop.Desktop DesktopProfile
+        {
+            get { return (Desktop.Desktop) Events["desktop"]; }
+        }
 
         private List<string> Underlays = new List<string>();
         private List<string> Normal = new List<string>();
@@ -107,7 +104,8 @@ namespace Aurora.Profiles
             runningProcessMonitor = new RunningProcessMonitor();
 
             #region Initiate Defaults
-            RegisterEvents(new List<ILightEvent> {
+            RegisterEvents(new List<ILightEvent>
+            {
                 new Desktop.Desktop(),
                 new Dota_2.Dota2(),
                 new CSGO.CSGO(),
@@ -159,7 +157,8 @@ namespace Aurora.Profiles
                 new EliteDangerous.EliteDangerous()
             });
 
-            RegisterLayerHandlers(new List<LayerHandlerEntry> {
+            RegisterLayerHandlers(new List<LayerHandlerEntry>
+            {
                 new LayerHandlerEntry("Default", "Default Layer", typeof(DefaultLayerHandler)),
                 new LayerHandlerEntry("Solid", "Solid Color Layer", typeof(SolidColorLayerHandler)),
                 new LayerHandlerEntry("SolidFilled", "Solid Fill Color Layer", typeof(SolidFillLayerHandler)),
@@ -191,7 +190,6 @@ namespace Aurora.Profiles
             }, true);
 
             RegisterLayerHandler(new LayerHandlerEntry("WrapperLights", "Wrapper Lighting Layer", typeof(WrapperLightsLayerHandler)), false);
-
             #endregion
 
             LoadSettings();
@@ -240,7 +238,7 @@ namespace Aurora.Profiles
                     Global.Configuration.ProfileOrder.Add(kvp.Key);
             }
 
-            foreach(string key in Global.Configuration.ProfileOrder.ToList())
+            foreach (string key in Global.Configuration.ProfileOrder.ToList())
             {
                 if (!Events.ContainsKey(key) || !(Events[key] is Application))
                     Global.Configuration.ProfileOrder.Remove(key);
@@ -254,10 +252,10 @@ namespace Aurora.Profiles
         {
             SaveSettings();
 
-            foreach(var profile in Events)
+            foreach (var profile in Events)
             {
                 if (profile.Value is Application)
-                    ((Application)profile.Value).SaveAll();
+                    ((Application) profile.Value).SaveAll();
             }
         }
 
@@ -297,7 +295,7 @@ namespace Aurora.Profiles
             }
             else
             {
-                var oldEvents = GetEventTable((LightEventType)old);
+                var oldEvents = GetEventTable((LightEventType) old);
                 oldEvents.Remove(lightEvent.Config.ID);
             }
 
@@ -305,16 +303,16 @@ namespace Aurora.Profiles
 
             events.Add(lightEvent.Config.ID);
 
-            return true;   
+            return true;
         }
 
         private void LightEvent_PropertyChanged(object sender, PropertyChangedExEventArgs e)
         {
-            ILightEvent lightEvent = (ILightEvent)sender;
+            ILightEvent lightEvent = (ILightEvent) sender;
             if (e.PropertyName.Equals(nameof(LightEventConfig.Type)))
             {
-                LightEventType old = (LightEventType)e.OldValue;
-                LightEventType newVal = (LightEventType)e.NewValue;
+                LightEventType old = (LightEventType) e.OldValue;
+                LightEventType newVal = (LightEventType) e.NewValue;
 
                 if (!old.Equals(newVal))
                 {
@@ -383,7 +381,7 @@ namespace Aurora.Profiles
             {
                 if (!(Events[key] is GenericApplication))
                     return;
-                GenericApplication profile = (GenericApplication)Events[key];
+                GenericApplication profile = (GenericApplication) Events[key];
                 Events.Remove(key);
                 Global.Configuration.ProfileOrder.Remove(key);
 
@@ -414,7 +412,8 @@ namespace Aurora.Profiles
                 {
                     return processTitleProfile;
                 }
-            } else
+            }
+            else
             {
                 return processNameProfile;
             }
@@ -437,9 +436,12 @@ namespace Aurora.Profiles
             return null;
         }
 
-        public ILightEvent GetProfileFromProcessTitle(string title) {
-            foreach (var entry in EventTitles) {
-                if (Regex.IsMatch(title, entry.Key, RegexOptions.IgnoreCase)) {
+        public ILightEvent GetProfileFromProcessTitle(string title)
+        {
+            foreach (var entry in EventTitles)
+            {
+                if (Regex.IsMatch(title, entry.Key, RegexOptions.IgnoreCase))
+                {
                     if (!Events.ContainsKey(entry.Value))
                         Global.logger.Warn($"GetProfileFromProcess: The process with title '{title}' matchs an item in EventTitles but subsequently '{entry.Value}' does not in Events!");
                     else
@@ -465,7 +467,7 @@ namespace Aurora.Profiles
 
         public void RegisterLayerHandlers(List<LayerHandlerEntry> layers, bool @default = true)
         {
-            foreach(var layer in layers)
+            foreach (var layer in layers)
             {
                 RegisterLayerHandler(layer, @default);
             }
@@ -496,7 +498,7 @@ namespace Aurora.Profiles
 
         public ILayerHandler GetLayerHandlerInstance(LayerHandlerEntry entry)
         {
-            return (ILayerHandler)Activator.CreateInstance(entry.Type);
+            return (ILayerHandler) Activator.CreateInstance(entry.Type);
         }
 
         public ILayerHandler GetLayerHandlerInstance(string key)
@@ -505,7 +507,6 @@ namespace Aurora.Profiles
             {
                 return GetLayerHandlerInstance(LayerHandlers[key]);
             }
-
 
             return null;
         }
@@ -522,11 +523,16 @@ namespace Aurora.Profiles
         private List<TimedListObject> overlays = new List<TimedListObject>();
         private Event_Idle idle_e = new Event_Idle();
 
-        public string PreviewProfileKey { get { return previewModeProfileKey; } set { previewModeProfileKey = value ?? string.Empty; } }
+        public string PreviewProfileKey
+        {
+            get { return previewModeProfileKey; }
+            set { previewModeProfileKey = value ?? string.Empty; }
+        }
 
         private void InitUpdate()
         {
-            updateTimer = new System.Threading.Timer(g => {
+            updateTimer = new System.Threading.Timer(g =>
+            {
                 Stopwatch watch = new Stopwatch();
                 watch.Start();
                 if (Global.isDebug)
@@ -563,7 +569,7 @@ namespace Aurora.Profiles
         {
             tagLASTINPUTINFO LastInput = new tagLASTINPUTINFO();
             Int32 IdleTime;
-            LastInput.cbSize = (uint)Marshal.SizeOf(LastInput);
+            LastInput.cbSize = (uint) Marshal.SizeOf(LastInput);
             LastInput.dwTime = 0;
 
             if (ActiveProcessMonitor.GetLastInputInfo(ref LastInput))
@@ -573,7 +579,7 @@ namespace Aurora.Profiles
                 if (IdleTime >= Global.Configuration.idle_delay * 60 * 1000)
                 {
                     if (!(Global.Configuration.time_based_dimming_enabled &&
-                    Utils.Time.IsCurrentTimeBetween(Global.Configuration.time_based_dimming_start_hour, Global.Configuration.time_based_dimming_start_minute, Global.Configuration.time_based_dimming_end_hour, Global.Configuration.time_based_dimming_end_minute))
+                          Utils.Time.IsCurrentTimeBetween(Global.Configuration.time_based_dimming_start_hour, Global.Configuration.time_based_dimming_start_minute, Global.Configuration.time_based_dimming_end_hour, Global.Configuration.time_based_dimming_end_minute))
                     )
                     {
                         UpdateEvent(idle_e, newFrame);
@@ -581,7 +587,7 @@ namespace Aurora.Profiles
                 }
             }
         }
-        
+
         private void UpdateEvent(ILightEvent @event, EffectsEngine.EffectFrame frame)
         {
             StartEvent(@event);
@@ -591,7 +597,7 @@ namespace Aurora.Profiles
         private bool StartEvent(ILightEvent @event)
         {
             UpdatedEvents.Add(@event);
-            
+
             // Skip if event was already started
             if (StartedEvents.Contains(@event)) return false;
 
@@ -605,14 +611,14 @@ namespace Aurora.Profiles
         {
             // Skip if there are no started events or started events are the same since last update
             if (!StartedEvents.Any() || StartedEvents.SequenceEqual(UpdatedEvents)) return false;
-            
+
             List<ILightEvent> eventsToStop = StartedEvents.Except(UpdatedEvents).ToList();
             foreach (var eventToStop in eventsToStop)
                 eventToStop.OnStop();
-            
+
             StartedEvents.Clear();
             StartedEvents.AddRange(UpdatedEvents);
-            
+
             return true;
         }
 
@@ -623,7 +629,7 @@ namespace Aurora.Profiles
 
             //Blackout. TODO: Cleanup this a bit. Maybe push blank effect frame to keyboard incase it has existing stuff displayed
             if ((Global.Configuration.time_based_dimming_enabled &&
-               Utils.Time.IsCurrentTimeBetween(Global.Configuration.time_based_dimming_start_hour, Global.Configuration.time_based_dimming_start_minute, Global.Configuration.time_based_dimming_end_hour, Global.Configuration.time_based_dimming_end_minute)))
+                 Utils.Time.IsCurrentTimeBetween(Global.Configuration.time_based_dimming_start_hour, Global.Configuration.time_based_dimming_start_minute, Global.Configuration.time_based_dimming_end_hour, Global.Configuration.time_based_dimming_end_minute)))
             {
                 StopUnUpdatedEvents();
                 return;
@@ -634,11 +640,9 @@ namespace Aurora.Profiles
             UpdateProcess();
             EffectsEngine.EffectFrame newFrame = new EffectsEngine.EffectFrame();
 
-
-
             //TODO: Move these IdleEffects to an event
             //this.UpdateIdleEffects(newFrame);
-            
+
             ILightEvent profile = GetCurrentProfile(out bool preview);
 
             timerInterval = profile?.Config?.UpdateInterval ?? defaultTimerInterval;
@@ -695,7 +699,7 @@ namespace Aurora.Profiles
 
                 foreach (var @event in events)
                     @event.UpdateOverlayLights(newFrame);
-                
+
                 UpdateIdleEffects(newFrame);
             }
 
@@ -707,7 +711,8 @@ namespace Aurora.Profiles
 
         /// <summary>Gets the current application.</summary>
         /// <param name="preview">Boolean indicating whether the application is selected because it is previewing (true) or because the process is open (false).</param>
-        public ILightEvent GetCurrentProfile(out bool preview) {
+        public ILightEvent GetCurrentProfile(out bool preview)
+        {
             string process_name = Path.GetFileName(processMonitor.ProcessPath).ToLower();
             string process_title = processMonitor.GetActiveWindowsProcessTitle();
             ILightEvent profile = null;
@@ -721,13 +726,15 @@ namespace Aurora.Profiles
             {
                 profile = tempProfile;
                 preview = true;
-            } else if (Global.Configuration.allow_wrappers_in_background && Global.net_listener != null && Global.net_listener.IsWrapperConnected && ((tempProfile = GetProfileFromProcessName(Global.net_listener.WrappedProcess)) != null) && tempProfile.Config.Type == LightEventType.Normal && tempProfile.IsEnabled)
+            }
+            else if (Global.Configuration.allow_wrappers_in_background && Global.net_listener != null && Global.net_listener.IsWrapperConnected && ((tempProfile = GetProfileFromProcessName(Global.net_listener.WrappedProcess)) != null) && tempProfile.Config.Type == LightEventType.Normal && tempProfile.IsEnabled)
                 profile = tempProfile;
 
             profile = profile ?? DesktopProfile;
 
             return profile;
         }
+
         /// <summary>Gets the current application.</summary>
         public ILightEvent GetCurrentProfile() => GetCurrentProfile(out bool _);
 
@@ -738,86 +745,78 @@ namespace Aurora.Profiles
         public IEnumerable<ILightEvent> GetOverlayActiveProfiles() => Events.Values
             .Where(evt => evt.IsOverlayEnabled)
             .Where(evt => evt.Config.ProcessNames == null || evt.Config.ProcessNames.Any(name => runningProcessMonitor.IsProcessRunning(name)));
-            //.Where(evt => evt.Config.ProcessTitles == null || ProcessUtils.AnyProcessWithTitleExists(evt.Config.ProcessTitles));
+        //.Where(evt => evt.Config.ProcessTitles == null || ProcessUtils.AnyProcessWithTitleExists(evt.Config.ProcessTitles));
 
         /// <summary>KeyDown handler that checks the current application's profiles for keybinds.
         /// In the case of multiple profiles matching the keybind, it will pick the next one as specified in the Application.Profile order.</summary>
-        public void CheckProfileKeybinds(object sender, SharpDX.RawInput.KeyboardInputEventArgs e) {
+        public void CheckProfileKeybinds(object sender, SharpDX.RawInput.KeyboardInputEventArgs e)
+        {
             ILightEvent profile = GetCurrentProfile();
 
             // Check profile is valid and do not switch profiles if the user is trying to enter a keybind
-            if (profile is Application && Controls.Control_Keybind._ActiveKeybind == null) {
+            if (!(profile is Application application) || Controls.Control_Keybind._ActiveKeybind != null) return;
+            // Find all profiles that have their keybinds pressed
+            List<ApplicationProfile> possibleProfiles = application.Profiles.Where(prof => prof.TriggerKeybind.IsPressed()).ToList();
 
-                // Find all profiles that have their keybinds pressed
-                List<ApplicationProfile> possibleProfiles = new List<ApplicationProfile>();
-                foreach (var prof in (profile as Application).Profiles)
-                    if (prof.TriggerKeybind.IsPressed())
-                        possibleProfiles.Add(prof);
-
-                // If atleast one profile has it's key pressed
-                if (possibleProfiles.Count > 0) {
-                    // The target profile is the NEXT valid profile after the currently selected one (or the first valid one if the currently selected one doesn't share this keybind)
-                    int trg = (possibleProfiles.IndexOf((profile as Application).Profile) + 1) % possibleProfiles.Count;
-                    (profile as Application).SwitchToProfile(possibleProfiles[trg]);
-                }
-            }
+            // If atleast one profile has it's key pressed
+            if (!possibleProfiles.Any()) return;
+            // The target profile is the NEXT valid profile after the currently selected one (or the first valid one if the currently selected one doesn't share this keybind)
+            application.SwitchToProfile(possibleProfiles.Skip(possibleProfiles.IndexOf(application.Profile)).First());
         }
-
 
         public void GameStateUpdate(IGameState gs)
         {
             //Debug.WriteLine("Received gs!");
 
-//Global.logger.LogLine(gs.ToString(), Logging_Level.None, false);
+            //Global.logger.LogLine(gs.ToString(), Logging_Level.None, false);
 
-//UpdateProcess();
+            //UpdateProcess();
 
-//string process_name = System.IO.Path.GetFileName(processMonitor.ProcessPath).ToLowerInvariant();
+            //string process_name = System.IO.Path.GetFileName(processMonitor.ProcessPath).ToLowerInvariant();
 
-//EffectsEngine.EffectFrame newFrame = new EffectsEngine.EffectFrame();
-#if DEBUG
-#else
+            //EffectsEngine.EffectFrame newFrame = new EffectsEngine.EffectFrame();
+            #if DEBUG
+            #else
             try
             {
-#endif
-                ILightEvent profile;// = this.GetProfileFromProcess(process_name);
-                
+            #endif
+            ILightEvent profile; // = this.GetProfileFromProcess(process_name);
 
-                JObject provider = Newtonsoft.Json.Linq.JObject.Parse(gs.GetNode("provider"));
-                string appid = provider.GetValue("appid").ToString();
-                string name = provider.GetValue("name").ToString().ToLowerInvariant();
+            JObject provider = Newtonsoft.Json.Linq.JObject.Parse(gs.GetNode("provider"));
+            string appid = provider.GetValue("appid").ToString();
+            string name = provider.GetValue("name").ToString().ToLowerInvariant();
 
-                if ((profile = GetProfileFromAppID(appid)) != null || (profile = GetProfileFromProcessName(name)) != null)
+            if ((profile = GetProfileFromAppID(appid)) != null || (profile = GetProfileFromProcessName(name)) != null)
+            {
+                IGameState gameState = gs;
+                if (profile.Config.GameStateType != null)
+                    gameState = (IGameState) Activator.CreateInstance(profile.Config.GameStateType, gs.json);
+                profile.SetGameState(gameState);
+            }
+            else if (gs is GameState_Wrapper && Global.Configuration.allow_all_logitech_bitmaps)
+            {
+                string gs_process_name = Newtonsoft.Json.Linq.JObject.Parse(gs.GetNode("provider")).GetValue("name").ToString().ToLowerInvariant();
+                lock (Events)
                 {
-                    IGameState gameState = gs;
-                    if (profile.Config.GameStateType != null)
-                        gameState = (IGameState)Activator.CreateInstance(profile.Config.GameStateType, gs.json);
-                    profile.SetGameState(gameState);
-                }
-                else if (gs is GameState_Wrapper && Global.Configuration.allow_all_logitech_bitmaps)
-                {
-                    string gs_process_name = Newtonsoft.Json.Linq.JObject.Parse(gs.GetNode("provider")).GetValue("name").ToString().ToLowerInvariant();
-                    lock (Events)
+                    profile = profile ?? GetProfileFromProcessName(gs_process_name);
+
+                    if (profile == null)
                     {
-                        profile = profile ?? GetProfileFromProcessName(gs_process_name);
-
-                        if (profile == null)
-                        {
-                            Events.Add(gs_process_name, new GameEvent_Aurora_Wrapper(new LightEventConfig { GameStateType = typeof(GameState_Wrapper), ProcessNames = new[] { gs_process_name } }));
-                            profile = Events[gs_process_name];
-                        }
-
-                        profile.SetGameState(gs);
+                        Events.Add(gs_process_name, new GameEvent_Aurora_Wrapper(new LightEventConfig { GameStateType = typeof(GameState_Wrapper), ProcessNames = new[] { gs_process_name } }));
+                        profile = Events[gs_process_name];
                     }
+
+                    profile.SetGameState(gs);
                 }
-#if DEBUG
-#else
+            }
+            #if DEBUG
+            #else
             }
             catch (Exception e)
             {
                 Global.logger.LogLine("Exception during GameStateUpdate(), error: " + e, Logging_Level.Warning);
             }
-#endif
+            #endif
         }
 
         public void ResetGameState(string process)
