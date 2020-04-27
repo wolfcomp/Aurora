@@ -3,52 +3,57 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Corale.Colore;
 using Corale.Colore.Core;
-using Corale.Colore.Razer;
-using Device = Aurora.Devices.Device;
 using KeyboardCustom = Corale.Colore.Razer.Keyboard.Effects.Custom;
 using MousepadCustom = Corale.Colore.Razer.Mousepad.Effects.Custom;
 using MouseCustom = Corale.Colore.Razer.Mouse.Effects.CustomGrid;
-using HeadsetCustom = Corale.Colore.Razer.Headset.Effects.Static;
+using HeadsetStatic = Corale.Colore.Razer.Headset.Effects.Static;
 using KeypadCustom = Corale.Colore.Razer.Keypad.Effects.Custom;
-using ChromalinkCustom = Corale.Colore.Razer.ChromaLink.Effects.Custom;
+using ChromaLinkCustom = Corale.Colore.Razer.ChromaLink.Effects.Custom;
 
 namespace Device_Razer
 {
-    public class RazerDevice : Device
+    public class RazerDevice : Aurora.Devices.Device
     {
         protected override string DeviceName => "Razer";
 
-        private IChroma chroma;
-        
         private KeyboardCustom keyboard = KeyboardCustom.Create();
         private MousepadCustom mousepad = MousepadCustom.Create();
-        private MouseCustom mouse =  MouseCustom.Create();
-        private HeadsetCustom headset = new HeadsetCustom(ToColore(System.Drawing.Color.Black));
+        private MouseCustom mouse = MouseCustom.Create();
+        private Color headset = Color.Black;
         private KeypadCustom keypad = KeypadCustom.Create();
-        private ChromalinkCustom chromalink = ChromalinkCustom.Create();
+        private ChromaLinkCustom chromalink = ChromaLinkCustom.Create();
 
-        private List<string> deviceNames;
+        private readonly List<string> deviceNames = new List<string>();
 
         public override bool Initialize()
         {
+            if (!Chroma.SdkAvailable)
+            {
+                LogError("SDK not available. Install Razer synapse");
+                return isInitialized = false;
+            }
+
             try
             {
-                //hack
-                chroma = Chroma.Instance;
-                chroma.Initialize();
-
-                DetectDevices();
-
-                isInitialized = true;
-                return true;
+                Chroma.Instance.Initialize();
             }
-            catch (Exception e)
+            catch (Corale.Colore.Razer.NativeCallException e)
             {
-                LogError(e.Message);
-                isInitialized = false;
-                return false;
+                LogError("Error initializing:" + e.Message);
+                return isInitialized = false;
             }
+
+            if(!Chroma.Instance.Initialized)
+            {
+                LogError("Failed to Initialize Razer Chroma sdk");
+                return isInitialized = false;
+            }
+
+            DetectDevices();
+
+            return isInitialized = true;
         }
 
         public override string GetDeviceDetails()
@@ -73,10 +78,13 @@ namespace Device_Razer
 
         public override void Shutdown()
         {
+            if (!isInitialized)
+                return;
+
             try
             {
-                chroma.SetAll(new Color(0, 0, 0));
-                chroma.Uninitialize();
+                Chroma.Instance.SetAll(Color.Black);
+                Chroma.Instance.Uninitialize();
                 isInitialized = false;
             }
             catch (Exception e)
@@ -92,23 +100,25 @@ namespace Device_Razer
 
         public override bool UpdateDevice(Dictionary<DeviceKeys, System.Drawing.Color> keyColors, DoWorkEventArgs e, bool forced = false)
         {
+            if (!isInitialized)
+                return false;
+
             foreach (var key in keyColors)
             {
-                var color = ToColore(key.Value);
                 if (RazerMappings.keyboardDictionary.TryGetValue(key.Key, out var kbIndex))
-                    keyboard[kbIndex] = color;
+                    keyboard[kbIndex] = ToColore(key.Value);
 
                 if (RazerMappings.mouseDictionary.TryGetValue(key.Key, out var mouseIndex))
-                    mouse[mouseIndex] = color;
+                    mouse[mouseIndex] = ToColore(key.Value);
 
                 if (RazerMappings.mousepadDictionary.TryGetValue(key.Key, out var mousepadIndex))
-                    mousepad[mousepadIndex] = color;
+                    mousepad[mousepadIndex] = ToColore(key.Value);
 
-                //if (RazerMappings.headsetDictionary.TryGetValue(key.Key, out var headsetIndex))
-                //    headset[headsetIndex] = ToColore(key.Value);
+                if (RazerMappings.headsetDictionary.TryGetValue(key.Key, out var headsetIndex))
+                    headset = ToColore(key.Value);
 
                 if (RazerMappings.chromalinkDictionary.TryGetValue(key.Key, out var chromalinkIndex))
-                    chromalink[chromalinkIndex] = color;
+                    chromalink[chromalinkIndex] = ToColore(key.Value);
             }
             UpdateAll();
             return true;
@@ -119,10 +129,11 @@ namespace Device_Razer
         private void DetectDevices()
         {
             //get all devices from colore, with the respective names and Guids
-            var k = typeof(Devices).GetFields();
-            IEnumerable<(string Name, Guid Guid)> DeviceGuids = k.Select(f => (f.Name, (Guid)f.GetValue(null)));
+            IEnumerable<(string Name, Guid Guid)> DeviceGuids = typeof(Corale.Colore.Razer.Devices).GetFields().Select(f =>
+                    (f.Name,
+                    (Guid)f.GetValue(null)));
 
-            deviceNames = new List<string>();
+            deviceNames.Clear();
 
             foreach (var device in DeviceGuids.Where(d => d.Name != "Razer Core Chroma"))//somehow this device is unsupported, can't query it
             {
@@ -134,28 +145,24 @@ namespace Device_Razer
                         deviceNames.Add(device.Name);
                     }
                 }
-                catch (Exception e)
+                catch (Corale.Colore.Razer.NativeCallException e)
                 {
-                    //if ((e.InnerException is Colore.Native.NativeCallException) && (e.InnerException as Colore.Native.NativeCallException).Result.Value == 1167)
-                    //{
-                    //    //Global.logger.Info("device NOT connected: " + device.Name);
-                    //}
-                    //else
-                    //{
-                    //    //Global.logger.Info(e);
-                    //}
+                    LogError("Error querying device: " + e.Message);
                 }
             }
         }
 
         private void UpdateAll()
         {
-            chroma.Keyboard.SetCustom(keyboard);
-            chroma.Mouse.SetGrid(mouse);
-            chroma.Headset.SetStatic(headset);
-            chroma.Mousepad.SetCustom(mousepad);
-            chroma.Keypad.SetCustom(keypad);
-            chroma.ChromaLink.SetCustom(chromalink);
+            if (!isInitialized)
+                return;
+            Chroma.Instance.Keyboard.SetCustom(keyboard);
+            Chroma.Instance.Keyboard.SetCustom(keyboard);
+            Chroma.Instance.Mouse.SetGrid(mouse);
+            Chroma.Instance.Headset.SetStatic(headset);
+            Chroma.Instance.Mousepad.SetCustom(mousepad);
+            Chroma.Instance.Keypad.SetCustom(keypad);
+            Chroma.Instance.ChromaLink.SetCustom(chromalink);
         }
     }
 }

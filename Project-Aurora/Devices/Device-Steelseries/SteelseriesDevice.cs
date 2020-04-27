@@ -17,16 +17,9 @@ namespace Device_SteelSeries
 {
     public partial class SteelSeriesDevice : Device
     {
-        object lock_obj = new object();
-
-        public override VariableRegistry GetRegisteredVariables()
-        {
-            return new VariableRegistry();
-        }
-
         protected override string DeviceName => "SteelSeries";
 
-        public override string GetDeviceDetails() => IsInitialized() ? DeviceName + ": Connected" : DeviceName + ": Not initialized";
+        object lock_obj = new object();
 
         public override bool Initialize()
         {
@@ -81,26 +74,26 @@ namespace Device_SteelSeries
                 {
                     var mousePad = keyColors.Where(t => t.Key >= DeviceKeys.SSMPL1 && t.Key <= DeviceKeys.SSMPL12).Select(t => t.Value).ToArray();
                     var mouse = new List<Color> { keyColors[DeviceKeys.Peripheral_Logo], keyColors[DeviceKeys.Peripheral_ScrollWheel]};
-                    mouse.AddRange(keyColors.Where(t => t.Key <= DeviceKeys.MOUSELIGHT1 && t.Key >= DeviceKeys.MOUSELIGHT6).Select(t => t.Value));
-                    setOneZone(keyColors[DeviceKeys.Peripheral_Logo]);
+                    //mouse.AddRange(keyColors.Where(t => t.Key <= DeviceKeys.MOUSELIGHT1 && t.Key >= DeviceKeys.MOUSELIGHT6).Select(t => t.Value));
+                    SetZone(keyColors[DeviceKeys.Peripheral_Logo], SteelSeriesZone.onezone);
                     if (mouse.Count <= 1)
-                        setMouse(keyColors[DeviceKeys.Peripheral_Logo]);
+                        SetZone(keyColors[DeviceKeys.Peripheral_Logo], SteelSeriesZone.mouse);
                     else
                     {
-                        setLogo(keyColors[DeviceKeys.Peripheral_Logo]);
-                        setWheel(keyColors[DeviceKeys.Peripheral_ScrollWheel]);
+                        SetZone(keyColors[DeviceKeys.Peripheral_Logo], SteelSeriesZone.logo);
+                        SetZone(keyColors[DeviceKeys.Peripheral_ScrollWheel], SteelSeriesZone.wheel);
                         if (mouse.Count == 8)
-                            setEightZone(mouse.ToArray());
+                            SetZones(mouse.ToArray(), SteelSeriesZone.eightzone);
                     }
                     if (mousePad.Length == 2)
-                        setTwoZone(mousePad);
+                        SetZones(mousePad, SteelSeriesZone.twozone);
                     else
-                        setTwelveZone(mousePad);
-                    if (keyColors.Count(t => t.Key >= DeviceKeys.MONITORLIGHT1 && t.Key <= DeviceKeys.MONITORLIGHT103) == 103)
-                        setHundredThreeZone(keyColors.Where(t => t.Key >= DeviceKeys.MONITORLIGHT1 && t.Key <= DeviceKeys.MONITORLIGHT103).Select(t => t.Value).ToArray());
+                        SetZones(mousePad, SteelSeriesZone.twelvezone);
+                    //if (keyColors.Count(t => t.Key >= DeviceKeys.MONITORLIGHT1 && t.Key <= DeviceKeys.MONITORLIGHT103) == 103)
+                    //    setHundredThreeZone(keyColors.Where(t => t.Key >= DeviceKeys.MONITORLIGHT1 && t.Key <= DeviceKeys.MONITORLIGHT103).Select(t => t.Value).ToArray());
                 }
                 else
-                    setGeneric(keyColors[DeviceKeys.Peripheral]);
+                    SetZone(keyColors[DeviceKeys.Peripheral], SteelSeriesZone.periph);
             }
             if (!Global.Configuration.devices_disable_keyboard)
             {
