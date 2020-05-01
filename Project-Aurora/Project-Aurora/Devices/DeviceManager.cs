@@ -80,7 +80,7 @@ namespace Aurora.Devices
 
 
         private bool anyInitialized = false;
-        private bool retryActivated = false;
+        //private bool retryActivated = false;
         private const int retryInterval = 10000;
         private const int retryAttemps = 5;
         private int retryAttemptsLeft = retryAttemps;
@@ -257,7 +257,7 @@ namespace Aurora.Devices
 
             if (devicesToRetryNo > 0 && (retryThread == null || forceRetry || retryThread?.ThreadState == System.Threading.ThreadState.Stopped))
             {
-                retryActivated = true;
+                //retryActivated = true;
                 if (forceRetry)
                     retryThread?.Abort();
                 retryThread = new Thread(RetryInitialize);

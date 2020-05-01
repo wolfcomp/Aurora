@@ -261,9 +261,9 @@ namespace Aurora
                 //AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
 
                 if (Environment.Is64BitProcess)
-                    currentDomain.AppendPrivatePath("x64");
+                    currentDomain.SetupInformation.PrivateBinPath += $"x64{Path.PathSeparator}";
                 else
-                    currentDomain.AppendPrivatePath("x86");
+                    currentDomain.SetupInformation.PrivateBinPath += $"x86{Path.PathSeparator}";
 
                 Global.StartTime = Utils.Time.GetMillisecondsSinceEpoch();
 

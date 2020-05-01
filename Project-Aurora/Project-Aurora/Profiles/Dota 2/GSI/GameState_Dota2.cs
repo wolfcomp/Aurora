@@ -16,7 +16,7 @@ namespace Aurora.Profiles.Dota_2.GSI
         private Abilities_Dota2 abilities;
         private Items_Dota2 items;
         private GameState_Dota2 previously;
-        private GameState_Dota2 added;
+        //private GameState_Dota2 added;
 
         /// <summary>
         /// Creates a default GameState_Dota2 instance.

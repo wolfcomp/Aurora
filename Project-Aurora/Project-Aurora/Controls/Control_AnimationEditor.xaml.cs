@@ -148,8 +148,9 @@ namespace Aurora.Controls
                     UpdateScale(keyboard_overlayPreview.ActualWidth);
                 }
             }
-            catch (Exception exc)
+            catch (Exception)
             {
+                // ignore
             }
         }
 

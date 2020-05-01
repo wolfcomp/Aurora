@@ -408,6 +408,18 @@
     <Compile Include="Profiles\Discord\GSI\Nodes\UserNode.cs" />
     <Compile Include="Profiles\Discord\DiscordApplication.cs" />
     <Compile Include="Profiles\Discord\DiscordProfile.cs" />
+    <Compile Include="Profiles\FFXIV\Control_FFXIV.xaml.cs">
+      <DependentUpon>Control_FFXIV.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Profiles\FFXIV\FFXIV.cs" />
+    <Compile Include="Profiles\FFXIV\FFXIVProfile.cs" />
+    <Compile Include="Profiles\FFXIV\GSI\FFXIVActionNode.cs" />
+    <Compile Include="Profiles\FFXIV\GSI\FFXIVPlayerNode.cs" />
+    <Compile Include="Profiles\FFXIV\GSI\GameState_FFXIV.cs" />
+    <Compile Include="Profiles\FFXIV\Layers\Control_FFXIVActionLayerHandler.xaml.cs">
+      <DependentUpon>Control_FFXIVActionLayerHandler.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Profiles\FFXIV\Layers\FFXIVActionLayerHandler.cs" />
     <Compile Include="Profiles\LeagueOfLegends\GameEvent_LoL.cs" />
     <Compile Include="Profiles\LeagueOfLegends\GSI\GameData.cs" />
     <Compile Include="Profiles\LeagueOfLegends\GSI\GameState_LoL.cs" />
@@ -1016,6 +1028,9 @@
     <Content Include="Profiles\Overlays\SkypeOverlay\Event_SkypeOverlay.cs" />
     <Content Include="Profiles\Overlays\SkypeOverlay\SkypeOverlaySettings.cs" />
     <Content Include="Profiles\Overlays\SkypeOverlay\State_SkypeOverlay.cs" />
+    <None Include="..\.editorconfig">
+      <Link>.editorconfig</Link>
+    </None>
     <None Include="kb_layouts\ducky_shine_7.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -1715,6 +1730,7 @@
     <Resource Include="Resources\terraria_512x512.png" />
     <Resource Include="Resources\icons8-font-size-30.png" />
     <Resource Include="Resources\icons8-folder-30.png" />
+    <Resource Include="Resources\ffxiv_48x48.png" />
     <Content Include="RGB.NET.Devices.Asus.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -1828,6 +1844,14 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Profiles\Discord\Control_Discord.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Profiles\FFXIV\Control_FFXIV.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Profiles\FFXIV\Layers\Control_FFXIVActionLayerHandler.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

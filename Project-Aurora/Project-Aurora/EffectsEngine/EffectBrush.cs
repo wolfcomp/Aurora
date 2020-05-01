@@ -114,7 +114,7 @@ namespace Aurora.EffectsEngine
                         }
                     }
                 }
-                catch (Exception exc)
+                catch (Exception)
                 {
                     colorGradients.Clear();
 
@@ -171,7 +171,7 @@ namespace Aurora.EffectsEngine
                         }
                     }
                 }
-                catch (Exception exc)
+                catch (Exception)
                 {
                     colorGradients.Clear();
 

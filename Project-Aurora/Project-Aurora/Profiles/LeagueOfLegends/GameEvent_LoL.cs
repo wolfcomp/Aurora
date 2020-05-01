@@ -162,9 +162,9 @@ namespace Aurora.Profiles.LeagueOfLegends
 
                 #endregion
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                //Global.logger.Error(e);
+                //Global.logger.Error(e, "Error updating tick for LeagueOfLegends");
             }
         }
 
@@ -202,7 +202,7 @@ namespace Aurora.Profiles.LeagueOfLegends
                         jsonData = await res.Content.ReadAsStringAsync();
                 }
             }
-            catch (Exception exc)
+            catch (Exception)
             {
                 // Global.logger.Error(exc);
                 allGameData = null;

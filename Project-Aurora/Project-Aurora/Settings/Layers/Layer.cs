@@ -16,11 +16,12 @@ using System.Windows.Controls;
 
 namespace Aurora.Settings.Layers
 {
+    /*
     /// <summary>
     /// All available layer types. Note: There is a large overhead for generap purpose layers, so there is ample room for adding new layers that apply to all profiles.
     /// Each game reserves 50 unique layer types.
     /// </summary>
-    /*public enum LayerType
+    public enum LayerType
     {
         [Description("Default Layer")]
         Default = 0,

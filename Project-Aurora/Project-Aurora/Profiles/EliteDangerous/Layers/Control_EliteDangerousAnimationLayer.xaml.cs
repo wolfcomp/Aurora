@@ -21,7 +21,7 @@ namespace Aurora.Profiles.EliteDangerous.Layers
     /// </summary>
     public partial class Control_EliteDangerousAnimationLayer : UserControl
     {
-        private bool settingsset = false;
+        //private bool settingsset = false;
 
         public Control_EliteDangerousAnimationLayer()
         {

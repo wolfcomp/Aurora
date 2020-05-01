@@ -221,7 +221,7 @@ namespace Aurora.Utils
         }
 
 
-        static bool hasOutput = false;
+        //static bool hasOutput = false;
 
         /// <summary>
         /// Correcting RawInput data according to an article https://blog.molecular-matters.com/2011/09/05/properly-handling-keyboard-input/

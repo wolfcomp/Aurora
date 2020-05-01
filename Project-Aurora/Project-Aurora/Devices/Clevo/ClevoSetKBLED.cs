@@ -8,7 +8,7 @@ using System.Windows.Forms;
 using Microsoft.Win32;
 using System.Drawing;
 
-/**
+/*
 *   ClevoSetKBLED - Class to control Clevo KBLED Colors
 **/
 namespace Aurora.Devices.Clevo{
@@ -63,7 +63,7 @@ namespace Aurora.Devices.Clevo{
                 }
 
             }catch (Exception e){
-                Console.WriteLine("ERROR: Could not connect to Clevo WMI Service. Clevo HotKey software may not be installed.");
+                Global.logger.Error(e, "ERROR: Could not connect to Clevo WMI Service. Clevo HotKey software may not be installed.");
             }
 
             return false;

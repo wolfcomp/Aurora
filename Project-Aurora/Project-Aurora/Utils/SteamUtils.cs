@@ -150,7 +150,7 @@ namespace Aurora.Utils
                 {
                     steamPath = (string)Microsoft.Win32.Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Valve\Steam", "InstallPath", null);
                 }
-                catch (Exception exc)
+                catch (Exception)
                 {
                     steamPath = "";
                 }
@@ -161,7 +161,7 @@ namespace Aurora.Utils
                     {
                         steamPath = (string)Microsoft.Win32.Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Valve\Steam", "InstallPath", null);
                     }
-                    catch (Exception exc)
+                    catch (Exception)
                     {
                         steamPath = "";
                     }

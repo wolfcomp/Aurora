@@ -129,9 +129,9 @@ namespace Aurora.EffectsEngine.Animations
                     {
                         track.Value.GetFrame(time).Draw(g, scale, offset);
                     }
-                    catch (Exception exc)
+                    catch (Exception e)
                     {
-                        System.Console.WriteLine();
+                        Global.logger.Error(e, "Error while drawing AnimationMix");
                     }
 
                 }

@@ -15,11 +15,11 @@ namespace Aurora.Profiles.Desktop
 {
     public class Event_Desktop : LightEvent
     {
-        private long internalcounter;
+        //private long internalcounter;
 
         public Event_Desktop() : base()
         {
-            internalcounter = 0;
+            //internalcounter = 0;
         }
 
         public override void UpdateLights(EffectFrame frame)

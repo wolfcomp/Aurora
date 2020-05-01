@@ -51,7 +51,7 @@ namespace Aurora.Profiles
             Newtonsoft.Json.Linq.JToken value;
 
             if (_ParsedData.TryGetValue(Name, StringComparison.OrdinalIgnoreCase, out value))
-                return Convert.ToInt32(value.ToString());
+                return value.ToObject<int>();
             else
                 return -1;
         }
@@ -61,7 +61,7 @@ namespace Aurora.Profiles
             Newtonsoft.Json.Linq.JToken value;
 
             if (_ParsedData.TryGetValue(Name, StringComparison.OrdinalIgnoreCase, out value))
-                return Convert.ToSingle(value.ToString());
+                return value.ToObject<float>();
             else
                 return -1.0f;
         }
@@ -74,6 +74,16 @@ namespace Aurora.Profiles
                 return Convert.ToInt64(value.ToString());
             else
                 return -1;
+        }
+
+        internal T Get<T>(string Name)
+        {
+            Newtonsoft.Json.Linq.JToken value;
+
+            if (_ParsedData.TryGetValue(Name, StringComparison.OrdinalIgnoreCase, out value))
+                return value.ToObject<T>();
+            else
+                return default;
         }
 
         internal T GetEnum<T>(string Name) where T : struct

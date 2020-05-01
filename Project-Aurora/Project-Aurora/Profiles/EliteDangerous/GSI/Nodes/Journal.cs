@@ -115,7 +115,7 @@ namespace Aurora.Profiles.EliteDangerous.GSI.Nodes
                         {
                             jumpStarClass = (StarClass) Enum.Parse(typeof(StarClass), startJump.StarClass, true);
                         }
-                        catch (Exception e)
+                        catch (Exception)
                         {
                             jumpStarClass = StarClass.K;
                         }

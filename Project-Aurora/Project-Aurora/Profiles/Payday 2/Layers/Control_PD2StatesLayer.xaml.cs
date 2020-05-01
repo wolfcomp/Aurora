@@ -21,8 +21,8 @@ namespace Aurora.Profiles.Payday_2.Layers
     /// </summary>
     public partial class Control_PD2StatesLayer : UserControl
     {
-        private bool settingsset = false;
-        private bool profileset = false;
+        //private bool settingsset = false;
+        //private bool profileset = false;
 
         public Control_PD2StatesLayer()
         {

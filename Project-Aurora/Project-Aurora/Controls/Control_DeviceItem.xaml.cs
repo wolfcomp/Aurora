@@ -104,7 +104,7 @@ namespace Aurora.Controls
             txtblk_DeviceStatus.Text = Device.Device.GetDeviceDetails().TrimEnd(' ');
             txtblk_DevicePerformance.Text = Device.Device.GetDeviceUpdatePerformance();
 
-            if(Device is Devices.ScriptedDevice.ScriptedDevice)
+            if(Device.Device is Devices.ScriptedDevice.ScriptedDevice)
                 btnToggleEnableDisable.IsEnabled = false;
             else
             {

@@ -191,7 +191,7 @@ namespace Aurora.Utils
                         }
                     }
                 }
-                catch (Exception exc)
+                catch (Exception)
                 {
                     for (int x = 0; x < lgb.LinearColors.Length; x++)
                     {

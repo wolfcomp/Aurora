@@ -129,7 +129,6 @@ namespace Aurora.Settings.Layers
 
         void SetApplication(Application profile);
         void SetGameState(IGameState gamestate);
-        void Dispose();
     }
 
     public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : LayerHandlerProperties<TProperty>

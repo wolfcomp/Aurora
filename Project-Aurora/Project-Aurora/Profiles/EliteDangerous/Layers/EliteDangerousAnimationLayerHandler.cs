@@ -96,7 +96,7 @@ namespace Aurora.Profiles.EliteDangerous.Layers
         private float layerFadeState = 0;
         private static float totalAnimationTime, animationKeyframe = 0.0f;
         private static EliteAnimation currentAnimation = EliteAnimation.None;
-        private static float animationTime = 0.0f;
+        //private static float animationTime = 0.0f;
         private EliteAnimation animateOnce = EliteAnimation.None;
         
         public EliteDangerousAnimationLayerHandler() : base()

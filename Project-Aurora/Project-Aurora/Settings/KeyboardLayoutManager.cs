@@ -191,8 +191,8 @@ namespace Aurora.Settings
         {
             double location_x = 0.0D;
             double location_y = 0.0D;
-            int location_x_bit = 0;
-            int location_y_bit = 0;
+            //int location_x_bit = 0;
+            //int location_y_bit = 0;
 
             if (insertion_region == KeyboardRegion.TopRight)
             {

@@ -79,7 +79,14 @@ namespace Aurora.Profiles
                 json_data = "{}";
 
             json = json_data;
-            _ParsedData = Newtonsoft.Json.Linq.JObject.Parse(json_data);
+            try
+            {
+                _ParsedData = Newtonsoft.Json.Linq.JObject.Parse(json_data);
+            }
+            catch
+            {
+                //ignore
+            }
         }
 
         /// <summary>

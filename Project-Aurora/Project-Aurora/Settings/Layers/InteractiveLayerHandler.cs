@@ -117,7 +117,7 @@ namespace Aurora.Settings.Layers
         private long previoustime = 0;
         private long currenttime = 0;
 
-        private input_item holdKeyInputItem;
+        //private input_item holdKeyInputItem;
 
         private float getDeltaTime()
         {

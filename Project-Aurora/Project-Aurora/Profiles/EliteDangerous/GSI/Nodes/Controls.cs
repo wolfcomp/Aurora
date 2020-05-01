@@ -462,7 +462,7 @@ namespace Aurora.Profiles.EliteDangerous.GSI.Nodes
 
             public bool HasKey()
             {
-                return key != null;
+                return key != DeviceKeys.NONE;
             }
         }
 

@@ -116,7 +116,7 @@ namespace Aurora.Utils
         /// Adjusts the saturation of an image using a color matrix. Uses a value between 0 (grayscale) and ~2
         /// </summary>
         /// <param name="bmp"></param>
-        /// <param name="b"></param>
+        /// <param name="s"></param>
         /// <returns></returns>
         public static Image AdjustImageSaturation(Image bmp, float s)
         {

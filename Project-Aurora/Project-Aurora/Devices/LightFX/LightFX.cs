@@ -22,7 +22,7 @@ namespace Aurora.Devices.LightFX
 
         private bool keyboard_updated = false;
         private bool peripheral_updated = false;
-        uint DevNUM = 0;
+        //uint DevNUM = 0;
         private VariableRegistry default_registry = null;
 
         private readonly object action_lock = new object();

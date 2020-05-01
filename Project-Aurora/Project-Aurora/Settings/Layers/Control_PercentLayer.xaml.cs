@@ -21,7 +21,7 @@ namespace Aurora.Settings.Layers
     public partial class Control_PercentLayer : UserControl
     {
         private bool settingsset = false;
-        private bool profileset = false;
+        //private bool profileset = false;
 
         public Control_PercentLayer()
         {

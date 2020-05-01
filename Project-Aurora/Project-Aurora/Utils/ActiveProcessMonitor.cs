@@ -36,9 +36,9 @@ namespace Aurora.Utils
 				SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, dele, 0, 0, WINEVENT_OUTOFCONTEXT);
 				SetWinEventHook(EVENT_SYSTEM_MINIMIZESTART, EVENT_SYSTEM_MINIMIZEEND, IntPtr.Zero, dele, 0, 0, WINEVENT_OUTOFCONTEXT);
 			}
-			catch (Exception exc)
+			catch (Exception)
 			{
-
+                // ignore
 			}
 		}
 

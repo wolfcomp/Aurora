@@ -91,9 +91,10 @@ namespace Aurora.Settings {
         /// <summary>
         /// Sets the text of the body preview text box to the given (json) string.
         /// </summary>
-        private void SetJsonText(string json) {
+        private void SetJsonText(string json)
+        {
             // Pretty-print the JSON (add new lines and indentations)
-            BodyPreviewTxt.Text = JToken.Parse(json).ToString(Newtonsoft.Json.Formatting.Indented);
+            BodyPreviewTxt.Text = Indent.IsChecked.Value ? JToken.Parse(json).ToString(Newtonsoft.Json.Formatting.Indented) : json;
         }
     }
 }

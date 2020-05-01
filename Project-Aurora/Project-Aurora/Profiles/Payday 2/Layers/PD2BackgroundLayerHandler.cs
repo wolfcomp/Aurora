@@ -143,8 +143,8 @@ namespace Aurora.Profiles.Payday_2.Layers
                     {
 
                         Color effect_contours = Color.FromArgb(200, Color.Black);
-                        float animation_stage_yoffset = 20.0f;
-                        float animation_repeat_keyframes = 250.0f; //Effects.canvas_width * 2.0f;
+                        //float animation_stage_yoffset = 20.0f;
+                        //float animation_repeat_keyframes = 250.0f; //Effects.canvas_width * 2.0f;
 
                         /* Effect visual:
 

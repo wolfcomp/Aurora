@@ -24,7 +24,7 @@ namespace Aurora.Profiles.Dota_2.Layers
     public partial class Control_Dota2ItemLayer : UserControl
     {
         private bool settingsset = false;
-        private bool profileset = false;
+        //private bool profileset = false;
 
         public Control_Dota2ItemLayer()
         {
