@@ -74,20 +74,31 @@ namespace Aurora.Settings.Layers
 
         private void eq_type_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (IsLoaded && settingsset && this.DataContext is EqualizerLayerHandler && sender is ComboBox)
-                (this.DataContext as EqualizerLayerHandler).Properties._EQType = (EqualizerType)Enum.Parse(typeof(EqualizerType), (sender as ComboBox).SelectedItem.ToString());
+            if (IsLoaded && settingsset && this.DataContext is EqualizerLayerHandler layer && sender is ComboBox box)
+                layer.Properties._EQType = (EqualizerType)Enum.Parse(typeof(EqualizerType), box.SelectedItem.ToString());
         }
 
         private void eq_view_type_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (IsLoaded && settingsset && this.DataContext is EqualizerLayerHandler && sender is ComboBox)
-                (this.DataContext as EqualizerLayerHandler).Properties._ViewType = (EqualizerPresentationType)Enum.Parse(typeof(EqualizerPresentationType), (sender as ComboBox).SelectedItem.ToString());
+            if (IsLoaded && settingsset && this.DataContext is EqualizerLayerHandler layer && sender is ComboBox box)
+                layer.Properties._ViewType = (EqualizerPresentationType)Enum.Parse(typeof(EqualizerPresentationType), box.SelectedItem.ToString());
         }
 
         private void eq_background_mode_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (IsLoaded && settingsset && this.DataContext is EqualizerLayerHandler && sender is ComboBox)
-                (this.DataContext as EqualizerLayerHandler).Properties._BackgroundMode = (EqualizerBackgroundMode)Enum.Parse(typeof(EqualizerBackgroundMode), (sender as ComboBox).SelectedItem.ToString());
+            if (IsLoaded && settingsset && this.DataContext is EqualizerLayerHandler layer && sender is ComboBox box)
+            {
+                layer.Properties._BackgroundMode = (EqualizerBackgroundMode) Enum.Parse(typeof(EqualizerBackgroundMode), box.SelectedItem.ToString());
+                switch (layer.Properties.BackgroundMode)
+                {
+                    case EqualizerBackgroundMode.AlwaysOn:
+                        layer.BgEnabled = true;
+                        break;
+                    default:
+                        layer.BgEnabled = false;
+                        break;
+                }
+            }
         }
 
         private void Clr_primary_color_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color?> e)
@@ -216,7 +227,7 @@ namespace Aurora.Settings.Layers
                 preview_window.SizeToContent = SizeToContent.WidthAndHeight;
 
                 preview_window.Title = "Equalizer preview";
-                preview_window.Background = new SolidColorBrush(Color.FromArgb(255, 0, 0, 0));
+                preview_window.Background = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
                 (this.DataContext as EqualizerLayerHandler).NewLayerRender += Control_EqualizerLayer_NewLayerRender;
 
                 preview_image.SnapsToDevicePixels = true;

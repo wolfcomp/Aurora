@@ -209,28 +209,26 @@ namespace Aurora.Settings.Layers
 
         public EffectLayer PostRenderFX(EffectLayer rendered_layer)
         {
-            EffectLayer returnLayer = new EffectLayer(rendered_layer);
-
             if (EnableSmoothing)
             {
                 EffectLayer previousLayer = new EffectLayer(_PreviousRender);
                 EffectLayer previousSecondLayer = new EffectLayer(_PreviousSecondRender);
+                _PreviousSecondRender = _PreviousRender;
+                _PreviousRender = new EffectLayer(rendered_layer);
 
-                returnLayer = returnLayer + (previousLayer * 0.50) + (previousSecondLayer * 0.25);
+                rendered_layer = rendered_layer + (previousLayer * 0.50) + (previousSecondLayer * 0.25);
 
                 //Update previous layers
-                _PreviousSecondRender = _PreviousRender;
-                _PreviousRender = rendered_layer;
             }
 
 
             //Last PostFX is exclusion
             if (EnableExclusionMask)
-                returnLayer.Exclude(ExclusionMask);
+                rendered_layer.Exclude(ExclusionMask);
 
-            returnLayer *= Properties.LayerOpacity;
+            rendered_layer *= Properties.LayerOpacity;
 
-            return returnLayer;
+            return rendered_layer;
         }
 
         public virtual void SetApplication(Application profile)

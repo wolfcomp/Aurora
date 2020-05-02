@@ -23,6 +23,11 @@ namespace Aurora.Profiles.FFXIV.GSI
         public double LevelProgression;
         public byte Status;
 
+        internal FFXIVPlayerNode() : base()
+        {
+
+        }
+
         internal FFXIVPlayerNode(string json) : base(json)
         {
             JobType = GetEnum<JobType>("JobType");

@@ -50,9 +50,7 @@ namespace Aurora.Settings.Layers
 
         public override EffectLayer Render(IGameState gamestate)
         {
-
             EffectLayer gradient_layer = new EffectLayer();
-
             //If Wave Size 0 Gradiant Stop Moving Animation
             if (Properties.GradientConfig.gradient_size == 0)
             {

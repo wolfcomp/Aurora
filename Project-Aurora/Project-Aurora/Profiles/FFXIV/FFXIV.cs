@@ -27,7 +27,8 @@ namespace Aurora.Profiles.FFXIV
         {
             var extra = new List<LayerHandlerEntry>
             {
-                new LayerHandlerEntry("FFXIVActionsLayer", "FFXIV Actions Layer", typeof(FFXIVActionLayerHandler))
+                new LayerHandlerEntry("FFXIVActionLayer", "FFXIV Actions Layer", typeof(FFXIVActionLayerHandler)),
+                new LayerHandlerEntry("FFXIVKeyBindLayer", "FFXIV Key Binds Layer", typeof(FFXIVKeyBindLayerHandler))
             };
 
             Global.LightingStateManager.RegisterLayerHandlers(extra, false);

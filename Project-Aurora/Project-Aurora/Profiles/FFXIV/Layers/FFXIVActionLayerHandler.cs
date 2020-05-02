@@ -71,9 +71,10 @@ namespace Aurora.Profiles.FFXIV.Layers
         public override EffectLayer Render(IGameState gamestate)
         {
             var layer = new EffectLayer("FFXIV - Action Layer");
-            layer.Fill(Color.Black);
+            layer.Fill(Color.Transparent);
             if (gamestate is GameState_FFXIV ffxiv && ffxiv.Actions.Any())
             {
+                layer.Set(ffxiv.Actions.Where(t => t.Key != DeviceKeys.NONE).Select(t => t.Key).ToArray(), Properties.NotAvailable);
                 var recordedKeys = Global.InputEvents;
                 var modif = new List<Func<FFXIVAction, bool>>();
                 if (recordedKeys.Alt)
@@ -125,6 +126,12 @@ namespace Aurora.Profiles.FFXIV.Layers
             if (actions.Any(t => t.IsProcOrCombo)) layer.Set(deviceKeys, Utils.ColorUtils.MultiplyColorByScalar(Properties.Combo, scalar));
             if (!actions.Any(t => t.InRange)) layer.Set(deviceKeys, Utils.ColorUtils.MultiplyColorByScalar(Properties.OutOfRange, scalar));
             if (!actions.Any(t => t.IsAvailable)) layer.Set(deviceKeys, Properties.NotAvailable);
+        }
+
+        public override void SetApplication(Application profile)
+        {
+            (Control as Control_FFXIVActionLayerHandler).SetProfile(profile);
+            base.SetApplication(profile);
         }
     }
 }

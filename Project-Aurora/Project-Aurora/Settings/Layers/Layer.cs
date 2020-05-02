@@ -243,7 +243,7 @@ namespace Aurora.Settings.Layers
                     // Set the value of the logic evaluation as the override for this property
                     ((IValueOverridable)_Handler.Properties).Overrides.SetValueFromString(kvp.Key, kvp.Value.Evaluate(gs));
             
-            return ((dynamic)_Handler.Properties).Enabled ? _Handler.PostRenderFX(_Handler.Render(gs)) : new EffectLayer();
+            return ((dynamic)_Handler.Properties).Enabled ? _Handler.PostRenderFX(_Handler.Render(gs)) : null;
         }
 
         public void SetProfile(Application profile)

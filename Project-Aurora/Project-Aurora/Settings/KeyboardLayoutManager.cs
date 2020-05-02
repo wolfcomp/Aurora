@@ -1167,10 +1167,7 @@ namespace Aurora.Settings
                 _virtualKeyboardMap.Clear();
 
             Grid new_virtual_keyboard = new Grid();
-
-            double layout_height = 0;
-            double layout_width = 0;
-
+            
             double baseline_x = 0.0;
             double baseline_y = 0.0;
             double current_height = 0;
@@ -1180,12 +1177,10 @@ namespace Aurora.Settings
 
             foreach (KeyboardKey key in virtualKeyboardGroup.grouped_keys)
             {
-                double keyMargin_Left = key.margin_left.Value;
-                double keyMargin_Top = key.margin_top.Value;
 
                 string image_path = "";
 
-                if (!String.IsNullOrWhiteSpace(key.image))
+                if (!string.IsNullOrWhiteSpace(key.image))
                     image_path = Path.Combine(images_path, key.image);
 
                 UserControl keycap;
@@ -1195,30 +1190,20 @@ namespace Aurora.Settings
                     keycap = new Control_GhostKeycap(key, image_path);
                 else
                 {
-                    switch (Global.Configuration.virtualkeyboard_keycap_type)
+                    keycap = Global.Configuration.virtualkeyboard_keycap_type switch
                     {
-                        case KeycapType.Default_backglow:
-                            keycap = new Control_DefaultKeycapBackglow(key, image_path);
-                            break;
-                        case KeycapType.Default_backglow_only:
-                            keycap = new Control_DefaultKeycapBackglowOnly(key, image_path);
-                            break;
-                        case KeycapType.Colorized:
-                            keycap = new Control_ColorizedKeycap(key, image_path);
-                            break;
-                        case KeycapType.Colorized_blank:
-                            keycap = new Control_ColorizedKeycapBlank(key, image_path);
-                            break;
-                        default:
-                            keycap = new Control_DefaultKeycap(key, image_path);
-                            break;
-                    }
+                        KeycapType.Default_backglow => new Control_DefaultKeycapBackglow(key, image_path),
+                        KeycapType.Default_backglow_only => new Control_DefaultKeycapBackglowOnly(key, image_path),
+                        KeycapType.Colorized => new Control_ColorizedKeycap(key, image_path),
+                        KeycapType.Colorized_blank => new Control_ColorizedKeycapBlank(key, image_path),
+                        _ => new Control_DefaultKeycap(key, image_path)
+                    };
                 }
 
                 new_virtual_keyboard.Children.Add(keycap);
 
-                if (key.tag != DeviceKeys.NONE && !_virtualKeyboardMap.ContainsKey(key.tag) && keycap is IKeycap && !abstractKeycaps)
-                    _virtualKeyboardMap.Add(key.tag, keycap as IKeycap);
+                if (key.tag != DeviceKeys.NONE && !_virtualKeyboardMap.ContainsKey(key.tag) && keycap is IKeycap keycap1 && !abstractKeycaps)
+                    _virtualKeyboardMap.Add(key.tag, keycap1);
 
                 if (key.absolute_location.Value)
                     keycap.Margin = new Thickness(key.margin_left.Value, key.margin_top.Value, 0, 0);
@@ -1233,25 +1218,19 @@ namespace Aurora.Settings
 
                 if (!key.absolute_location.Value)
                 {
+                    double keyMargin_Left = key.margin_left.Value;
+                    double keyMargin_Top = key.margin_top.Value;
                     if (key.width + keyMargin_Left > 0)
                         current_width += key.width.Value + keyMargin_Left;
 
                     if (keyMargin_Top > 0)
                         current_height += keyMargin_Top;
-
-
-                    if (layout_width < current_width)
-                        layout_width = current_width;
-
-                    if (key.line_break.Value)
+                    
+                    if (key.line_break.HasValue && key.line_break.Value)
                     {
                         current_height += 37;
                         current_width = 0;
-                        //isFirstInRow = true;
                     }
-
-                    if (layout_height < current_height)
-                        layout_height = current_height;
                 }
             }
 
@@ -1358,15 +1337,6 @@ namespace Aurora.Settings
             virtualKeyboardGroup = new VirtualGroup(keyboard.Keys);
 
             LayoutKeyConversion = keyboard.KeyConversion ?? new Dictionary<DeviceKeys, DeviceKeys>();
-            /*
-            if (keyboard.Count > 0)
-                keyboard.Last().line_break = false;
-
-            keyboard.Add(new KeyboardKey("Mouse/\r\nHeadset", Devices.DeviceKeys.Peripheral, true, true, 12, 45, -60, 90, 90, 6, 6, 4, -3));
-
-            if (keyboard.Count > 0)
-                keyboard.Last().line_break = true;
-            */
         }
 
         public void LoadNone()

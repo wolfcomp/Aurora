@@ -94,6 +94,7 @@ namespace Device_Corsair
                     return LedMaps.CoolerLedMap;
                 case CorsairDeviceType.CommanderPro:
                 case CorsairDeviceType.LightingNodePro:
+                    return LedMaps.CommanderProLedMap;
                 case CorsairDeviceType.MemoryModule:
                 default:
                     return new Dictionary<DeviceKeys, CorsairLedId>();

@@ -294,10 +294,12 @@ namespace Aurora
                 EffectLayer[] layers_array = frame.GetLayers().ToArray();
 
                 foreach (EffectLayer layer in layers_array)
-                    background += layer;
+                    if(layer != null)
+                        background += layer;
 
                 foreach (EffectLayer layer in over_layers_array)
-                    background += layer;
+                    if (layer != null)
+                        background += layer;
 
                 //Apply Brightness
                 Dictionary<DeviceKeys, Color> peripehralColors = new Dictionary<DeviceKeys, Color>();

@@ -234,5 +234,12 @@ namespace Device_Corsair
         {
             [DeviceKeys.Peripheral_FrontLight] = CorsairLedId.LC_C1_1,//TODO
         };
+
+        internal static readonly Dictionary<DeviceKeys, CorsairLedId> CommanderProLedMap = new Dictionary<DeviceKeys, CorsairLedId>
+        {
+            [DeviceKeys.A] = CorsairLedId.D_C1_1,
+            [DeviceKeys.S] = CorsairLedId.D_C2_1,
+            [DeviceKeys.W] = CorsairLedId.D_C3_1
+        };
     }
 }

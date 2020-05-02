@@ -14,7 +14,7 @@ namespace Aurora.Profiles.FFXIV.GSI
         {
             if (obj is FFXIVActionNode actionNode)
             {
-                return actionNode.All(t => actionNode.Any(f => f.GetHashCode() == t.GetHashCode()));
+                return actionNode.All(t => this.Any(f => f.GetHashCode() == t.GetHashCode()));
             }
             return false;
         }

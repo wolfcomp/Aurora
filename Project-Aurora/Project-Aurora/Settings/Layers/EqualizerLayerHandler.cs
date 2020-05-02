@@ -24,48 +24,35 @@ namespace Aurora.Settings.Layers
 {
     public enum EqualizerType
     {
-        [Description("Power Bars")]
-        PowerBars,
+        [Description("Power Bars")] PowerBars,
 
-        [Description("Waveform")]
-        Waveform,
+        [Description("Waveform")] Waveform,
 
-        [Description("Waveform (From bottom)")]
-        Waveform_Bottom
-
+        [Description("Waveform (From bottom)")] Waveform_Bottom
     }
 
     public enum EqualizerPresentationType
     {
-        [Description("Solid Color")]
-        SolidColor,
+        [Description("Solid Color")] SolidColor,
 
-        [Description("Alternating Colors")]
-        AlternatingColor,
+        [Description("Alternating Colors")] AlternatingColor,
 
-        [Description("Gradient Notched Color")]
-        GradientNotched,
+        [Description("Gradient Notched Color")] GradientNotched,
 
-        [Description("Gradient Color Shift")]
-        GradientColorShift,
+        [Description("Gradient Color Shift")] GradientColorShift,
 
-        [Description("Gradient (Horizontal)")]
-        GradientHorizontal,
+        [Description("Gradient (Horizontal)")] GradientHorizontal,
 
-        [Description("Gradient (Vertical)")]
-        GradientVertical
+        [Description("Gradient (Vertical)")] GradientVertical
     }
 
     public enum EqualizerBackgroundMode
     {
-        [Description("Disabled")]
-        Disabled,
+        [Description("Disabled")] Disabled,
 
-        [Description("Always on")]
-        AlwaysOn,
+        [Description("Always on")] AlwaysOn,
 
-        [Description("On sound")]
-        EnabledOnSound
+        [Description("On sound")] EnabledOnSound
     }
 
     public class EqualizerLayerHandlerProperties : LayerHandlerProperties<EqualizerLayerHandlerProperties>
@@ -73,56 +60,77 @@ namespace Aurora.Settings.Layers
         [LogicOverridable("Secondary Color")]
         public Color? _SecondaryColor { get; set; }
         [JsonIgnore]
-        public Color SecondaryColor { get { return Logic._SecondaryColor ?? _SecondaryColor ?? Color.Empty; } }
+        public Color SecondaryColor
+        {
+            get { return Logic._SecondaryColor ?? _SecondaryColor ?? Color.Empty; }
+        }
 
         [LogicOverridable("Gradient")]
         public EffectBrush _Gradient { get; set; }
         [JsonIgnore]
-        public EffectBrush Gradient { get { return Logic._Gradient ?? _Gradient ?? new EffectBrush().SetBrushType(EffectBrush.BrushType.Linear); } }
+        public EffectBrush Gradient
+        {
+            get { return Logic._Gradient ?? _Gradient ?? new EffectBrush().SetBrushType(EffectBrush.BrushType.Linear); }
+        }
 
         [LogicOverridable("Equalizer Type")]
         public EqualizerType? _EQType { get; set; }
         [JsonIgnore]
-        public EqualizerType EQType { get { return Logic._EQType ?? _EQType ?? EqualizerType.PowerBars; } }
+        public EqualizerType EQType
+        {
+            get { return Logic._EQType ?? _EQType ?? EqualizerType.PowerBars; }
+        }
 
         [LogicOverridable("View Type")]
         public EqualizerPresentationType? _ViewType { get; set; }
         [JsonIgnore]
-        public EqualizerPresentationType ViewType { get { return Logic._ViewType ?? _ViewType ?? EqualizerPresentationType.SolidColor; } }
+        public EqualizerPresentationType ViewType
+        {
+            get { return Logic._ViewType ?? _ViewType ?? EqualizerPresentationType.SolidColor; }
+        }
 
         [LogicOverridable("Background Mode")]
         public EqualizerBackgroundMode? _BackgroundMode { get; set; }
         [JsonIgnore]
-        public EqualizerBackgroundMode BackgroundMode { get { return Logic._BackgroundMode ?? _BackgroundMode ?? EqualizerBackgroundMode.Disabled; } }
+        public EqualizerBackgroundMode BackgroundMode
+        {
+            get { return Logic._BackgroundMode ?? _BackgroundMode ?? EqualizerBackgroundMode.Disabled; }
+        }
 
         [LogicOverridable("Max Amplitude")]
         public float? _MaxAmplitude { get; set; }
         [JsonIgnore]
-        public float MaxAmplitude { get { return Logic._MaxAmplitude ?? _MaxAmplitude ?? 20.0f; } }
+        public float MaxAmplitude
+        {
+            get { return Logic._MaxAmplitude ?? _MaxAmplitude ?? 20.0f; }
+        }
 
         [LogicOverridable("Scale with System Volume")]
         public bool? _ScaleWithSystemVolume { get; set; }
         [JsonIgnore]
-        public bool ScaleWithSystemVolume { get { return Logic._ScaleWithSystemVolume ?? _ScaleWithSystemVolume ?? false; } }
+        public bool ScaleWithSystemVolume
+        {
+            get { return Logic._ScaleWithSystemVolume ?? _ScaleWithSystemVolume ?? false; }
+        }
 
         [LogicOverridable("Background Color")]
         public Color? _DimColor { get; set; }
         [JsonIgnore]
-        public Color DimColor { get { return Logic._DimColor ?? _DimColor ?? Color.Empty; } }
+        public Color DimColor
+        {
+            get { return Logic._DimColor ?? _DimColor ?? Color.Empty; }
+        }
 
         public SortedSet<float> _Frequencies { get; set; }
         [JsonIgnore]
-        public SortedSet<float> Frequencies { get { return Logic._Frequencies ?? _Frequencies ?? new SortedSet<float>(); } }
-
-        public EqualizerLayerHandlerProperties() : base()
+        public SortedSet<float> Frequencies
         {
-
+            get { return Logic._Frequencies ?? _Frequencies ?? new SortedSet<float>(); }
         }
 
-        public EqualizerLayerHandlerProperties(bool arg = false) : base(arg)
-        {
+        public EqualizerLayerHandlerProperties() : base() { }
 
-        }
+        public EqualizerLayerHandlerProperties(bool arg = false) : base(arg) { }
 
         public override void Default()
         {
@@ -173,6 +181,7 @@ namespace Aurora.Settings.Layers
 
             sampleAggregator.FftCalculated += new EventHandler<FftEventArgs>(FftCalculated);
             sampleAggregator.PerformFFT = true;
+            BgEnabled = Properties.BackgroundMode == EqualizerBackgroundMode.AlwaysOn;
         }
 
         protected override UserControl CreateControl()
@@ -181,6 +190,7 @@ namespace Aurora.Settings.Layers
         }
 
         long startTime;
+
         private void UpdateAudioCapture(MMDevice defaultDevice)
         {
             if (waveIn != null)
@@ -196,7 +206,7 @@ namespace Aurora.Settings.Layers
             // There are many options in NAudio and you can use other streams/files.
             // Note that the code varies for each different source.
             waveIn = new WasapiLoopbackCapture(default_device);
-            
+
             waveIn.DataAvailable += OnDataAvailable;
 
             waveIn.StartRecording();
@@ -205,26 +215,28 @@ namespace Aurora.Settings.Layers
 
         private void CheckForDeviceChange()
         {
-            MMDevice current_device = audio_device_enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
-
-            if (((WasapiLoopbackCapture)waveIn)?.CaptureState == CaptureState.Stopped
-                || default_device == null
-                || default_device.ID != current_device.ID
-                || (((WasapiLoopbackCapture)waveIn)?.CaptureState != CaptureState.Capturing && (Time.GetSecondsSinceEpoch() - startTime) > 20)) //Check if it has taken over 20 seconds to start the capture which may indicate that there has been an issue
+            if (((WasapiLoopbackCapture) waveIn)?.CaptureState == CaptureState.Stopped || default_device == null || ((WasapiLoopbackCapture) waveIn)?.CaptureState != CaptureState.Capturing && Time.GetSecondsSinceEpoch() - startTime > 20)
             {
-                Global.logger.LogLine($"CaptureState is {((WasapiLoopbackCapture)waveIn)?.CaptureState}");
-                UpdateAudioCapture(current_device);
-            }
-            else
-                current_device.Dispose();
+                MMDevice current_device = audio_device_enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
 
-            current_device = null;
+                if (default_device == null || default_device.ID != current_device.ID) //Check if it has taken over 20 seconds to start the capture which may indicate that there has been an issue
+                {
+                    Global.logger.LogLine($"CaptureState is {((WasapiLoopbackCapture) waveIn)?.CaptureState}");
+                    UpdateAudioCapture(current_device);
+                }
+                else
+                    current_device.Dispose();
+            }
         }
+
+        private readonly EffectLayer eql = new EffectLayer();
+        public bool BgEnabled = false;
 
         public override EffectLayer Render(IGameState gamestate)
         {
             try
             {
+                var equalizer_layer = new EffectLayer();
                 //if (current_device != null)
                 //current_device.Dispose();
                 CheckForDeviceChange();
@@ -246,10 +258,7 @@ namespace Aurora.Settings.Layers
                 //Maintain local copies of fft, to prevent data overwrite
                 Complex[] _local_fft = new List<Complex>(_ffts).ToArray();
                 Complex[] _local_fft_previous = new List<Complex>(_ffts_prev).ToArray();
-
-                EffectLayer equalizer_layer = new EffectLayer();
-
-                bool BgEnabled = false;
+                
                 switch (Properties.BackgroundMode)
                 {
                     case EqualizerBackgroundMode.EnabledOnSound:
@@ -262,14 +271,11 @@ namespace Aurora.Settings.Layers
                             }
                         }
                         break;
-                    case EqualizerBackgroundMode.AlwaysOn:
-                        BgEnabled = true;
-                        break;
                 }
 
-
                 // Use the new transform render method to draw the equalizer layer
-                equalizer_layer.DrawTransformed(Properties.Sequence, g => {
+                equalizer_layer.DrawTransformed(Properties.Sequence, g =>
+                {
                     // Here we draw the equalizer relative to our source rectangle and the DrawTransformed method handles sizing and positioning it correctly for us
 
                     // Draw a rectangle background over the entire source rect if bg is enabled
@@ -277,13 +283,15 @@ namespace Aurora.Settings.Layers
                         g.FillRectangle(new SolidBrush(Properties.DimColor), sourceRect);
 
                     g.CompositingMode = CompositingMode.SourceCopy;
-                    
-                    int wave_step_amount = _local_fft.Length / (int)sourceRect.Width;
 
-                    switch (Properties.EQType) {
+                    int wave_step_amount = _local_fft.Length / (int) sourceRect.Width;
+
+                    switch (Properties.EQType)
+                    {
                         case EqualizerType.Waveform:
                             var halfHeight = sourceRect.Height / 2f;
-                            for (int x = 0; x < (int)sourceRect.Width; x++) {
+                            for (int x = 0; x < (int) sourceRect.Width; x++)
+                            {
                                 float fft_val = _local_fft.Length > x * wave_step_amount ? _local_fft[x * wave_step_amount].X : 0.0f;
                                 Brush brush = GetBrush(fft_val, x, sourceRect.Width);
                                 var yOff = -Math.Max(Math.Min(fft_val / scaled_max_amplitude * 500.0f, halfHeight), -halfHeight);
@@ -292,7 +300,8 @@ namespace Aurora.Settings.Layers
                             break;
 
                         case EqualizerType.Waveform_Bottom:
-                            for (int x = 0; x < (int)sourceRect.Width; x++) {
+                            for (int x = 0; x < (int) sourceRect.Width; x++)
+                            {
                                 float fft_val = _local_fft.Length > x * wave_step_amount ? _local_fft[x * wave_step_amount].X : 0.0f;
                                 Brush brush = GetBrush(fft_val, x, sourceRect.Width);
                                 g.DrawLine(new Pen(brush), x, sourceRect.Height, x, sourceRect.Height - Math.Min(Math.Abs(fft_val / scaled_max_amplitude) * 1000.0f, sourceRect.Height));
@@ -301,7 +310,7 @@ namespace Aurora.Settings.Layers
 
                         case EqualizerType.PowerBars:
                             //Perform FFT again to get frequencies
-                            FastFourierTransform.FFT(false, (int)Math.Log(fftLength, 2.0), _local_fft);
+                            FastFourierTransform.FFT(false, (int) Math.Log(fftLength, 2.0), _local_fft);
 
                             while (flux_array.Count < freqs.Length)
                                 flux_array.Add(0.0f);
@@ -320,8 +329,8 @@ namespace Aurora.Settings.Layers
 
                                 for (int j = startF; j <= endF; j++)
                                 {
-                                    float curr_fft = (float)Math.Sqrt(_local_fft[j].X * _local_fft[j].X + _local_fft[j].Y * _local_fft[j].Y);
-                                    float prev_fft = (float)Math.Sqrt(_local_fft_previous[j].X * _local_fft_previous[j].X + _local_fft_previous[j].Y * _local_fft_previous[j].Y);
+                                    float curr_fft = (float) Math.Sqrt(_local_fft[j].X * _local_fft[j].X + _local_fft[j].Y * _local_fft[j].Y);
+                                    float prev_fft = (float) Math.Sqrt(_local_fft_previous[j].X * _local_fft_previous[j].X + _local_fft_previous[j].Y * _local_fft_previous[j].Y);
 
                                     float value = curr_fft - prev_fft;
                                     float flux_calc = (value + Math.Abs(value)) / 2;
@@ -336,7 +345,7 @@ namespace Aurora.Settings.Layers
 
                             //System.Diagnostics.Debug.WriteLine($"flux max: {flux_array.Max()}");
 
-                            float bar_width = sourceRect.Width / (float)(freqs.Length - 1);
+                            float bar_width = sourceRect.Width / (float) (freqs.Length - 1);
 
                             for (int f_x = 0; f_x < freq_results.Length - 1; f_x++)
                             {
@@ -359,15 +368,12 @@ namespace Aurora.Settings.Layers
                             }
                             break;
                     }
-
                 }, sourceRect);
-                
 
                 var hander = NewLayerRender;
                 if (hander != null)
                     hander.Invoke(equalizer_layer.GetBitmap());
                 return equalizer_layer;
-
             }
             catch (Exception exc)
             {
@@ -378,7 +384,7 @@ namespace Aurora.Settings.Layers
 
         void OnDataAvailable(object sender, WaveInEventArgs e)
         {
-            if (false/*this.InvokeRequired*/)
+            if (false /*this.InvokeRequired*/)
             {
                 //this.BeginInvoke(new EventHandler<WaveInEventArgs>(OnDataAvailable), sender, e);
             }
@@ -412,7 +418,7 @@ namespace Aurora.Settings.Layers
 
         private int freqToBin(float freq)
         {
-            return (int)(freq / (44000 / _ffts.Length));
+            return (int) (freq / (44000 / _ffts.Length));
         }
 
         private Brush GetBrush(float value, float position, float max_position)
@@ -428,7 +434,8 @@ namespace Aurora.Settings.Layers
                 return new SolidBrush(Properties.Gradient.GetColorSpectrum().GetColorAt(position, max_position));
             else if (Properties.ViewType == EqualizerPresentationType.GradientHorizontal)
             {
-                EffectBrush e_brush = new EffectBrush(Properties.Gradient.GetColorSpectrum()) {
+                EffectBrush e_brush = new EffectBrush(Properties.Gradient.GetColorSpectrum())
+                {
                     start = PointF.Empty,
                     end = new PointF(sourceRect.Width, 0)
                 };
@@ -439,7 +446,8 @@ namespace Aurora.Settings.Layers
                 return new SolidBrush(Properties.Gradient.GetColorSpectrum().GetColorAt(Utils.Time.GetMilliSeconds(), 1000));
             else if (Properties.ViewType == EqualizerPresentationType.GradientVertical)
             {
-                EffectBrush e_brush = new EffectBrush(Properties.Gradient.GetColorSpectrum()) {
+                EffectBrush e_brush = new EffectBrush(Properties.Gradient.GetColorSpectrum())
+                {
                     start = new PointF(0, sourceRect.Height),
                     end = PointF.Empty
                 };
@@ -476,7 +484,7 @@ namespace Aurora.Settings.Layers
             {
                 throw new ArgumentException("FFT Length must be a power of two");
             }
-            this.m = (int)Math.Log(fftLength, 2.0);
+            this.m = (int) Math.Log(fftLength, 2.0);
             this.fftLength = fftLength;
             this.fftBuffer = new Complex[fftLength];
             this.fftArgs = new FftEventArgs(fftBuffer);
@@ -492,7 +500,7 @@ namespace Aurora.Settings.Layers
             if (PerformFFT && FftCalculated != null)
             {
                 // Remember the window function! There are many others as well.
-                fftBuffer[fftPos].X = (float)(value * FastFourierTransform.HammingWindow(fftPos, fftLength));
+                fftBuffer[fftPos].X = (float) (value * FastFourierTransform.HammingWindow(fftPos, fftLength));
                 fftBuffer[fftPos].Y = 0; // This is always zero with audio.
                 fftPos++;
                 if (fftPos >= fftLength)
@@ -511,6 +519,7 @@ namespace Aurora.Settings.Layers
         {
             this.Result = result;
         }
+
         public Complex[] Result { get; private set; }
     }
 }

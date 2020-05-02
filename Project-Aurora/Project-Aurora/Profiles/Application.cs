@@ -318,6 +318,7 @@ namespace Aurora.Profiles
                             foreach (Layer lyr in collection.ToList()) {
                                 //Remove any Layers that have non-functional handlers
                                 if (lyr.Handler == null || !Global.LightingStateManager.LayerHandlers.ContainsKey(lyr.Handler.ID)) {
+                                    Global.logger.Warn($"Removing layer from {GetType()} handler {(lyr.Handler == null ? "is null" : "could not find its id in LayerHandlers")}");
                                     prof.Layers.Remove(lyr);
                                     continue;
                                 }

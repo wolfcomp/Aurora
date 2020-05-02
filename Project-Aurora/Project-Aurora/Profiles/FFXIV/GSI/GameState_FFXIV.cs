@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace Aurora.Profiles.FFXIV.GSI
 {
     public class GameState_FFXIV : GameState<GameState_FFXIV>
     {
-        private FFXIVActionNode _Actions { get; set; } = new FFXIVActionNode();
+        private FFXIVActionNode _Actions { get; } = new FFXIVActionNode();
 
         public FFXIVActionNode Actions
         {
@@ -17,7 +18,7 @@ namespace Aurora.Profiles.FFXIV.GSI
                 if (_ParsedData.ContainsKey("actions"))
                 {
                     _Actions.Clear();
-                    var actionsList = _ParsedData["actions"].ToObject<byte[]>();
+                    var actionsList = JArray.Parse(_ParsedData["actions"].ToString()).Select(t => t.ToObject<byte>()).ToArray();
                     var offset = 0;
                     while (actionsList.Length > offset)
                     {
@@ -28,14 +29,40 @@ namespace Aurora.Profiles.FFXIV.GSI
             }
         }
 
-        public GameState_FFXIV() : base()
-        {
+        private FFXIVPlayerNode _Player { get; set; } = new FFXIVPlayerNode();
 
+        public FFXIVPlayerNode Player
+        {
+            get
+            {
+                if(_ParsedData.ContainsKey("player")) _Player = NodeFor<FFXIVPlayerNode>("player");
+                return _Player;
+            }
         }
 
-        public GameState_FFXIV(string json) : base(json)
+        public FFXIVKeyBindNode _KeyBinds { get; } = new FFXIVKeyBindNode();
+
+        public FFXIVKeyBindNode KeyBinds
         {
+            get
+            {
+                if (_ParsedData.ContainsKey("keybinds"))
+                {
+                    _KeyBinds.Clear();
+                    var actionsList = JArray.Parse(_ParsedData["keybinds"].ToString()).Select(t => t.ToObject<byte>()).ToArray();
+                    var offset = 0;
+                    while (actionsList.Length > offset)
+                    {
+                        _KeyBinds.Add(new FFXIVKeyBind(actionsList, offset, out offset));
+                    }
+                }
+                return _KeyBinds;
+            }
         }
+
+        public GameState_FFXIV() : base() { }
+
+        public GameState_FFXIV(string json) : base(json) { }
 
         public override bool Equals(object obj)
         {
