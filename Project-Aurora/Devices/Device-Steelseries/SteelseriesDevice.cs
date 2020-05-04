@@ -89,8 +89,8 @@ namespace Device_SteelSeries
                         SetZones(mousePad, SteelSeriesZone.twozone);
                     else
                         SetZones(mousePad, SteelSeriesZone.twelvezone);
-                    //if (keyColors.Count(t => t.Key >= DeviceKeys.MONITORLIGHT1 && t.Key <= DeviceKeys.MONITORLIGHT103) == 103)
-                    //    setHundredThreeZone(keyColors.Where(t => t.Key >= DeviceKeys.MONITORLIGHT1 && t.Key <= DeviceKeys.MONITORLIGHT103).Select(t => t.Value).ToArray());
+                    if (keyColors.Count(t => t.Key >= DeviceKeys.MONITORLIGHT1 && t.Key <= DeviceKeys.MONITORLIGHT103) == 103)
+                        SetZones(keyColors.Where(t => t.Key >= DeviceKeys.MONITORLIGHT1 && t.Key <= DeviceKeys.MONITORLIGHT103).Select(t => t.Value).ToArray(), SteelSeriesZone.hundredthreezone);
                 }
                 else
                     SetZone(keyColors[DeviceKeys.Peripheral], SteelSeriesZone.periph);

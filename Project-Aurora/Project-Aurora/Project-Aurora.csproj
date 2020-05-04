@@ -410,23 +410,6 @@
     <Compile Include="Profiles\Discord\GSI\Nodes\UserNode.cs" />
     <Compile Include="Profiles\Discord\DiscordApplication.cs" />
     <Compile Include="Profiles\Discord\DiscordProfile.cs" />
-    <Compile Include="Profiles\FFXIV\Control_FFXIV.xaml.cs">
-      <DependentUpon>Control_FFXIV.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Profiles\FFXIV\FFXIV.cs" />
-    <Compile Include="Profiles\FFXIV\FFXIVProfile.cs" />
-    <Compile Include="Profiles\FFXIV\GSI\FFXIVActionNode.cs" />
-    <Compile Include="Profiles\FFXIV\GSI\FFXIVKeyBindNode.cs" />
-    <Compile Include="Profiles\FFXIV\GSI\FFXIVPlayerNode.cs" />
-    <Compile Include="Profiles\FFXIV\GSI\GameState_FFXIV.cs" />
-    <Compile Include="Profiles\FFXIV\Layers\Control_FFXIVKeyBindLayerHandler.xaml.cs">
-      <DependentUpon>Control_FFXIVKeyBindLayerHandler.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Profiles\FFXIV\Layers\Control_FFXIVActionLayerHandler.xaml.cs">
-      <DependentUpon>Control_FFXIVActionLayerHandler.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Profiles\FFXIV\Layers\FFXIVKeyBindLayerHandler.cs" />
-    <Compile Include="Profiles\FFXIV\Layers\FFXIVActionLayerHandler.cs" />
     <Compile Include="Profiles\LeagueOfLegends\GameEvent_LoL.cs" />
     <Compile Include="Profiles\LeagueOfLegends\GSI\GameData.cs" />
     <Compile Include="Profiles\LeagueOfLegends\GSI\GameState_LoL.cs" />
@@ -1851,18 +1834,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Profiles\Discord\Control_Discord.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Profiles\FFXIV\Control_FFXIV.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Profiles\FFXIV\Layers\Control_FFXIVKeyBindLayerHandler.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Profiles\FFXIV\Layers\Control_FFXIVActionLayerHandler.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

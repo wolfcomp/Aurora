@@ -154,8 +154,7 @@ namespace Aurora.Profiles
                 new Slime_Rancher.Slime_Rancher(),
                 new Terraria.Terraria(),
                 new Discord.Discord(),
-                new EliteDangerous.EliteDangerous(),
-                new FFXIV.FFXIV()
+                new EliteDangerous.EliteDangerous()
             });
 
             RegisterLayerHandlers(new List<LayerHandlerEntry>
