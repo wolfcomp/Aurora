@@ -349,7 +349,7 @@ namespace Aurora.Settings.Layers
                     {
                         if(!_input_list[x].waitOnKeyUp)
                         {
-                            float trans_added = (Properties.EffectSpeed * (getDeltaTime() * 5.0f));
+                            float trans_added = ((Properties.EffectSpeed * (getDeltaTime() * 5.0f)) * (12f / (float)Global.Configuration.BitmapAccuracy));
                             _input_list[x].progress += trans_added;
                         }
                     }
