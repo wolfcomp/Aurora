@@ -37,11 +37,6 @@ namespace Aurora.Profiles.CSGO.Layers
 
     public class CSGOFlashbangLayerHandler : LayerHandler<CSGOFlashbangLayerHandlerProperties>
     {
-        public CSGOFlashbangLayerHandler() : base()
-        {
-            _ID = "CSGOFlashbang";
-        }
-
         protected override UserControl CreateControl()
         {
             return new Control_CSGOFlashbangLayer(this);

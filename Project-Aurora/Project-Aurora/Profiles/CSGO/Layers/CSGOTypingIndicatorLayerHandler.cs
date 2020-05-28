@@ -43,11 +43,6 @@ namespace Aurora.Profiles.CSGO.Layers
 
     public class CSGOTypingIndicatorLayerHandler : LayerHandler<CSGOTypingIndicatorLayerHandlerProperties>
     {
-        public CSGOTypingIndicatorLayerHandler() : base()
-        {
-            _ID = "CSGOTyping";
-        }
-
         protected override UserControl CreateControl()
         {
             return new Control_CSGOTypingIndicatorLayer(this);
