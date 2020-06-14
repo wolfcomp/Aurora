@@ -15,17 +15,26 @@ namespace Aurora.Utils
             if (self is ICloneable)
                 return ((ICloneable)self).Clone();
             else if (deep) {
-                var settings = new JsonSerializerSettings { ObjectCreationHandling = ObjectCreationHandling.Replace, TypeNameHandling = TypeNameHandling.All, Binder = Aurora.Utils.JSONUtils.SerializationBinder };
+                var settings = new JsonSerializerSettings { ObjectCreationHandling = ObjectCreationHandling.Replace, TypeNameHandling = TypeNameHandling.All, SerializationBinder = Aurora.Utils.JSONUtils.SerializationBinder };
                 var json = JsonConvert.SerializeObject(self, Formatting.None, settings);
                 return JsonConvert.DeserializeObject(json, self.GetType(), settings);
             } else
                 return self;
         }
 
-        public static void Deconstruct<T1, T2>(this KeyValuePair<T1, T2> pair, out T1 key, out T2 value)
+        public static IEnumerable<T> SkipTake<T>(this IEnumerable<T> enumerable, int skip, int take)
         {
-            key = pair.Key;
-            value = pair.Value;
+            return enumerable.Skip(skip).Take(take);
+        }
+
+        public static IEnumerable<IEnumerable<T>> SplitRow<T>(this IEnumerable<T> enumerable, int rowSize)
+        {
+            var arr = new IEnumerable<T>[enumerable.Count() / rowSize];
+            for (var i = 0; i < arr.Length; i++)
+            {
+                arr[i] = enumerable.SkipTake(rowSize * i, rowSize);
+            }
+            return arr;
         }
     }
 }

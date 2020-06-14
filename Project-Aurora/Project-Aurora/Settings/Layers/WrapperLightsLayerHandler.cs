@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Aurora.EffectsEngine;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using Aurora.Profiles;
 using System.Windows.Controls;
 using Newtonsoft.Json;
@@ -17,23 +18,38 @@ namespace Aurora.Settings.Layers
         // Color Enhancing
         public bool? _ColorEnhanceEnabled { get; set; }
         [JsonIgnore]
-        public bool ColorEnhanceEnabled { get { return Logic._ColorEnhanceEnabled ?? _ColorEnhanceEnabled ?? false; } }
+        public bool ColorEnhanceEnabled
+        {
+            get { return Logic._ColorEnhanceEnabled ?? _ColorEnhanceEnabled ?? false; }
+        }
 
         public int? _ColorEnhanceMode { get; set; }
         [JsonIgnore]
-        public int ColorEnhanceMode { get { return Logic._ColorEnhanceMode ?? _ColorEnhanceMode ?? 0; } }
+        public int ColorEnhanceMode
+        {
+            get { return Logic._ColorEnhanceMode ?? _ColorEnhanceMode ?? 0; }
+        }
 
         public int? _ColorEnhanceColorFactor { get; set; }
         [JsonIgnore]
-        public int ColorEnhanceColorFactor { get { return Logic._ColorEnhanceColorFactor ?? _ColorEnhanceColorFactor ?? 0; } }
+        public int ColorEnhanceColorFactor
+        {
+            get { return Logic._ColorEnhanceColorFactor ?? _ColorEnhanceColorFactor ?? 0; }
+        }
 
         public float? _ColorEnhanceColorHSVSine { get; set; }
         [JsonIgnore]
-        public float ColorEnhanceColorHSVSine { get { return Logic._ColorEnhanceColorHSVSine ?? _ColorEnhanceColorHSVSine ?? 0.0f; } }
+        public float ColorEnhanceColorHSVSine
+        {
+            get { return Logic._ColorEnhanceColorHSVSine ?? _ColorEnhanceColorHSVSine ?? 0.0f; }
+        }
 
         public float? _ColorEnhanceColorHSVGamma { get; set; }
         [JsonIgnore]
-        public float ColorEnhanceColorHSVGamma { get { return Logic._ColorEnhanceColorHSVGamma ?? _ColorEnhanceColorHSVGamma ?? 0.0f; } }
+        public float ColorEnhanceColorHSVGamma
+        {
+            get { return Logic._ColorEnhanceColorHSVGamma ?? _ColorEnhanceColorHSVGamma ?? 0.0f; }
+        }
 
         // Key cloning
         [JsonIgnore]
@@ -57,7 +73,7 @@ namespace Aurora.Settings.Layers
             _CloningMap = new Dictionary<DeviceKeys, KeySequence>();
         }
     }
-    
+
     [LogicOverrideIgnoreProperty("_PrimaryColor")]
     [LogicOverrideIgnoreProperty("_Sequence")]
     [LayerHandlerMeta(IsDefault = false)]
@@ -85,83 +101,99 @@ namespace Aurora.Settings.Layers
 
             EffectLayer colorfill_layer = new EffectLayer("Aurora Wrapper - Color Fill", GetBoostedColor(last_fill_color));
 
-            layers.Enqueue(colorfill_layer);
+            //layers.Enqueue(colorfill_layer);
 
             EffectLayer bitmap_layer = new EffectLayer("Aurora Wrapper - Bitmap");
 
-            Devices.DeviceKeys[] allkeys = Enum.GetValues(typeof(Devices.DeviceKeys)).Cast<Devices.DeviceKeys>().ToArray();
-            foreach (var key in allkeys)
+            var rowLength = bitmap.Length / 6;
+            var sourceRegion = new RectangleF(0, 0, rowLength, 6);
+            var bitList = ColorUtils.MultiplyColorMap(ColorUtils.MultiplyColorMap(bitmap.SplitRow(rowLength).Select(t => t.Select(ColorUtils.GetColorFromInt).ToArray()).ToArray()));
+            bitmap_layer.DrawTransformed(new KeySequence(new FreeFormObject(-Effects.grid_baseline_x, -Effects.grid_baseline_y, bitmap_layer.Width, bitmap_layer.Height)), g =>
             {
-
-                // This checks if a key is already being cloned over and thus should be prevented from being re-set by the
-                // normal wrapper. Fixes issues with some clones not working. Thanks to @Gurjot95 for finding it :)
-                if (Properties.CloningMap.Values.Any(sequence => sequence.keys.Contains(key)))
-                    continue;
-
-
-                if (extra_keys.ContainsKey(key))
+                g.CompositingMode = CompositingMode.SourceCopy;
+                var row = 0;
+                foreach (var ints in bitList)
                 {
-                    bitmap_layer.Set(key, GetBoostedColor(extra_keys[key]));
-
-                    // Do the key cloning
-                    if (Properties.CloningMap.ContainsKey(key))
-                        bitmap_layer.Set(Properties.CloningMap[key], GetBoostedColor(extra_keys[key]));
-                }
-                else
-                {
-                    DeviceKeysUtils.Logitech.keyboardBitmapKeys logi_key = DeviceKeysUtils.Logitech.ToLogitechBitmap(key);
-
-                    if (logi_key != DeviceKeysUtils.Logitech.keyboardBitmapKeys.UNKNOWN && bitmap.Length > 0) {
-                        var color = GetBoostedColor(Utils.ColorUtils.GetColorFromInt(bitmap[(int)logi_key / 4]));
-                        bitmap_layer.Set(key, color);
-
-                        // Key cloning
-                        if (Properties.CloningMap.ContainsKey(key))
-                            bitmap_layer.Set(Properties.CloningMap[key], color);
+                    var col = 0;
+                    foreach (var bit in ints)
+                    {
+                        g.FillRectangle(new SolidBrush(ColorUtils.MultiplyColorByScalar(bit, 1.25D)), new RectangleF(col++ * .75F, row * .75F, 1 * .75F, 1 * .75F));
                     }
+                    row++;
                 }
-            }
+            }, sourceRegion);
+
+            //Devices.DeviceKeys[] allkeys = Enum.GetValues(typeof(Devices.DeviceKeys)).Cast<Devices.DeviceKeys>().ToArray();
+            //foreach (var key in allkeys)
+            //{
+            //    // This checks if a key is already being cloned over and thus should be prevented from being re-set by the
+            //    // normal wrapper. Fixes issues with some clones not working. Thanks to @Gurjot95 for finding it :)
+            //    if (Properties.CloningMap.Values.Any(sequence => sequence.keys.Contains(key)))
+            //        continue;
+
+            //    if (extra_keys.ContainsKey(key))
+            //    {
+            //        bitmap_layer.Set(key, GetBoostedColor(extra_keys[key]));
+
+            //        // Do the key cloning
+            //        if (Properties.CloningMap.ContainsKey(key))
+            //            bitmap_layer.Set(Properties.CloningMap[key], GetBoostedColor(extra_keys[key]));
+            //    }
+            //    else
+            //    {
+            //        DeviceKeysUtils.Logitech.keyboardBitmapKeys logi_key = DeviceKeysUtils.Logitech.ToLogitechBitmap(key);
+
+            //        if (logi_key != DeviceKeysUtils.Logitech.keyboardBitmapKeys.UNKNOWN && bitmap.Length > 0)
+            //        {
+            //            var color = GetBoostedColor(Utils.ColorUtils.GetColorFromInt(bitmap[(int) logi_key / 4]));
+            //            bitmap_layer.Set(key, color);
+
+            //            // Key cloning
+            //            if (Properties.CloningMap.ContainsKey(key))
+            //                bitmap_layer.Set(Properties.CloningMap[key], color);
+            //        }
+            //    }
+            //}
+
+            //EffectLayer effects_layer = new EffectLayer("Aurora Wrapper - Effects");
+
+            //Devices.DeviceKeys[] effect_keys = key_effects.Keys.ToArray();
+            //long currentTime = Utils.Time.GetMillisecondsSinceEpoch();
+
+            //foreach (var key in effect_keys)
+            //{
+            //    if (key_effects[key].duration != 0 && key_effects[key].timeStarted + key_effects[key].duration <= currentTime)
+            //    {
+            //        key_effects.Remove(key);
+            //    }
+            //    else
+            //    {
+            //        if (key_effects[key] is LogiFlashSingleKey)
+            //            effects_layer.Set((key_effects[key] as LogiFlashSingleKey).key, GetBoostedColor((key_effects[key] as LogiFlashSingleKey).GetColor(currentTime - (key_effects[key] as LogiFlashSingleKey).timeStarted)));
+            //        else if (key_effects[key] is LogiPulseSingleKey)
+            //            effects_layer.Set((key_effects[key] as LogiPulseSingleKey).key, GetBoostedColor((key_effects[key] as LogiPulseSingleKey).GetColor(currentTime - (key_effects[key] as LogiPulseSingleKey).timeStarted)));
+            //        else
+            //            effects_layer.Set((key_effects[key] as KeyEffect).key, GetBoostedColor((key_effects[key] as KeyEffect).GetColor(currentTime - (key_effects[key] as KeyEffect).timeStarted)));
+            //    }
+            //}
+
+            //layers.Enqueue(effects_layer);
+
+            //EffectLayer entire_effect_layer = new EffectLayer("Aurora Wrapper - EntireKB effect");
+
+            //if (current_effect != null)
+            //{
+            //    if (current_effect is LogiFlashLighting)
+            //        (current_effect as LogiFlashLighting).SetEffect(entire_effect_layer, currentTime - (current_effect as LogiFlashLighting).timeStarted);
+            //    else if (current_effect is LogiPulseLighting)
+            //        (current_effect as LogiPulseLighting).SetEffect(entire_effect_layer, currentTime - (current_effect as LogiPulseLighting).timeStarted);
+            //    else
+            //        current_effect.SetEffect(entire_effect_layer, currentTime - current_effect.timeStarted);
+            //}
+
+            //layers.Enqueue(entire_effect_layer);
 
             layers.Enqueue(bitmap_layer);
-
-            EffectLayer effects_layer = new EffectLayer("Aurora Wrapper - Effects");
-
-            Devices.DeviceKeys[] effect_keys = key_effects.Keys.ToArray();
-            long currentTime = Utils.Time.GetMillisecondsSinceEpoch();
-
-            foreach (var key in effect_keys)
-            {
-                if (key_effects[key].duration != 0 && key_effects[key].timeStarted + key_effects[key].duration <= currentTime)
-                {
-                    key_effects.Remove(key);
-                }
-                else
-                {
-                    if (key_effects[key] is LogiFlashSingleKey)
-                        effects_layer.Set((key_effects[key] as LogiFlashSingleKey).key, GetBoostedColor((key_effects[key] as LogiFlashSingleKey).GetColor(currentTime - (key_effects[key] as LogiFlashSingleKey).timeStarted)));
-                    else if (key_effects[key] is LogiPulseSingleKey)
-                        effects_layer.Set((key_effects[key] as LogiPulseSingleKey).key, GetBoostedColor((key_effects[key] as LogiPulseSingleKey).GetColor(currentTime - (key_effects[key] as LogiPulseSingleKey).timeStarted)));
-                    else
-                        effects_layer.Set((key_effects[key] as KeyEffect).key, GetBoostedColor((key_effects[key] as KeyEffect).GetColor(currentTime - (key_effects[key] as KeyEffect).timeStarted)));
-
-                }
-            }
-
-            layers.Enqueue(effects_layer);
-
-            EffectLayer entire_effect_layer = new EffectLayer("Aurora Wrapper - EntireKB effect");
-
-            if (current_effect != null)
-            {
-                if (current_effect is LogiFlashLighting)
-                    (current_effect as LogiFlashLighting).SetEffect(entire_effect_layer, currentTime - (current_effect as LogiFlashLighting).timeStarted);
-                else if (current_effect is LogiPulseLighting)
-                    (current_effect as LogiPulseLighting).SetEffect(entire_effect_layer, currentTime - (current_effect as LogiPulseLighting).timeStarted);
-                else
-                    current_effect.SetEffect(entire_effect_layer, currentTime - current_effect.timeStarted);
-            }
-
-            layers.Enqueue(entire_effect_layer);
 
             EffectLayer[] layersArray = layers.ToArray();
             EffectLayer finalLayer = layersArray[0];
@@ -181,46 +213,46 @@ namespace Aurora.Settings.Layers
             if (ngw_state.Sent_Bitmap.Length != 0)
                 bitmap = ngw_state.Sent_Bitmap;
 
-            SetExtraKey(Devices.DeviceKeys.LOGO, ngw_state.Extra_Keys.logo);
-            SetExtraKey(Devices.DeviceKeys.LOGO2, ngw_state.Extra_Keys.badge);
-            SetExtraKey(Devices.DeviceKeys.Peripheral, ngw_state.Extra_Keys.peripheral);
-            //Reversing the mousepad lights from left to right, razer takes it from right to left
-            SetExtraKey(Devices.DeviceKeys.Peripheral, ngw_state.Extra_Keys.peripheral);
-            SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT15, ngw_state.Extra_Keys.mousepad1);
-            SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT14, ngw_state.Extra_Keys.mousepad2);
-            SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT13, ngw_state.Extra_Keys.mousepad3);
-            SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT12, ngw_state.Extra_Keys.mousepad4);
-            SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT11, ngw_state.Extra_Keys.mousepad5);
-            SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT10, ngw_state.Extra_Keys.mousepad6);
-            SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT9, ngw_state.Extra_Keys.mousepad7);
-            SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT8, ngw_state.Extra_Keys.mousepad8);
-            SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT7, ngw_state.Extra_Keys.mousepad9);
-            SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT6, ngw_state.Extra_Keys.mousepad10);
-            SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT5, ngw_state.Extra_Keys.mousepad11);
-            SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT4, ngw_state.Extra_Keys.mousepad12);
-            SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT3, ngw_state.Extra_Keys.mousepad13);
-            SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT2, ngw_state.Extra_Keys.mousepad14);
-            SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT1, ngw_state.Extra_Keys.mousepad15);
-            SetExtraKey(Devices.DeviceKeys.G1, ngw_state.Extra_Keys.G1);
-            SetExtraKey(Devices.DeviceKeys.G2, ngw_state.Extra_Keys.G2);
-            SetExtraKey(Devices.DeviceKeys.G3, ngw_state.Extra_Keys.G3);
-            SetExtraKey(Devices.DeviceKeys.G4, ngw_state.Extra_Keys.G4);
-            SetExtraKey(Devices.DeviceKeys.G5, ngw_state.Extra_Keys.G5);
-            SetExtraKey(Devices.DeviceKeys.G6, ngw_state.Extra_Keys.G6);
-            SetExtraKey(Devices.DeviceKeys.G7, ngw_state.Extra_Keys.G7);
-            SetExtraKey(Devices.DeviceKeys.G8, ngw_state.Extra_Keys.G8);
-            SetExtraKey(Devices.DeviceKeys.G9, ngw_state.Extra_Keys.G9);
-            SetExtraKey(Devices.DeviceKeys.G10, ngw_state.Extra_Keys.G10);
-            SetExtraKey(Devices.DeviceKeys.G11, ngw_state.Extra_Keys.G11);
-            SetExtraKey(Devices.DeviceKeys.G12, ngw_state.Extra_Keys.G12);
-            SetExtraKey(Devices.DeviceKeys.G13, ngw_state.Extra_Keys.G13);
-            SetExtraKey(Devices.DeviceKeys.G14, ngw_state.Extra_Keys.G14);
-            SetExtraKey(Devices.DeviceKeys.G15, ngw_state.Extra_Keys.G15);
-            SetExtraKey(Devices.DeviceKeys.G16, ngw_state.Extra_Keys.G16);
-            SetExtraKey(Devices.DeviceKeys.G17, ngw_state.Extra_Keys.G17);
-            SetExtraKey(Devices.DeviceKeys.G18, ngw_state.Extra_Keys.G18);
-            SetExtraKey(Devices.DeviceKeys.G19, ngw_state.Extra_Keys.G19);
-            SetExtraKey(Devices.DeviceKeys.G20, ngw_state.Extra_Keys.G20);
+            //SetExtraKey(Devices.DeviceKeys.LOGO, ngw_state.Extra_Keys.logo);
+            //SetExtraKey(Devices.DeviceKeys.LOGO2, ngw_state.Extra_Keys.badge);
+            //SetExtraKey(Devices.DeviceKeys.Peripheral, ngw_state.Extra_Keys.peripheral);
+            ////Reversing the mousepad lights from left to right, razer takes it from right to left
+            //SetExtraKey(Devices.DeviceKeys.Peripheral, ngw_state.Extra_Keys.peripheral);
+            //SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT15, ngw_state.Extra_Keys.mousepad1);
+            //SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT14, ngw_state.Extra_Keys.mousepad2);
+            //SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT13, ngw_state.Extra_Keys.mousepad3);
+            //SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT12, ngw_state.Extra_Keys.mousepad4);
+            //SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT11, ngw_state.Extra_Keys.mousepad5);
+            //SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT10, ngw_state.Extra_Keys.mousepad6);
+            //SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT9, ngw_state.Extra_Keys.mousepad7);
+            //SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT8, ngw_state.Extra_Keys.mousepad8);
+            //SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT7, ngw_state.Extra_Keys.mousepad9);
+            //SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT6, ngw_state.Extra_Keys.mousepad10);
+            //SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT5, ngw_state.Extra_Keys.mousepad11);
+            //SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT4, ngw_state.Extra_Keys.mousepad12);
+            //SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT3, ngw_state.Extra_Keys.mousepad13);
+            //SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT2, ngw_state.Extra_Keys.mousepad14);
+            //SetExtraKey(Devices.DeviceKeys.MOUSEPADLIGHT1, ngw_state.Extra_Keys.mousepad15);
+            //SetExtraKey(Devices.DeviceKeys.G1, ngw_state.Extra_Keys.G1);
+            //SetExtraKey(Devices.DeviceKeys.G2, ngw_state.Extra_Keys.G2);
+            //SetExtraKey(Devices.DeviceKeys.G3, ngw_state.Extra_Keys.G3);
+            //SetExtraKey(Devices.DeviceKeys.G4, ngw_state.Extra_Keys.G4);
+            //SetExtraKey(Devices.DeviceKeys.G5, ngw_state.Extra_Keys.G5);
+            //SetExtraKey(Devices.DeviceKeys.G6, ngw_state.Extra_Keys.G6);
+            //SetExtraKey(Devices.DeviceKeys.G7, ngw_state.Extra_Keys.G7);
+            //SetExtraKey(Devices.DeviceKeys.G8, ngw_state.Extra_Keys.G8);
+            //SetExtraKey(Devices.DeviceKeys.G9, ngw_state.Extra_Keys.G9);
+            //SetExtraKey(Devices.DeviceKeys.G10, ngw_state.Extra_Keys.G10);
+            //SetExtraKey(Devices.DeviceKeys.G11, ngw_state.Extra_Keys.G11);
+            //SetExtraKey(Devices.DeviceKeys.G12, ngw_state.Extra_Keys.G12);
+            //SetExtraKey(Devices.DeviceKeys.G13, ngw_state.Extra_Keys.G13);
+            //SetExtraKey(Devices.DeviceKeys.G14, ngw_state.Extra_Keys.G14);
+            //SetExtraKey(Devices.DeviceKeys.G15, ngw_state.Extra_Keys.G15);
+            //SetExtraKey(Devices.DeviceKeys.G16, ngw_state.Extra_Keys.G16);
+            //SetExtraKey(Devices.DeviceKeys.G17, ngw_state.Extra_Keys.G17);
+            //SetExtraKey(Devices.DeviceKeys.G18, ngw_state.Extra_Keys.G18);
+            //SetExtraKey(Devices.DeviceKeys.G19, ngw_state.Extra_Keys.G19);
+            //SetExtraKey(Devices.DeviceKeys.G20, ngw_state.Extra_Keys.G20);
 
             if (ngw_state.Command.Equals("SetLighting"))
             {
@@ -232,42 +264,41 @@ namespace Aurora.Settings.Layers
 
                     for (int i = 0; i < bitmap.Length; i++)
                     {
-                        bitmap[i] = (int)(((int)ngw_state.Command_Data.red_start << 16) | ((int)ngw_state.Command_Data.green_start << 8) | ((int)ngw_state.Command_Data.blue_start));
+                        bitmap[i] = (int) (((int) ngw_state.Command_Data.red_start << 16) | ((int) ngw_state.Command_Data.green_start << 8) | ((int) ngw_state.Command_Data.blue_start));
                     }
                 }
             }
             else if (ngw_state.Command.Equals("SetLightingForKeyWithKeyName") || ngw_state.Command.Equals("SetLightingForKeyWithScanCode"))
             {
-                var bitmap_key = DeviceKeysUtils.Logitech.ToLogitechBitmap((DeviceKeysUtils.Logitech.keyboardNames)(ngw_state.Command_Data.key));
+                var bitmap_key = DeviceKeysUtils.Logitech.ToLogitechBitmap((DeviceKeysUtils.Logitech.keyboardNames) (ngw_state.Command_Data.key));
 
                 if (bitmap_key != DeviceKeysUtils.Logitech.keyboardBitmapKeys.UNKNOWN)
                 {
-                    bitmap[(int)bitmap_key / 4] = (int)(((int)ngw_state.Command_Data.red_start << 16) | ((int)ngw_state.Command_Data.green_start << 8) | ((int)ngw_state.Command_Data.blue_start));
+                    bitmap[(int) bitmap_key / 4] = (int) (((int) ngw_state.Command_Data.red_start << 16) | ((int) ngw_state.Command_Data.green_start << 8) | ((int) ngw_state.Command_Data.blue_start));
                 }
             }
             else if (ngw_state.Command.Equals("FlashSingleKey"))
             {
-                Devices.DeviceKeys dev_key = DeviceKeysUtils.Logitech.ToDeviceKey((DeviceKeysUtils.Logitech.keyboardNames)(ngw_state.Command_Data.key));
+                Devices.DeviceKeys dev_key = DeviceKeysUtils.Logitech.ToDeviceKey((DeviceKeysUtils.Logitech.keyboardNames) (ngw_state.Command_Data.key));
                 LogiFlashSingleKey neweffect = new LogiFlashSingleKey(dev_key, Color.FromArgb(ngw_state.Command_Data.red_start, ngw_state.Command_Data.green_start, ngw_state.Command_Data.blue_start),
-                        ngw_state.Command_Data.duration,
-                        ngw_state.Command_Data.interval
-                        );
+                    ngw_state.Command_Data.duration,
+                    ngw_state.Command_Data.interval
+                );
 
                 if (key_effects.ContainsKey(dev_key))
                     key_effects[dev_key] = neweffect;
                 else
                     key_effects.Add(dev_key, neweffect);
-
             }
             else if (ngw_state.Command.Equals("PulseSingleKey"))
             {
-                Devices.DeviceKeys dev_key = DeviceKeysUtils.Logitech.ToDeviceKey((DeviceKeysUtils.Logitech.keyboardNames)(ngw_state.Command_Data.key));
+                Devices.DeviceKeys dev_key = DeviceKeysUtils.Logitech.ToDeviceKey((DeviceKeysUtils.Logitech.keyboardNames) (ngw_state.Command_Data.key));
                 long duration = ngw_state.Command_Data.interval == 0 ? 0 : ngw_state.Command_Data.duration;
 
                 LogiPulseSingleKey neweffect = new LogiPulseSingleKey(dev_key, Color.FromArgb(ngw_state.Command_Data.red_start, ngw_state.Command_Data.green_start, ngw_state.Command_Data.blue_start),
                     Color.FromArgb(ngw_state.Command_Data.red_end, ngw_state.Command_Data.green_end, ngw_state.Command_Data.blue_end),
-                        duration
-                        );
+                    duration
+                );
 
                 if (key_effects.ContainsKey(dev_key))
                     key_effects[dev_key] = neweffect;
@@ -280,7 +311,7 @@ namespace Aurora.Settings.Layers
                     Color.FromArgb(ngw_state.Command_Data.red_start, ngw_state.Command_Data.green_start, ngw_state.Command_Data.blue_start),
                     ngw_state.Command_Data.duration,
                     ngw_state.Command_Data.interval
-                    );
+                );
             }
             else if (ngw_state.Command.Equals("FlashLighting"))
             {
@@ -288,17 +319,14 @@ namespace Aurora.Settings.Layers
                     Color.FromArgb(ngw_state.Command_Data.red_start, ngw_state.Command_Data.green_start, ngw_state.Command_Data.blue_start),
                     ngw_state.Command_Data.duration,
                     ngw_state.Command_Data.interval
-                    );
+                );
             }
             else if (ngw_state.Command.Equals("StopEffects"))
             {
                 key_effects.Clear();
                 current_effect = null;
             }
-            else if (ngw_state.Command.Equals("SetLightingFromBitmap"))
-            {
-
-            }
+            else if (ngw_state.Command.Equals("SetLightingFromBitmap")) { }
             //LightFX
             else if (ngw_state.Command.Equals("LFX_GetNumDevices"))
             {
@@ -354,7 +382,7 @@ namespace Aurora.Settings.Layers
 
                     for (int i = 0; i < bitmap.Length; i++)
                     {
-                        bitmap[i] = (int)(((int)ngw_state.Command_Data.red_start << 16) | ((int)ngw_state.Command_Data.green_start << 8) | ((int)ngw_state.Command_Data.blue_start));
+                        bitmap[i] = (int) (((int) ngw_state.Command_Data.red_start << 16) | ((int) ngw_state.Command_Data.green_start << 8) | ((int) ngw_state.Command_Data.blue_start));
                     }
                 }
 
@@ -411,14 +439,8 @@ namespace Aurora.Settings.Layers
                 current_effect = null;
             }
             //Razer
-            else if (ngw_state.Command.Equals("CreateMouseEffect"))
-            {
-
-            }
-            else if (ngw_state.Command.Equals("CreateMousepadEffect"))
-            {
-
-            }
+            else if (ngw_state.Command.Equals("CreateMouseEffect")) { }
+            else if (ngw_state.Command.Equals("CreateMousepadEffect")) { }
             else if (ngw_state.Command.Equals("CreateKeyboardEffect"))
             {
                 Color primary = Color.Red;
@@ -427,13 +449,13 @@ namespace Aurora.Settings.Layers
                 if (ngw_state.Command_Data.red_start >= 0 &&
                     ngw_state.Command_Data.green_start >= 0 &&
                     ngw_state.Command_Data.blue_start >= 0
-                    )
+                )
                     primary = Color.FromArgb(ngw_state.Command_Data.red_start, ngw_state.Command_Data.green_start, ngw_state.Command_Data.blue_start);
 
                 if (ngw_state.Command_Data.red_end >= 0 &&
                     ngw_state.Command_Data.green_end >= 0 &&
                     ngw_state.Command_Data.blue_end >= 0
-                    )
+                )
                     secondary = Color.FromArgb(ngw_state.Command_Data.red_end, ngw_state.Command_Data.green_end, ngw_state.Command_Data.blue_end);
 
                 switch (ngw_state.Command_Data.effect_type)
@@ -482,7 +504,7 @@ namespace Aurora.Settings.Layers
                     ColorUtils.ToHsv(color, out var hue, out var saturation, out var value);
                     float X = Properties.ColorEnhanceColorHSVSine;
                     float Y = 1.0f / Properties.ColorEnhanceColorHSVGamma;
-                    value = (float)Math.Min(1, (double)(Math.Pow(X * Math.Sin(2 * Math.PI * value) + value, Y)));
+                    value = (float) Math.Min(1, (double) (Math.Pow(X * Math.Sin(2 * Math.PI * value) + value, Y)));
                     return ColorUtils.FromHsv(hue, saturation, value);
 
                 default:
@@ -524,13 +546,11 @@ namespace Aurora.Settings.Layers
 
     class LogiFlashSingleKey : KeyEffect
     {
-        public LogiFlashSingleKey(Devices.DeviceKeys key, Color color, long duration, long interval) : base(key, color, duration, interval)
-        {
-        }
+        public LogiFlashSingleKey(Devices.DeviceKeys key, Color color, long duration, long interval) : base(key, color, duration, interval) { }
 
         public override Color GetColor(long time)
         {
-            return Utils.ColorUtils.MultiplyColorByScalar(color, Math.Round(Math.Pow(Math.Sin((time / (double)interval) * Math.PI), 2.0)));
+            return Utils.ColorUtils.MultiplyColorByScalar(color, Math.Round(Math.Pow(Math.Sin((time / (double) interval) * Math.PI), 2.0)));
         }
     }
 
@@ -545,7 +565,7 @@ namespace Aurora.Settings.Layers
 
         public override Color GetColor(long time)
         {
-            return Utils.ColorUtils.BlendColors(color, color_end, Math.Pow(Math.Sin((time / (double)(duration == 0 ? 1000.0D : duration)) * Math.PI), 2.0));
+            return Utils.ColorUtils.BlendColors(color, color_end, Math.Pow(Math.Sin((time / (double) (duration == 0 ? 1000.0D : duration)) * Math.PI), 2.0));
         }
     }
 
@@ -577,21 +597,17 @@ namespace Aurora.Settings.Layers
 
     class LogiFlashLighting : EntireEffect
     {
-        public LogiFlashLighting(Color color, long duration, long interval) : base(color, duration, interval)
-        {
-        }
+        public LogiFlashLighting(Color color, long duration, long interval) : base(color, duration, interval) { }
 
         public override Color GetCurrentColor(long time)
         {
-            return Utils.ColorUtils.MultiplyColorByScalar(color, Math.Round(Math.Pow(Math.Sin((time / (double)interval) * Math.PI), 2.0)));
+            return Utils.ColorUtils.MultiplyColorByScalar(color, Math.Round(Math.Pow(Math.Sin((time / (double) interval) * Math.PI), 2.0)));
         }
     }
 
     class LogiPulseLighting : EntireEffect
     {
-        public LogiPulseLighting(Color color, long duration, long interval) : base(color, duration, interval)
-        {
-        }
+        public LogiPulseLighting(Color color, long duration, long interval) : base(color, duration, interval) { }
 
         public override Color GetCurrentColor(long time)
         {
@@ -619,9 +635,7 @@ namespace Aurora.Settings.Layers
 
     class LFX_Color : EntireEffect
     {
-        public LFX_Color(Color color) : base(color, 0, 0)
-        {
-        }
+        public LFX_Color(Color color) : base(color, 0, 0) { }
     }
 
     class LFX_Pulse : EntireEffect
@@ -660,12 +674,14 @@ namespace Aurora.Settings.Layers
     class CHROMA_BREATHING : EntireEffect
     {
         private Color secondary;
+
         private enum BreathingType
         {
             TWO_COLORS,
             RANDOM_COLORS,
             INVALID
         }
+
         private BreathingType type;
 
         public CHROMA_BREATHING(Color primary, Color secondary, string config) : base(primary, 0, 0)
@@ -686,7 +702,6 @@ namespace Aurora.Settings.Layers
                     type = BreathingType.INVALID;
                     break;
             }
-
         }
 
         public override Color GetCurrentColor(long time)

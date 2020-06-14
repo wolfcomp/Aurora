@@ -72,7 +72,7 @@ namespace Device_SteelSeries
             {
                 if (!keyColors.ContainsKey(DeviceKeys.Peripheral))
                 {
-                    var mousePad = keyColors.Where(t => t.Key >= DeviceKeys.SSMPL1 && t.Key <= DeviceKeys.SSMPL12).Select(t => t.Value).ToArray();
+                    var mousePad = keyColors.Where(t => t.Key >= DeviceKeys.MOUSEPADLIGHT1 && t.Key <= DeviceKeys.MOUSEPADLIGHT12).Select(t => t.Value).ToArray();
                     var mouse = new List<Color> { keyColors[DeviceKeys.Peripheral_Logo], keyColors[DeviceKeys.Peripheral_ScrollWheel]};
                     //mouse.AddRange(keyColors.Where(t => t.Key <= DeviceKeys.MOUSELIGHT1 && t.Key >= DeviceKeys.MOUSELIGHT6).Select(t => t.Value));
                     SetZone(keyColors[DeviceKeys.Peripheral_Logo], SteelSeriesZone.onezone);
@@ -99,10 +99,11 @@ namespace Device_SteelSeries
             {
                 foreach (var (key, color) in keyColors)
                 {
-                    if (TryGetHid(key, out var hid))
-                    {
-                        setKeyboardLed(hid, color);
-                    }
+                    setKeyboardLed(GetHIDCode(key), color);
+                    //if (TryGetHid(key, out var hid))
+                    //{
+                    //    setKeyboardLed(hid, color);
+                    //}
                 }
             }
             sendLighting();

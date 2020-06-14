@@ -23,6 +23,9 @@ namespace Aurora.EffectsEngine
 
         private static Bitmap bitmap;
 
+        public int Height => bitmap.Height;
+        public int Width => bitmap.Width;
+
         private bool needsRender = false;
 
         Color peripheral;

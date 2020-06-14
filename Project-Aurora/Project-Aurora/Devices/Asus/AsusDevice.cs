@@ -8,7 +8,7 @@ namespace Aurora.Devices.Asus
 {
     public class AsusDevice : Device
     {
-        public const string DeviceName = "Asus";
+        protected override string DeviceName => "Asus";
         private AsusHandler asusHandler = new AsusHandler();
         private bool isActive = false;
 
@@ -47,7 +47,7 @@ namespace Aurora.Devices.Asus
         }
 
         /// <inheritdoc />
-        public bool Initialize()
+        public override bool Initialize()
         {
             asusHandler?.Stop();
             
@@ -57,7 +57,7 @@ namespace Aurora.Devices.Asus
         }
 
         /// <inheritdoc />
-        public void Shutdown()
+        public override void Shutdown()
         {
             if (!isActive) return;
             
@@ -100,7 +100,7 @@ namespace Aurora.Devices.Asus
         }
 
         /// <inheritdoc />
-        public bool UpdateDevice(Dictionary<DeviceKeys, Color> keyColors, DoWorkEventArgs e, bool forced = false)
+        public override bool UpdateDevice(Dictionary<DeviceKeys, Color> keyColors, DoWorkEventArgs e, bool forced = false)
         {
             asusHandler.UpdateColors(keyColors);
             return true;

@@ -30,7 +30,7 @@ namespace Aurora.Utils
         {
             return ColorUtils.CloneDrawingColor(clr);
         }
-    }   
+    }
 
     /// <summary>
     /// Various color utilities
@@ -74,7 +74,7 @@ namespace Aurora.Utils
             else if (rb < 0)
                 returnbyte = 0;
             else
-                returnbyte = (byte)rb;
+                returnbyte = (byte) rb;
 
             return returnbyte;
         }
@@ -93,10 +93,10 @@ namespace Aurora.Utils
             else if (percent > 1.0)
                 percent = 1.0;
 
-            int Red = (byte)Math.Min((Int32)foreground.R * percent + (Int32)background.R * (1.0 - percent), 255);
-            int Green = (byte)Math.Min((Int32)foreground.G * percent + (Int32)background.G * (1.0 - percent), 255);
-            int Blue = (byte)Math.Min((Int32)foreground.B * percent + (Int32)background.B * (1.0 - percent), 255);
-            int Alpha = (byte)Math.Min((Int32)foreground.A * percent + (Int32)background.A * (1.0 - percent), 255);
+            int Red = (byte) Math.Min((Int32) foreground.R * percent + (Int32) background.R * (1.0 - percent), 255);
+            int Green = (byte) Math.Min((Int32) foreground.G * percent + (Int32) background.G * (1.0 - percent), 255);
+            int Blue = (byte) Math.Min((Int32) foreground.B * percent + (Int32) background.B * (1.0 - percent), 255);
+            int Alpha = (byte) Math.Min((Int32) foreground.A * percent + (Int32) background.A * (1.0 - percent), 255);
 
             return System.Drawing.Color.FromArgb(Alpha, Red, Green, Blue);
         }
@@ -115,12 +115,12 @@ namespace Aurora.Utils
             else if (percent > 1.0)
                 percent = 1.0;
 
-            int Red = (byte)Math.Min((Int32)foreground.R * percent + (Int32)background.R * (1.0 - percent), 255);
-            int Green = (byte)Math.Min((Int32)foreground.G * percent + (Int32)background.G * (1.0 - percent), 255);
-            int Blue = (byte)Math.Min((Int32)foreground.B * percent + (Int32)background.B * (1.0 - percent), 255);
-            int Alpha = (byte)Math.Min((Int32)foreground.A * percent + (Int32)background.A * (1.0 - percent), 255);
+            int Red = (byte) Math.Min((Int32) foreground.R * percent + (Int32) background.R * (1.0 - percent), 255);
+            int Green = (byte) Math.Min((Int32) foreground.G * percent + (Int32) background.G * (1.0 - percent), 255);
+            int Blue = (byte) Math.Min((Int32) foreground.B * percent + (Int32) background.B * (1.0 - percent), 255);
+            int Alpha = (byte) Math.Min((Int32) foreground.A * percent + (Int32) background.A * (1.0 - percent), 255);
 
-            return System.Windows.Media.Color.FromArgb((byte)Alpha, (byte)Red, (byte)Green, (byte)Blue);
+            return System.Windows.Media.Color.FromArgb((byte) Alpha, (byte) Red, (byte) Green, (byte) Blue);
         }
 
         /// <summary>
@@ -131,10 +131,10 @@ namespace Aurora.Utils
         /// <returns>The sum of two colors</returns>
         public static System.Drawing.Color AddColors(System.Drawing.Color background, System.Drawing.Color foreground)
         {
-            if ((object)background == null)
+            if ((object) background == null)
                 return foreground;
 
-            if ((object)foreground == null)
+            if ((object) foreground == null)
                 return background;
 
             return BlendColors(background, foreground, foreground.A / 255.0);
@@ -186,7 +186,7 @@ namespace Aurora.Utils
             int Blue = ColorByteMultiplication(color.B, scalar);
             int Alpha = ColorByteMultiplication(color.A, scalar);
 
-            return System.Windows.Media.Color.FromArgb((byte)Alpha, (byte)Red, (byte)Green, (byte)Blue);
+            return System.Windows.Media.Color.FromArgb((byte) Alpha, (byte) Red, (byte) Green, (byte) Blue);
         }
 
         /// <summary>
@@ -249,7 +249,7 @@ namespace Aurora.Utils
                 red += pixelBuffer[i + 2];
             }
 
-            return Color.FromArgb((byte)(red / numPixels), (byte)(green / numPixels), (byte)(blue / numPixels));
+            return Color.FromArgb((byte) (red / numPixels), (byte) (green / numPixels), (byte) (blue / numPixels));
         }
 
         /// <summary>
@@ -277,7 +277,7 @@ namespace Aurora.Utils
 
             unsafe
             {
-                byte* p = (byte*)(void*)Scan0;
+                byte* p = (byte*) (void*) Scan0;
 
                 for (int y = 0; y < bitmap.Height; y++)
                 {
@@ -293,7 +293,84 @@ namespace Aurora.Utils
 
             bitmap.UnlockBits(srcData);
 
-            return Color.FromArgb((int)(Alpha / numPixels), (int)(Red / numPixels), (int)(Green / numPixels), (int)(Blue / numPixels));
+            return Color.FromArgb((int) (Alpha / numPixels), (int) (Red / numPixels), (int) (Green / numPixels), (int) (Blue / numPixels));
+        }
+
+        public static Color[][] MultiplyColorMap(Color[][] colors)
+        {
+            var colorsOut = new Color[colors.Length * 2][];
+            var colmCount = colors[0].Length * 2;
+            for (var i = 0; i < colorsOut.Length; i++)
+            {
+                colorsOut[i] = new Color[colmCount];
+                if (i % 2 == 0)
+                {
+                    for (var i1 = 0; i1 < colorsOut[i].Length; i1++)
+                    {
+                        if (i1 % 2 == 0)
+                        {
+                            colorsOut[i][i1] = colors[i / 2][i1 / 2];
+                        }
+                        else
+                        {
+                            if ((i1 / 2) + 1 != colors[i / 2].Length)
+                                colorsOut[i][i1] = GetColorAvgFromColors(colorsOut[i][i1 - 1], colors[i / 2][i1 / 2 + 1]);
+                            else 
+                                colorsOut[i][i1] = colors[i / 2][i1 / 2];
+                        }
+                    }
+                }
+            }
+            for (var i = 0; i < colorsOut.Length; i++)
+            {
+                if (i % 2 == 1)
+                    for (var i1 = 0; i1 < colorsOut[i].Length; i1++)
+                    {
+                        if (i + 1 != colorsOut.Length) colorsOut[i][i1] = GetColorAvgFromColors(colorsOut[i - 1][i1], colorsOut[i + 1][i1]);
+                        else
+                        {
+                            if (i1 + 2 < colorsOut[i].Length && i1 > 0) 
+                                colorsOut[i][i1] = GetColorAvgFromColors(GetColorAvgFromColors(GetColorAvgFromColors(colorsOut[i - 1][i1], GetColorAvgFromColors(colorsOut[i - 1][i1 + 1], colorsOut[i - 1][i1 + 2])), colorsOut[i - 1][i1 - 1]), colorsOut[i - 1][i1]);
+                            else if (i1 + 1 < colorsOut[i].Length && i1 > 0) 
+                                colorsOut[i][i1] = GetColorAvgFromColors(GetColorAvgFromColors(GetColorAvgFromColors(colorsOut[i - 1][i1], colorsOut[i - 1][i1 + 1]), colorsOut[i - 1][i1 - 1]), colorsOut[i - 1][i1]);
+                            else if (i1 == 0) 
+                                colorsOut[i][i1] = GetColorAvgFromColors(colorsOut[i - 1][i1], colorsOut[i - 1][i1 + 1]);
+                            else 
+                                colorsOut[i][i1] = colorsOut[i - 1][i1];
+                        }
+                    }
+            }
+            return colorsOut;
+        }
+
+        public static Color GetColorAvgFromInts(int i1, int i2)
+        {
+            if (i1 < 0)
+                i1 = 0;
+            else if (i1 > 16777215)
+                i1 = 16777215;
+            if (i2 < 0)
+                i2 = 0;
+            else if (i2 > 16777215)
+                i2 = 16777215;
+
+            int R1 = i1 >> 16;
+            int G1 = (i1 >> 8) & 255;
+            int B1 = i1 & 255;
+            int R2 = i2 >> 16;
+            int G2 = (i2 >> 8) & 255;
+            int B2 = i2 & 255;
+
+            int R = (R1 / 2) + (R2 / 2) + ((R1 % 2 + R2 % 2) / 2);
+            int G = (G1 / 2) + (G2 / 2) + ((G1 % 2 + G2 % 2) / 2);
+            int B = (B1 / 2) + (B2 / 2) + ((B1 % 2 + B2 % 2) / 2);
+
+            return Color.FromArgb(R, G, B);
+        }
+
+        public static Color GetColorAvgFromColors(Color i1, Color i2)
+        {
+            return GetColorAvgFromInts(GetIntFromColor(i1), GetIntFromColor(i2));
         }
 
         public static Color GetColorFromInt(int interger)
@@ -325,9 +402,9 @@ namespace Aurora.Utils
             hue = 0d;
             if (delta != 0)
             {
-                if (color.R == max) hue = (color.G - color.B) / (double)delta;
-                else if (color.G == max) hue = 2d + (color.B - color.R) / (double)delta;
-                else if (color.B == max) hue = 4d + (color.R - color.G) / (double)delta;
+                if (color.R == max) hue = (color.G - color.B) / (double) delta;
+                else if (color.G == max) hue = 2d + (color.B - color.R) / (double) delta;
+                else if (color.B == max) hue = 4d + (color.R - color.G) / (double) delta;
             }
 
             hue *= 60;
@@ -346,10 +423,10 @@ namespace Aurora.Utils
             var f = hue / 60 - Math.Floor(hue / 60);
 
             value *= 255;
-            var v = (byte)(value);
-            var p = (byte)(value * (1 - saturation));
-            var q = (byte)(value * (1 - f * saturation));
-            var t = (byte)(value * (1 - (1 - f) * saturation));
+            var v = (byte) (value);
+            var p = (byte) (value * (1 - saturation));
+            var q = (byte) (value * (1 - f * saturation));
+            var t = (byte) (value * (1 - (1 - f) * saturation));
 
             switch (hi)
             {
@@ -440,8 +517,7 @@ namespace Aurora.Utils
                 return;
             }
 
-            var result = strength >= 0 ? component / (1 - Math.Sin(Math.PI * strength / 2))
-                                       : component * (1 - Math.Sin(-Math.PI * strength / 2));
+            var result = strength >= 0 ? component / (1 - Math.Sin(Math.PI * strength / 2)) : component * (1 - Math.Sin(-Math.PI * strength / 2));
             component = MathUtils.Clamp(result, 0, 1);
         }
 
@@ -453,7 +529,7 @@ namespace Aurora.Utils
         public static byte GetColorBrightness(System.Drawing.Color color)
         {
             //Source: http://stackoverflow.com/a/12043228
-            return (byte)(0.2126 * color.R + 0.7152 * color.G + 0.0722 * color.B);
+            return (byte) (0.2126 * color.R + 0.7152 * color.G + 0.0722 * color.B);
         }
 
         /// <summary>
@@ -482,30 +558,32 @@ namespace Aurora.Utils
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return ColorUtils.DrawingColorToMediaColor((System.Drawing.Color)value);
+            return ColorUtils.DrawingColorToMediaColor((System.Drawing.Color) value);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return ColorUtils.MediaColorToDrawingColor((System.Windows.Media.Color)value);
+            return ColorUtils.MediaColorToDrawingColor((System.Windows.Media.Color) value);
         }
     }
 
     /// <summary>
     /// Converts between a RealColor and Media color so that the RealColor class can be used with the Xceed Color Picker
     /// </summary>
-    public class RealColorConverter : IValueConverter {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => ((RealColor)value).GetMediaColor();
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => new RealColor((System.Windows.Media.Color)value);
+    public class RealColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => ((RealColor) value).GetMediaColor();
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => new RealColor((System.Windows.Media.Color) value);
     }
 
     /// <summary>
     /// Class to convert between a <see cref="EffectsEngine.EffectBrush"></see> and a <see cref="System.Windows.Media.Brush"></see> so that it can be
     /// used with the ColorBox gradient editor control.
     /// </summary>
-    public class EffectBrushToBrushConverter : IValueConverter {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => ((EffectsEngine.EffectBrush)value).GetMediaBrush();
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => new EffectsEngine.EffectBrush((System.Windows.Media.Brush)value);
+    public class EffectBrushToBrushConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => ((EffectsEngine.EffectBrush) value).GetMediaBrush();
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => new EffectsEngine.EffectBrush((System.Windows.Media.Brush) value);
     }
 
     public class BoolToColorConverter : IValueConverter
@@ -516,7 +594,7 @@ namespace Aurora.Utils
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            bool b = (bool)value;
+            bool b = (bool) value;
             Tuple<Color, Color> clrs = parameter as Tuple<Color, Color> ?? TextWhiteRed;
             Color clr = b ? clrs.Item1 : clrs.Item2;
 
@@ -592,7 +670,6 @@ namespace Aurora.Utils
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-
             var t = reader.Value.ToString().Replace(" ", "").Split('[')[1];
             var h = t.Substring(0, t.Length - 1).Split(',').Select(f =>
             {

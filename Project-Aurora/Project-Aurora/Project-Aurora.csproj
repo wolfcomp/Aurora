@@ -77,14 +77,6 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CUE.NET, Version=1.2.0.1, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\CUE.NET.dll</HintPath>
-    </Reference>
-    <Reference Include="DS4WindowsApi, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\DS4WindowsApi.dll</HintPath>
-    </Reference>
     <Reference Include="Interop.AuraServiceLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -176,6 +168,8 @@
     <Compile Include="Controls\Window_Prompt.xaml.cs">
       <DependentUpon>Window_Prompt.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Devices\IDevice.cs" />
+    <Compile Include="Devices\ScriptedDevice.cs" />
     <Compile Include="Devices\Uniwill\UniwillDevice.cs" />
     <Compile Include="Profiles\EliteDangerous\EliteConfig.cs" />
     <Compile Include="Profiles\EliteDangerous\EliteDangerousSettings.cs" />
@@ -202,7 +196,6 @@
       <DependentUpon>Control_LayerPreview.xaml</DependentUpon>
     </Compile>
     <Compile Include="Devices\UnifiedHID\RoccatTyon.cs" />
-    <Compile Include="Devices\Vulcan\Vulcan.cs" />
     <Compile Include="Profiles\CSGO\Layers\Control_CSGODeathLayer.xaml.cs">
       <DependentUpon>Control_CSGODeathLayer.xaml</DependentUpon>
     </Compile>
@@ -305,53 +298,33 @@
       <DependentUpon>LayerEditor.xaml</DependentUpon>
     </Compile>
     <Compile Include="Devices\Asus\AsusDevice.cs" />
-    <Compile Include="Devices\NZXT\NZXTDevice.cs" />
     <Compile Include="Controls\ReorderableListBox.cs" />
     <Compile Include="Devices\AtmoOrb\AtmoOrbDevice.cs" />
     <Compile Include="Devices\Clevo\ClevoSetKBLED.cs" />
     <Compile Include="Devices\Clevo\ClevoDevice.cs" />
-    <Compile Include="Devices\Corsair\CorsairDevice.cs" />
     <Compile Include="Devices\Corsair\CorsairInstallInstructions.xaml.cs">
       <DependentUpon>CorsairInstallInstructions.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Devices\CoolerMaster\CoolerMasterDevice.cs" />
-    <Compile Include="Devices\CoolerMaster\CoolerMasterSDK.cs" />
-    <Compile Include="Devices\Corsair\CorsairRGBNetBrush.cs" />
-    <Compile Include="Devices\Creative\SoundBlasterXDevice.cs" />
-    <Compile Include="Devices\Drevo\DrevoDevice.cs" />
-    <Compile Include="Devices\Drevo\DrevoLayoutMap.cs" />
-    <Compile Include="Devices\Drevo\DrevoRadiSDK.cs" />
-    <Compile Include="Devices\Dualshock4\Dualshock4Device.cs" />
-    <Compile Include="Devices\Dualshock4\DS4InstallInstructions.xaml.cs">
-      <DependentUpon>DS4InstallInstructions.xaml</DependentUpon>
     </Compile>
     <Compile Include="Devices\LightFX\LightFX.cs" />
     <Compile Include="Devices\LightFX\LightFXSDK.cs" />
     <Compile Include="Devices\Logitech\LogitechInstallInstructions.xaml.cs">
       <DependentUpon>LogitechInstallInstructions.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Devices\NZXT\NZXTLayoutMap.cs" />
     <Compile Include="Devices\Razer\RazerInstallInstructions.xaml.cs">
       <DependentUpon>RazerInstallInstructions.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Devices\Razer\RazerDevice.cs" />
-    <Compile Include="Devices\Razer\RazerLayoutMap.cs" />
     <Compile Include="Devices\RGBNet\AbstractRGBNetDevice.cs" />
     <Compile Include="Devices\RGBNet\AuroraRGBNetBrush.cs" />
     <Compile Include="Devices\Roccat\RoccatDevice.cs" />
     <Compile Include="Devices\Roccat\RoccatInstallInstructions.xaml.cs">
       <DependentUpon>RoccatInstallInstructions.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Devices\ScriptedDevice\ScriptedDevice.cs" />
     <Compile Include="Devices\UnifiedHID\AsusPugio.cs" />
     <Compile Include="Devices\UnifiedHID\RivalMouses.cs" />
     <Compile Include="Devices\UnifiedHID\UnifiedHID.cs" />
-    <Compile Include="Devices\SteelSeries\GameSenseSDK.cs" />
-    <Compile Include="Devices\SteelSeries\SteelSeriesDevice.cs" />
     <Compile Include="Devices\SteelSeries\SteelSeriesInstallInstructions.xaml.cs">
       <DependentUpon>SteelSeriesInstallInstructions.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Devices\Wooting\WootingDevice.cs" />
     <Compile Include="Devices\YeeLight\YeeLightDevice.cs" />
     <Compile Include="EffectsEngine\Animations\AnimationEllipse.cs" />
     <Compile Include="EffectsEngine\Animations\AnimationFill.cs" />
@@ -948,7 +921,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="kb_layouts\Extra Features\corsair_mousepad.json">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="kb_layouts\Extra Features\roccat_kone_pure_features.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -1071,7 +1044,6 @@
     </Compile>
     <Compile Include="Settings\ObjectSettings.cs" />
     <Compile Include="Settings\PluginManager.cs" />
-    <Compile Include="Devices\SteelSeries\USBHIDCodes.cs" />
     <Compile Include="Utils\JSONUtils.cs" />
     <Compile Include="Utils\MouseUtils.cs" />
     <Compile Include="Utils\HardwareMonitor.cs" />
@@ -1385,8 +1357,6 @@
     <Compile Include="Settings\ColorZone.cs" />
     <Compile Include="Settings\Configuration.cs" />
     <Compile Include="Devices\DeviceManager.cs" />
-    <Compile Include="Devices\Device.cs" />
-    <Compile Include="Devices\Logitech\LogitechDevice.cs" />
     <Compile Include="EffectsEngine\EffectColor.cs" />
     <Compile Include="EffectsEngine\ColorSpectrum.cs" />
     <Compile Include="EffectsEngine\EffectFrame.cs" />
@@ -1546,7 +1516,6 @@
     <Compile Include="Utils\BrushUtils.cs" />
     <Compile Include="Utils\GenericUtils.cs" />
     <Compile Include="Utils\Logger.cs" />
-    <Compile Include="Devices\Logitech\LogitechGSDK.cs" />
     <Compile Include="NetworkListener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
@@ -1570,21 +1539,6 @@
     <Compile Include="Utils\UIUtils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="CorsairSDK\x64\CUESDK_2015.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="CorsairSDK\x86\CUESDK_2015.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="CUE.NET.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="DrevoRadi.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="DS4WindowsApi.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="kb_layouts\Extra Features\images\Asus_Pugio_backlights.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -1638,12 +1592,6 @@
     <Resource Include="Resources\Layers_Copy.png" />
     <Resource Include="Resources\Layers_Paste.png" />
     <Resource Include="Resources\Subnautica.png" />
-    <Content Include="Logi\GHUB\LogitechLed.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Logi\LGS\LogitechLed.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Resource Include="Resources\ch_128x128.png" />
     <Resource Include="Resources\re2_256x256.png" />
     <Resource Include="Resources\LayerConditions_icon.png" />
@@ -1668,9 +1616,6 @@
     <Resource Include="Resources\tmodloader.png" />
     <Content Include="RGB.NET.Devices.Asus.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="wooting-rgb-sdk.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Resource Include="Profiles\Payday 2\GSI\PD2_GSI.zip" />
     <Resource Include="Profiles\Dota 2\GSI\gamestate_integration_aurora.cfg" />
@@ -1872,10 +1817,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Devices\Corsair\CorsairInstallInstructions.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Devices\Dualshock4\DS4InstallInstructions.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -2596,9 +2537,6 @@
     <Resource Include="Profiles\ETS2\GSI\ets2-telemetry-server-x86.dll" />
     <Content Include="Resources\SteelSeriesInstall\Step1.png" />
     <Content Include="Resources\SteelSeriesInstall\Step2.png" />
-    <Content Include="SDKDLL.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Resource Include="Resources\worms_wmd.png" />
     <Resource Include="Resources\xcom_64x64.png" />
     <Resource Include="Resources\bf3_64x64.png" />
@@ -2645,15 +2583,6 @@
     <Content Include="Resources\RazerInstall\Step2.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\NZXTSharp\NZXTSharp\NZXTSharp.csproj">
-      <Project>{62094023-0479-4dd4-8a74-4321cc0f08dd}</Project>
-      <Name>NZXTSharp</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\SBAuroraR.NET\SBAuroraReactive\SBAuroraReactive.vcxproj">
-      <Project>{053a704b-5c79-4cde-b1fc-b952051acaa0}</Project>
-      <Name>SBAuroraReactive</Name>
-      <Private>False</Private>
-    </ProjectReference>
     <ProjectReference Include="..\ColorBox\ColorBox.csproj">
       <Project>{40085232-aced-4cbe-945b-90ba8153c151}</Project>
       <Name>ColorBox</Name>

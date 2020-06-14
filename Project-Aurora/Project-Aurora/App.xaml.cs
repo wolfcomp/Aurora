@@ -147,7 +147,6 @@ namespace Aurora
         public static bool isSilent = false;
         private static bool isDelayed = false;
         private static int delayTime = 5000;
-        private static bool ignore_update = false;
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -217,10 +216,6 @@ namespace Aurora
                         case ("-silent"):
                             isSilent = true;
                             Global.logger.Info("Program started with '-silent' parameter");
-                            break;
-                        case ("-ignore_update"):
-                            ignore_update = true;
-                            Global.logger.Info("Program started with '-ignore_update' parameter");
                             break;
                         case ("-delay"):
                             isDelayed = true;
@@ -306,7 +301,33 @@ namespace Aurora
                 Utils.DesktopUtils.StartSessionWatch();
 
                 Global.key_recorder = new KeyRecorder(Global.InputEvents);
-                
+
+                Global.logger.Info("Loading RazerSdkManager");
+                if (RzHelper.IsSdkVersionSupported(RzHelper.GetSdkVersion()))
+                {
+                    try
+                    {
+                        Global.razerSdkManager = new RzSdkManager()
+                        {
+                            KeyboardEnabled = true,
+                            MouseEnabled = true,
+                            MousepadEnabled = true,
+                            AppListEnabled = true,
+                        };
+
+                        Global.logger.Info("RazerSdkManager loaded successfully!");
+                    }
+                    catch (Exception exc)
+                    {
+                        Global.logger.Fatal("RazerSdkManager failed to load!");
+                        Global.logger.Fatal(exc.ToString());
+                    }
+                }
+                else
+                {
+                    Global.logger.Warn("Currently installed razer sdk version \"{0}\" is not supported by the RazerSdkManager!", RzHelper.GetSdkVersion());
+                }
+
                 Global.logger.Info("Loading Applications");
                 (Global.LightingStateManager = new LightingStateManager()).Initialize();
 

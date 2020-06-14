@@ -78,13 +78,34 @@ namespace Aurora.Profiles
             runningProcessMonitor = new RunningProcessMonitor();
 
             // Register all Application types in the assembly
-            var profileTypes = from type in Assembly.GetExecutingAssembly().GetTypes()
-                               where type.BaseType == typeof(Application) && type != typeof(GenericApplication)
-                               let inst = (Application)Activator.CreateInstance(type)
-                               orderby inst.Config.Name
-                               select inst;
-            foreach (var inst in profileTypes)
-                RegisterEvent(inst);
+            try
+            {
+                var profileTypes = from type in Assembly.GetExecutingAssembly().GetTypes()
+                                   where type.BaseType == typeof(Application) && type != typeof(GenericApplication)
+                                   let inst = (Application) Activator.CreateInstance(type)
+                                   orderby inst.Config.Name
+                                   select inst;
+                foreach (var inst in profileTypes)
+                    RegisterEvent(inst);
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (Exception exSub in ex.LoaderExceptions)
+                {
+                    sb.AppendLine(exSub.Message);
+                    if (exSub is FileNotFoundException exFileNotFound)
+                    {
+                        if (!string.IsNullOrEmpty(exFileNotFound.FusionLog))
+                        {
+                            sb.AppendLine("Fusion Log:");
+                            sb.AppendLine(exFileNotFound.FusionLog);
+                        }
+                    }
+                    sb.AppendLine();
+                }
+                throw new Exception(sb.ToString(), ex);
+            }
 
             // Register all layer types that are in the Aurora.Settings.Layers namespace.
             // Do not register all that are inside the assembly since some are application-specific (e.g. minecraft health layer)
@@ -561,16 +582,9 @@ namespace Aurora.Profiles
             //EffectsEngine.EffectFrame newFrame = new EffectsEngine.EffectFrame();
             #if DEBUG
             #else
-            try
+            try 
             {
-            #endif
-            ILightEvent profile; // = this.GetProfileFromProcess(process_name);
-
-            JObject provider = Newtonsoft.Json.Linq.JObject.Parse(gs.GetNode("provider"));
-            string appid = provider.GetValue("appid").ToString();
-            string name = provider.GetValue("name").ToString().ToLowerInvariant();
-
-#endif
+                #endif
                 ILightEvent profile;// = this.GetProfileFromProcess(process_name);
                 
 
@@ -589,8 +603,8 @@ namespace Aurora.Profiles
                 {
                     string gs_process_name = Newtonsoft.Json.Linq.JObject.Parse(gs.GetNode("provider")).GetValue("name").ToString().ToLowerInvariant();
                     lock (Events)
-                {
-                    profile = profile ?? GetProfileFromProcessName(gs_process_name);
+                    {
+                        profile = profile ?? GetProfileFromProcessName(gs_process_name);
 
                     if (profile == null)
                     {
@@ -599,9 +613,9 @@ namespace Aurora.Profiles
                     }
 
                     profile.SetGameState(gs);
+                    }
                 }
-            }
-            #if DEBUG
+                #if DEBUG
             #else
             }
             catch (Exception e)

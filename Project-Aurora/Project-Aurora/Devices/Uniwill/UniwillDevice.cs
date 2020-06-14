@@ -24,8 +24,8 @@ namespace Aurora.Devices.Uniwill
     public class UniwillDevice : Device
     {
         // Generic Variables
+        protected override string DeviceName => devicename;
         private string devicename = "Uniwill";
-        private bool isInitialized = false;
 
         private Stopwatch watch = new Stopwatch();
         private long lastUpdateTime = 0;
@@ -114,22 +114,22 @@ namespace Aurora.Devices.Uniwill
 
         public string GetDeviceName()
         {
-            return devicename;
+            return DeviceName;
         }
 
         public string GetDeviceDetails()
         {
             if (isInitialized)
             {
-                return devicename + ": Initialized";
+                return DeviceName + ": Initialized";
             }
             else
             {
-                return devicename + ": Not initialized";
+                return DeviceName + ": Not initialized";
             }
         }
 
-        public bool Initialize()
+        public override bool Initialize()
         {
             if (!isInitialized && CheckGCPower())
             {
@@ -159,7 +159,7 @@ namespace Aurora.Devices.Uniwill
             return isInitialized;
         }
 
-        public void Shutdown()
+        public override void Shutdown()
         {
             if (this.IsInitialized())
             {
@@ -205,7 +205,7 @@ namespace Aurora.Devices.Uniwill
 
         bool bRefreshOnce = true; // This is used to refresh effect between Row-Type and Fw-Type change or layout light level change
 
-        public bool UpdateDevice(Dictionary<DeviceKeys, Color> keyColors, DoWorkEventArgs e, bool forced = false)
+        public override bool UpdateDevice(Dictionary<DeviceKeys, Color> keyColors, DoWorkEventArgs e, bool forced = false)
         {
             if (e.Cancel) return false;
 
